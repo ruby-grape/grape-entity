@@ -1,7 +1,7 @@
 # GrapeEntity
 
 ## CI
-[![Build Status](https://travis-ci.org/agileanimal/grape_entity.png?branch=master)](https://travis-ci.org/agileanimal/grape_entity)
+[![Build Status](https://travis-ci.org/agileanimal/grape-entity.png?branch=master)](https://travis-ci.org/agileanimal/grape-entity)
 
 ## Introduction
 
