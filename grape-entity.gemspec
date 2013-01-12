@@ -14,13 +14,13 @@ Gem::Specification.new do |s|
 
   s.rubyforge_project = "grape-entity"
 
-  s.add_runtime_dependency 'activesupport'
+  # s.add_runtime_dependency 'activesupport'
   # s.add_runtime_dependency 'rack-jsonp'
-  s.add_runtime_dependency 'multi_json', '>= 1.3.2'
-  s.add_runtime_dependency 'multi_xml', '>= 0.5.2'
-  s.add_runtime_dependency 'hashie', '~> 1.2'
-  s.add_runtime_dependency 'virtus'
-  s.add_runtime_dependency 'builder'
+  # s.add_runtime_dependency 'multi_json', '>= 1.3.2'
+  # s.add_runtime_dependency 'multi_xml', '>= 0.5.2'
+  # s.add_runtime_dependency 'hashie', '~> 1.2'
+  # s.add_runtime_dependency 'virtus'
+  # s.add_runtime_dependency 'builder'
 
   s.add_development_dependency 'rake'
   s.add_development_dependency 'maruku'
