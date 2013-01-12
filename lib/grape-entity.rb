@@ -1,0 +1,1 @@
+require 'grape_entity'

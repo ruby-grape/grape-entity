@@ -1,0 +1,37 @@
+## MAC OS
+.DS_Store
+.com.apple.timemachine.supported
+
+## TEXTMATE
+*.tmproj
+tmtags
+
+## EMACS
+*~
+\#*
+.\#*
+
+## REDCAR
+.redcar
+
+## VIM
+*.swp
+*.swo
+
+## RUBYMINE
+.idea
+
+## PROJECT::GENERAL
+coverage
+doc
+pkg
+.rvmrc
+.bundle
+.yardoc/*
+dist
+Gemfile.lock
+
+## Rubinius
+.rbx
+
+## PROJECT::SPECIFIC
