@@ -1,3 +1,5 @@
+require 'multi_json'
+
 module Grape
   # An Entity is a lightweight structure that allows you to easily
   # represent data from your application in a consistent and abstracted
