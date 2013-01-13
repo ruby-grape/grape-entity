@@ -13,6 +13,16 @@ The intend is to allow the Entity to be used outside of Grape and provide additi
 
 We intend to use the specs from grape to ensure we maintain compatability with Grape through our changes so that we can use the Entity to replace Grape's internal Entity.
 
+## Goals
+
+Through my own use of Entities I have found them really useful but wished they could be reused in other situations. In the context of Grape I wish it was easier to test the Entity so that you could test them seperately from your API and isolate their behavior. Entities also have a deep connection with the model and they should know what parameters are required and (especially in the case of an ActiveRecord Model) they should know how to ask about validation.
+
+The Entity is a simple Facade on top of the model to transform it into the object you want to expose on your API.
+
+There is probably something heavier than an Entity that exists as well. A way to get a model object back from the Entity.
+
+In this spirit I want to give Entities a life of their own.
+
 ## Project Tracking
 
 * - Need to setup something up for this - 
