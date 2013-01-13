@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe GrapeEntity::Entity do
-  let(:fresh_class) { Class.new(GrapeEntity::Entity) }
+describe Grape::Entity do
+  let(:fresh_class) { Class.new(Grape::Entity) }
 
   context 'class methods' do
     subject { fresh_class }
@@ -379,7 +379,7 @@ describe GrapeEntity::Entity do
         it 'disables root key name for child representations' do
         
           module EntitySpec
-            class FriendEntity < GrapeEntity::Entity
+            class FriendEntity < Grape::Entity
               root 'friends', 'friend'
               expose :name, :email
             end
@@ -398,7 +398,7 @@ describe GrapeEntity::Entity do
 
         it 'passes through custom options' do
           module EntitySpec
-            class FriendEntity < GrapeEntity::Entity
+            class FriendEntity < Grape::Entity
               root 'friends', 'friend'
               expose :name
               expose :email, :if => { :user_type => :admin }
@@ -424,7 +424,7 @@ describe GrapeEntity::Entity do
 
         it 'ignores the :collection parameter in the source options' do
           module EntitySpec
-            class FriendEntity < GrapeEntity::Entity
+            class FriendEntity < Grape::Entity
               root 'friends', 'friend'
               expose :name
               expose :email, :if => { :collection => true }
@@ -533,12 +533,12 @@ describe GrapeEntity::Entity do
 
       it 'creates an Entity class when called' do
         subject.should_not be_const_defined :Entity
-        subject.send(:include, GrapeEntity::Entity::DSL)
+        subject.send(:include, Grape::Entity::DSL)
         subject.should be_const_defined :Entity
       end
 
       context 'pre-mixed' do
-        before{ subject.send(:include, GrapeEntity::Entity::DSL) }
+        before{ subject.send(:include, Grape::Entity::DSL) }
 
         it 'is able to define entity traits through DSL' do
           subject.entity do

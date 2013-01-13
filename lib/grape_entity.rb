@@ -1,5 +1,6 @@
 require "grape_entity/version"
 
-module GrapeEntity
+module Grape
   autoload :Entity, 'grape_entity/entity'
 end
+
