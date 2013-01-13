@@ -1,21 +1,10 @@
-# GrapeEntity
+# Grape::Entity
 
-## CI
 [![Build Status](https://travis-ci.org/agileanimal/grape-entity.png?branch=master)](https://travis-ci.org/agileanimal/grape-entity)
 
 ## Introduction
 
-This gem is the Entity extracted out of [Grape](https://github.com/intridea/grape).
-
-Grape's Entity is a great idea: a API focussed Facade that sits on top of a model object.
-
-The intend is to allow the Entity to be used outside of Grape and provide additional exposure to parts of the entity needed to simplify testing parts of an API.
-
-We intend to use the specs from grape to ensure we maintain compatability with Grape through our changes so that we can use the Entity to replace Grape's internal Entity.
-
-## Project Tracking
-
-* - Need to setup something up for this - 
+This gem adds Entity support to API frameworks, such as [Grape](https://github.com/intridea/grape). Grape's Entity is an API focussed facade that sits on top of an object model.
 
 ## Reusable Responses with Entities
 
@@ -25,7 +14,7 @@ ever larger responses, using inheritance.
 
 ### Defining Entities
 
-Entities inherit from GrapeEntity::Entity, and define a simple DSL. Exposures can use
+Entities inherit from Grape::Entity, and define a simple DSL. Exposures can use
 runtime options to determine which fields should be visible, these options are
 available to `:if`, `:unless`, and `:proc`. The option keys `:version` and `:collection`
 will always be defined. The `:version` key is defined as `api.version`. The
@@ -51,7 +40,7 @@ array.
 ```ruby
 module API
   module Entities
-    class Status < GrapeEntity::Entity
+    class Status < Grape::Entity
       expose :user_name
       expose :text, :documentation => { :type => "string", :desc => "Status update text." }
       expose :ip, :if => { :type => :full }
@@ -78,7 +67,7 @@ of an existing class:
 
 ```ruby
 class Status
-  include GrapeEntity::Entity::DSL
+  include Grape::Entity::DSL
 
   entity :text, :user_id do
     expose :detailed, if: :conditional
@@ -100,7 +89,7 @@ If the entity includes documentation it can be included in an endpoint's descrip
 
 ```ruby
 module API
-  class Statuses < GrapeEntity::API
+  class Statuses < Grape::API
     version 'v1'
 
     desc 'Statuses index', {
@@ -126,7 +115,7 @@ class Status
     Status.new(self)
   end
 
-  class Entity < GrapeEntity::Entity
+  class Entity < Grape::Entity
     expose :text, :user_id
   end
 end
@@ -147,7 +136,7 @@ However, when `object.check` equals "bar" both `field_b` and `foo` will be expos
 ```ruby
 module API
   module Entities
-    class Status < GrapeEntity::Entity
+    class Status < Grape::Entity
       expose :field_a, :foo, :if => lambda { |object, options| object.check == "foo" }
       expose :field_b, :foo, :if => lambda { |object, options| object.check == "bar" }
     end
@@ -160,7 +149,7 @@ This can be problematic, when you have mixed collections. Using `respond_to?` is
 ```ruby
 module API
   module Entities
-    class Status < GrapeEntity::Entity
+    class Status < Grape::Entity
       expose :field_a, :if => lambda { |object, options| object.check == "foo" }
       expose :field_b, :if => lambda { |object, options| object.check == "bar" }
       expose :foo, :if => lambda { |object, options| object.respond_to?(:foo) }

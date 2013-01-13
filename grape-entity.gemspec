@@ -1,26 +1,18 @@
 $:.push File.expand_path("../lib", __FILE__)
-require "grape_entity/version"
+require "grape/version"
 
 Gem::Specification.new do |s|
   s.name        = "grape-entity"
   s.version     = GrapeEntity::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["Michael Bleigh"]
-  s.email       = ["michael@intridea.com"]
+  s.authors     = [ "Michael Bleigh" ]
+  s.email       = [ "michael@intridea.com" ]
   s.homepage    = "https://github.com/intridea/grape"
   s.summary     = %q{A simple facade for managing the relationship between your model and API.}
   s.description = %q{Extracted from Grape, A Ruby framework for rapid API development with great conventions.}
   s.license     = "MIT"
 
   s.rubyforge_project = "grape-entity"
-
-  # s.add_runtime_dependency 'activesupport'
-  # s.add_runtime_dependency 'rack-jsonp'
-  # s.add_runtime_dependency 'multi_json', '>= 1.3.2'
-  # s.add_runtime_dependency 'multi_xml', '>= 0.5.2'
-  # s.add_runtime_dependency 'hashie', '~> 1.2'
-  # s.add_runtime_dependency 'virtus'
-  # s.add_runtime_dependency 'builder'
 
   s.add_development_dependency 'rake'
   s.add_development_dependency 'maruku'

@@ -1,4 +1,4 @@
-module GrapeEntity
+module Grape
   # An Entity is a lightweight structure that allows you to easily
   # represent data from your application in a consistent and abstracted
   # way in your API. Entities can also provide documentation for the
@@ -8,7 +8,7 @@ module GrapeEntity
   #
   #   module API
   #     module Entities
-  #       class User < GrapeEntity::Entity
+  #       class User < Grape::Entity
   #         expose :first_name, :last_name, :screen_name, :location
   #         expose :field, :documentation => {:type => "string", :desc => "describe the field"}
   #         expose :latest_status, :using => API::Status, :as => :status, :unless => {:collection => true}
@@ -27,7 +27,7 @@ module GrapeEntity
   # @example Usage in the API Layer
   #
   #   module API
-  #     class Users < GrapeEntity::API
+  #     class Users < Grape::API
   #       version 'v2'
   #
   #       desc 'User index', { :object_fields => API::Entities::User.documentation }
@@ -47,7 +47,7 @@ module GrapeEntity
       def self.included(base)
         base.extend ClassMethods
         ancestor_entity_class = base.ancestors.detect{|a| a.entity_class if a.respond_to?(:entity_class)}
-        base.const_set(:Entity, Class.new(ancestor_entity_class || GrapeEntity::Entity)) unless const_defined?(:Entity)
+        base.const_set(:Entity, Class.new(ancestor_entity_class || Grape::Entity)) unless const_defined?(:Entity)
       end
 
       module ClassMethods
@@ -61,13 +61,13 @@ module GrapeEntity
 
         # Call this to make exposures to the entity for this Class.
         # Can be called with symbols for the attributes to expose,
-        # a block that yields the full Entity DSL (See GrapeEntity::Entity),
+        # a block that yields the full Entity DSL (See Grape::Entity),
         # or both.
         #
         # @example Symbols only.
         #
         #   class User
-        #     include GrapeEntity::Entity::DSL
+        #     include Grape::Entity::DSL
         #     
         #     entity :name, :email
         #   end
@@ -75,7 +75,7 @@ module GrapeEntity
         # @example Mixed.
         #
         #   class User
-        #     include GrapeEntity::Entity::DSL
+        #     include Grape::Entity::DSL
         #     
         #     entity :name, :email do
         #       expose :latest_status, using: Status::Entity, if: :include_status
@@ -109,7 +109,7 @@ module GrapeEntity
     #   it will yield the object being represented and the options passed to the
     #   representation call. Return true to prevent exposure, false to allow it.
     # @option options :using This option allows you to map an attribute to another Grape
-    #   Entity. Pass it a GrapeEntity::Entity class and the attribute in question will
+    #   Entity. Pass it a Grape::Entity class and the attribute in question will
     #   automatically be transformed into a representation that will receive the same
     #   options as the parent entity when called. Note that arrays are fine here and
     #   will automatically be detected and handled appropriately.
@@ -180,7 +180,7 @@ module GrapeEntity
     #
     #   module API
     #     module Entities
-    #       class User < GrapeEntity::Entity
+    #       class User < Grape::Entity
     #         format_with :timestamp do |date|
     #           date.strftime('%m/%d/%Y')
     #         end
@@ -192,7 +192,7 @@ module GrapeEntity
     #
     # @example Formatters are available to all decendants
     #
-    #   GrapeEntity::Entity.format_with :timestamp do |date|
+    #   Grape::Entity.format_with :timestamp do |date|
     #     date.strftime('%m/%d/%Y')
     #   end
     #
@@ -225,7 +225,7 @@ module GrapeEntity
     #
     #   module API
     #     module Entities
-    #       class User < GrapeEntity::Entity
+    #       class User < Grape::Entity
     #         root 'users', 'user'
     #         expose :id
     #       end
@@ -235,7 +235,7 @@ module GrapeEntity
     # @example Usage in the API Layer
     #
     #   module API
-    #     class Users < GrapeEntity::API
+    #     class Users < Grape::API
     #       version 'v2'
     #
     #       # this will render { "users": [ {"id":"1"}, {"id":"2"} ] }
