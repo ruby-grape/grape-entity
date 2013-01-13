@@ -1,5 +1,5 @@
 $:.push File.expand_path("../lib", __FILE__)
-require "grape/version"
+require "grape_entity/version"
 
 Gem::Specification.new do |s|
   s.name        = "grape-entity"
@@ -14,6 +14,9 @@ Gem::Specification.new do |s|
 
   s.rubyforge_project = "grape-entity"
 
+  s.add_runtime_dependency 'activesupport'
+  s.add_runtime_dependency 'multi_json', '>= 1.3.2'
+  
   s.add_development_dependency 'rake'
   s.add_development_dependency 'maruku'
   s.add_development_dependency 'yard'
