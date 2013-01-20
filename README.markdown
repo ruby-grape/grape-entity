@@ -6,15 +6,13 @@
 
 This gem adds Entity support to API frameworks, such as [Grape](https://github.com/intridea/grape). Grape's Entity is an API focussed facade that sits on top of an object model.
 
-## Goals
+## What's New 
 
-Through my own use of Entities I have found them really useful but wished they could be reused in other situations. In the context of Grape I wish it was easier to test the Entity so that you could test them seperately from your API and isolate their behavior. Entities also have a deep connection with the model and they should know what parameters are required and (especially in the case of an ActiveRecord Model) they should know how to ask about validation.
+We are currently working on a set of "shoulda-style matchers" (sorry, RSpec only right now -- although they've been done in a way that can support test-unit in the future).
 
-The Entity is a simple Facade on top of the model to transform it into the object you want to expose on your API.
+[Grape Entity Matchers](https://github.com/agileanimal/grape-entity-matchers).
 
-There is probably something heavier than an Entity that exists as well. A way to get a model object back from the Entity.
-
-In this spirit I want to give Entities a life of their own.
+This is still a work in progress but worth checking out.
 
 ## Reusable Responses with Entities
 
