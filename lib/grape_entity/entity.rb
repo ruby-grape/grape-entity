@@ -400,6 +400,7 @@ module Grape
       case unless_condition
         when Hash; unless_condition.each_pair{|k,v| return false if options[k.to_sym] == v}
         when Proc; return false if unless_condition.call(object, options)
+        when Symbol; return false if options[unless_condition]
       end
 
       true

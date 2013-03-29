@@ -545,6 +545,15 @@ describe Grape::Entity do
         subject.send(:conditions_met?, exposure_options, {:condition1 => nil}).should be_false
       end
 
+      it 'looks for absence/falsiness if a symbol is passed' do
+        exposure_options = {:unless => :condition1}
+
+        subject.send(:conditions_met?, exposure_options, {}).should be_true
+        subject.send(:conditions_met?, exposure_options, {:condition1 => true}).should be_false
+        subject.send(:conditions_met?, exposure_options, {:condition1 => false}).should be_true
+        subject.send(:conditions_met?, exposure_options, {:condition1 => nil}).should be_true
+      end
+
       it 'only passes through proc :if exposure if it returns truthy value' do
         exposure_options = {:if => lambda{|_,opts| opts[:true]}}
 
