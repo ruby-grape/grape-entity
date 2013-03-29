@@ -124,6 +124,7 @@ module Grape
     #   field, typically the value is a hash with two fields, type and desc.
     def self.expose(*args, &block)
       options = args.last.is_a?(Hash) ? args.pop : {}
+      options = (@block_options ||= []).inject({}){|final, step| final.merge!(step)}.merge(options)
 
       if args.size > 1
         raise ArgumentError, "You may not use the :as option on multi-attribute exposures." if options[:as]
@@ -137,6 +138,21 @@ module Grape
       args.each do |attribute|
         exposures[attribute.to_sym] = options
       end
+    end
+
+    # Set options that will be applied to any exposures declared inside the block.
+    #
+    # @example Multi-exposure if
+    # 
+    #   class MyEntity < Grape::Entity
+    #     with_options :if => {:awesome => true} do
+    #       expose :awesome, :sweet
+    #     end
+    #   end
+    def self.with_options(options)
+      (@block_options ||= []).push(options)
+      yield
+      @block_options.pop
     end
 
     # Returns a hash of exposures that have been declared for this Entity or ancestors. The keys

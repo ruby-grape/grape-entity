@@ -105,6 +105,40 @@ describe Grape::Entity do
       end
     end
 
+    describe '.with_options' do
+      it 'should apply the options to all exposures inside' do
+        subject.class_eval do
+          with_options(:if => {:awesome => true}) do
+            expose :awesome_thing, :using => 'Awesome'
+          end
+        end
+
+        subject.exposures[:awesome_thing].should == {:if => {:awesome => true}, :using => 'Awesome'}
+      end
+
+      it 'should allow for nested .with_options' do
+        subject.class_eval do
+          with_options(:if => {:awesome => true}) do
+            with_options(:using => 'Something') do
+              expose :awesome_thing
+            end
+          end
+        end
+
+        subject.exposures[:awesome_thing].should == {:if => {:awesome => true}, :using => 'Something'}
+      end
+
+      it 'should allow for overrides' do
+        subject.class_eval do
+          with_options(:if => {:awesome => true}) do
+            expose :less_awesome_thing, :if => {:awesome => false}
+          end
+        end
+
+        subject.exposures[:less_awesome_thing].should == {:if => {:awesome => false}}
+      end
+    end
+
     describe '.represent' do
       it 'returns a single entity if called with one object' do
         subject.represent(Object.new).should be_kind_of(subject)
@@ -573,7 +607,7 @@ describe Grape::Entity do
             end
 
             it 'should instantiate with options if provided' do
-              instance.entity(awesome: true).options.should == {awesome: true}
+              instance.entity(:awesome => true).options.should == {:awesome => true}
             end
           end
         end
