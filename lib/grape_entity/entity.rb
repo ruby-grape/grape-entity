@@ -394,6 +394,7 @@ module Grape
       case if_condition
         when Hash; if_condition.each_pair{|k,v| return false if options[k.to_sym] != v }
         when Proc; return false unless if_condition.call(object, options)
+        when Symbol; return false unless options[if_condition]
       end
 
       case unless_condition
