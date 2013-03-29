@@ -159,6 +159,18 @@ describe Grape::Entity do
         representation = subject.represent(4.times.map{Object.new})
         representation.each{|r| r.options[:collection].should be_true}
       end
+
+      it 'returns a serialized hash of a single object if :serializable => true' do
+        subject.expose(:awesome){ true }
+        representation = subject.represent(Object.new, :serializable => true)
+        representation.should == {awesome: true}
+      end
+
+      it 'returns a serialized array of hashes of multiple objects if :serializable => true' do
+        subject.expose(:awesome){ true }
+        representation = subject.represent(2.times.map{ Object.new }, :serializable => true)
+        representation.should == [{awesome: true},{awesome: true}]
+      end
     end
 
     describe '.root' do
