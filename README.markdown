@@ -44,17 +44,26 @@ array.
     * block arguments are object and options
     * expose the value returned by the block
     * block can only be applied to one exposure at a time
+  * `with_options HASH BLOCK`
+    * exposures defined within a `with_options` block will inherit any options defined in HASH. Same keys available as `expose SYMBOLS, HASH`
 
 ```ruby
 module API
   module Entities
     class Status < Grape::Entity
+      format_with :iso_timestamp { |dt| dt.iso8601 }
+        
       expose :user_name
       expose :text, :documentation => { :type => "string", :desc => "Status update text." }
       expose :ip, :if => { :type => :full }
       expose :user_type, user_id, :if => lambda{ |status, options| status.user.public? }
       expose :digest { |status, options| Digest::MD5.hexdigest(satus.txt) }
       expose :replies, :using => API::Status, :as => :replies
+
+      with_options { :format_with => :iso_timestamp } do
+        expose :created_at
+        expose :updated_at
+      end
     end
   end
 end
