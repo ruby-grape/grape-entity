@@ -331,7 +331,7 @@ module Grape
       return nil if object.nil?
       opts = options.merge(runtime_options || {})
       exposures.inject({}) do |output, (attribute, exposure_options)|
-        if (exposure_options.has_key?(:proc) || object.respond_to?(attribute)) && conditions_met?(exposure_options, opts)
+        if (exposure_options.has_key?(:proc) || object.respond_to?(attribute)) && conditions_met?(attribute, exposure_options, opts)
           partial_output = value_for(attribute, opts)
           output[key_for(attribute)] =
             if partial_output.respond_to? :serializable_hash
@@ -389,9 +389,12 @@ module Grape
       end
     end
 
-    def conditions_met?(exposure_options, options)
+    def conditions_met?(attribute, exposure_options, options)
       if_condition = exposure_options[:if]
       unless_condition = exposure_options[:unless]
+      exclude_nil_condition = exposure_options[:exclude_nil]
+
+      return false if exclude_nil_condition && attribute && object.respond_to?(attribute) && object.send(attribute).nil?
 
       case if_condition
         when Hash; if_condition.each_pair{|k,v| return false if options[k.to_sym] != v }
