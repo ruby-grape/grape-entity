@@ -92,8 +92,8 @@ module Grape
       end
 
       # Instantiates an entity version of this object.
-      def entity
-        self.class.entity_class.new(self)
+      def entity(options = {})
+        self.class.entity_class.new(self, options)
       end
     end
 

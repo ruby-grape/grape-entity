@@ -571,6 +571,10 @@ describe Grape::Entity do
             it 'has an object of itself' do
               instance.entity.object.should == instance
             end
+
+            it 'should instantiate with options if provided' do
+              instance.entity(awesome: true).options.should == {awesome: true}
+            end
           end
         end
       end
