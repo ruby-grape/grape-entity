@@ -32,8 +32,9 @@ array.
   * `expose SYMBOLS`
     * define a list of fields which will always be exposed
   * `expose SYMBOLS, HASH`
-    * HASH keys include `:if`, `:unless`, `:proc`, `:as`, `:using`, `:format_with`, `:documentation`
+    * HASH keys include `:if`, `:unless`, `:proc`, `:as`, `:using`, `:exlcude_nil`, `:format_with`, `:documentation`
       * `:if` and `:unless` accept hashes (passed during runtime), procs (arguments are object and options), or symbols (checks for presence of the specified key on the options hash)
+      * `:exlcude_nil` defaults to false and when true will not expose the attribute if it is nil.
   * `expose SYMBOL, { :format_with => :formatter }`
     * expose a value, formatting it first
     * `:format_with` can only be applied to one exposure at a time
@@ -56,6 +57,7 @@ module API
       expose :user_name
       expose :text, :documentation => { :type => "string", :desc => "Status update text." }
       expose :ip, :if => { :type => :full }
+      expose :internal_ip, :if => { :type => :full }, :exclude_nil => true
       expose :user_type, user_id, :if => lambda{ |status, options| status.user.public? }
       expose :digest { |status, options| Digest::MD5.hexdigest(satus.txt) }
       expose :replies, :using => API::Status, :as => :replies
