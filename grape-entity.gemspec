@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Michael Bleigh"]
   s.email       = ["michael@intridea.com"]
-  s.homepage    = "https://github.com/agileanimal/grape-entity"
+  s.homepage    = "https://github.com/intridea/grape-entity"
   s.summary     = %q{A simple facade for managing the relationship between your model and API.}
   s.description = %q{Extracted from Grape, A Ruby framework for rapid API development with great conventions.}
   s.license     = "MIT"

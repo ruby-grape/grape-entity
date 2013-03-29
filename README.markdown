@@ -33,7 +33,7 @@ array.
     * define a list of fields which will always be exposed
   * `expose SYMBOLS, HASH`
     * HASH keys include `:if`, `:unless`, `:proc`, `:as`, `:using`, `:format_with`, `:documentation`
-      * `:if` and `:unless` accept hashes (passed during runtime) or procs (arguments are object and options)
+      * `:if` and `:unless` accept hashes (passed during runtime), procs (arguments are object and options), or symbols (checks for presence of the specified key on the options hash)
   * `expose SYMBOL, { :format_with => :formatter }`
     * expose a value, formatting it first
     * `:format_with` can only be applied to one exposure at a time
@@ -194,4 +194,4 @@ MIT License. See LICENSE for details.
 
 ## Copyright
 
-Copyright (c) 2010-2012 Michael Bleigh, and Intridea, Inc.
+Copyright (c) 2010-2013 Michael Bleigh, and Intridea, Inc.
