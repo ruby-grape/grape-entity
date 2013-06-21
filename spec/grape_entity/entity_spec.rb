@@ -455,7 +455,7 @@ describe Grape::Entity do
           rep.last.serializable_hash[:name].should == 'Friend 2'
         end
 
-        it "passes through the proc with custom options(:using)" do
+        it "passes through the proc which returns an array of objects with custom options(:using)" do
           module EntitySpec
             class FriendEntity < Grape::Entity
               root 'friends', 'friend'
@@ -475,7 +475,7 @@ describe Grape::Entity do
           rep.first.serializable_hash.should == { :name => 'Friend 1', :email => 'friend1@example.com'}
           rep.last.serializable_hash.should == { :name => 'Friend 2', :email => 'friend2@example.com'}
         end
-        it "passes through the proc with custom options(:using)" do
+        it "passes through the proc which returns single object with custom options(:using)" do
           module EntitySpec
             class FriendEntity < Grape::Entity
               root 'friends', 'friend'
@@ -492,6 +492,24 @@ describe Grape::Entity do
           rep = subject.send(:value_for, :first_friend)
           rep.should be_kind_of EntitySpec::FriendEntity
           rep.serializable_hash.should == { :name => 'Friend 1', :email => 'friend1@example.com'}
+        end
+        it "passes through the proc which returns empty with custom options(:using)" do
+          module EntitySpec
+            class FriendEntity < Grape::Entity
+              root 'friends', 'friend'
+              expose :name, :email
+            end
+          end
+          
+          fresh_class.class_eval do
+            expose :first_friend, :using => EntitySpec::FriendEntity do |user, options|
+              
+            end
+          end
+
+          rep = subject.send(:value_for, :first_friend)
+          rep.should be_kind_of EntitySpec::FriendEntity
+          rep.serializable_hash.should be_nil
         end
 
         it 'passes through custom options' do
