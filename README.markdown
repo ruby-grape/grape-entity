@@ -44,6 +44,11 @@ array.
     * block arguments are object and options
     * expose the value returned by the block
     * block can only be applied to one exposure at a time
+  * `expose SYMBOL, HASH BLOCK`
+    * HASH keys only can be `:using`
+    * block arguments are object and options
+    * expose the value returned by the block
+    * block can only be applied to one exposure at a time
   * `with_options HASH BLOCK`
     * exposures defined within a `with_options` block will inherit any options defined in HASH. Same keys available as `expose SYMBOLS, HASH`
 
@@ -59,6 +64,9 @@ module API
       expose :user_type, user_id, :if => lambda{ |status, options| status.user.public? }
       expose :digest { |status, options| Digest::MD5.hexdigest(satus.txt) }
       expose :replies, :using => API::Status, :as => :replies
+      expose :last_reply, :using => API::Status do |status, options|
+        status.replies.last
+      end
 
       with_options { :format_with => :iso_timestamp } do
         expose :created_at

@@ -368,7 +368,14 @@ module Grape
       exposure_options = exposures[attribute.to_sym]
 
       if exposure_options[:proc]
-        exposure_options[:proc].call(object, options)
+        if exposure_options[:using]
+          using_options = options.dup
+          using_options.delete(:collection)
+          using_options[:root] = nil
+          exposure_options[:using].represent(exposure_options[:proc].call(object, options), using_options)
+        else
+          exposure_options[:proc].call(object, options)
+        end
       elsif exposure_options[:using]
         using_options = options.dup
         using_options.delete(:collection)
