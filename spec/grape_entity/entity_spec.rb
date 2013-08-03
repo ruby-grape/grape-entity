@@ -100,7 +100,7 @@ describe Grape::Entity do
           subject.expose :birthday, :format_with => :timestamp
 
           model  = { :birthday => Time.gm(2012, 2, 27) }
-          subject.new(mock(model)).as_json[:birthday].should == '02/27/2012'
+          subject.new(double(model)).as_json[:birthday].should == '02/27/2012'
         end
       end
     end
@@ -282,7 +282,7 @@ describe Grape::Entity do
 
   context 'instance methods' do
     
-    let(:model){ mock(attributes) }
+    let(:model){ double(attributes) }
     
     let(:attributes) { {
       :name => 'Bob Bobson',
@@ -290,8 +290,8 @@ describe Grape::Entity do
       :birthday => Time.gm(2012, 2, 27),
       :fantasies => ['Unicorns', 'Double Rainbows', 'Nessy'],
       :friends => [
-        mock(:name => "Friend 1", :email => 'friend1@example.com', :fantasies => [], :birthday => Time.gm(2012, 2, 27), :friends => []),
-        mock(:name => "Friend 2", :email => 'friend2@example.com', :fantasies => [], :birthday => Time.gm(2012, 2, 27), :friends => [])
+        double(:name => "Friend 1", :email => 'friend1@example.com', :fantasies => [], :birthday => Time.gm(2012, 2, 27), :friends => []),
+        double(:name => "Friend 2", :email => 'friend2@example.com', :fantasies => [], :birthday => Time.gm(2012, 2, 27), :friends => [])
       ]
     } }
     
