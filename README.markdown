@@ -56,8 +56,10 @@ module API
       expose :user_name
       expose :text, :documentation => { :type => "string", :desc => "Status update text." }
       expose :ip, :if => { :type => :full }
-      expose :user_type, user_id, :if => lambda{ |status, options| status.user.public? }
-      expose :digest { |status, options| Digest::MD5.hexdigest(satus.txt) }
+      expose :user_type, :user_id, :if => lambda{ |status, options| status.user.public? }
+      expose :digest do
+        |status, options| Digest::MD5.hexdigest(satus.txt)
+      end
       expose :replies, :using => API::Status, :as => :replies
 
       with_options { :format_with => :iso_timestamp } do
