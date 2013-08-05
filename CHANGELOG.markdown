@@ -2,6 +2,7 @@ Next Release
 ============
 * Ruby 1.8.x is no longer supported - [@dblock](https://github.com/dblock).
 * [#7](https://github.com/intridea/grape-entity/issues/7): Add `serializable` option to `represent` - [@mbleigh](https://github.com/mbleigh).
+* [#18](https://github.com/intridea/grape-entity/pull/18): Add `safe` option to `expose`, will not raise error for a missing attribute - [@fixme](https://github.com/fixme).
 * Your contribution here.
 
 0.3.0 (2013-03-29)

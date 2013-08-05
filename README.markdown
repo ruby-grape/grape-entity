@@ -32,10 +32,11 @@ array.
   * `expose SYMBOLS`
     * define a list of fields which will always be exposed
   * `expose SYMBOLS, HASH`
-    * HASH keys include `:if`, `:unless`, `:proc`, `:as`, `:using`, `:format_with`, `:documentation`
+    * HASH keys include `:if`, `:unless`, `:safe`, `:proc`, `:as`, `:using`, `:format_with`, `:documentation`
       * `:if` and `:unless` accept hashes (passed during runtime), procs (arguments are object and options), or symbols (checks for presence of the specified key on the options hash)
+      * `:safe` is a boolean option, it prevents an exception when accessing non-existent attributes if defined as `true`
   * `expose SYMBOL, { :format_with => :formatter }`
-    * expose a value, formatting it first
+    * expose a value, formatting it firsts
     * `:format_with` can only be applied to one exposure at a time
   * `expose SYMBOL, { :as => "alias" }`
     * Expose a value, changing its hash key from SYMBOL to alias

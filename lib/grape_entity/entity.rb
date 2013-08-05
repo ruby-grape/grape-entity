@@ -311,6 +311,12 @@ module Grape
     def exposures
       self.class.exposures
     end
+    
+    def valid_exposures
+      exposures.select do |attribute, exposure_options|
+        valid_exposure?(attribute, exposure_options)
+      end
+    end
 
     def documentation
       self.class.documentation
@@ -330,8 +336,8 @@ module Grape
     def serializable_hash(runtime_options = {})
       return nil if object.nil?
       opts = options.merge(runtime_options || {})
-      exposures.inject({}) do |output, (attribute, exposure_options)|
-        if (exposure_options.has_key?(:proc) || object.respond_to?(attribute)) && conditions_met?(exposure_options, opts)
+      valid_exposures.inject({}) do |output, (attribute, exposure_options)|
+        if conditions_met?(exposure_options, opts)
           partial_output = value_for(attribute, opts)
           output[key_for(attribute)] =
             if partial_output.respond_to? :serializable_hash
@@ -387,6 +393,12 @@ module Grape
       else
         object.send(attribute)
       end
+    end
+    
+    def valid_exposure?(attribute, exposure_options)
+      exposure_options.has_key?(:proc) || \
+      !exposure_options[:safe] || \
+      object.respond_to?(attribute)
     end
 
     def conditions_met?(exposure_options, options)
