@@ -52,7 +52,7 @@ array.
 module API
   module Entities
     class Status < Grape::Entity
-      format_with :iso_timestamp { |dt| dt.iso8601 }
+      format_with(:iso_timestamp) { |dt| dt.iso8601 }
 
       expose :user_name
       expose :text, :documentation => { :type => "string", :desc => "Status update text." }
@@ -63,7 +63,7 @@ module API
       end
       expose :replies, :using => API::Status, :as => :replies
 
-      with_options { :format_with => :iso_timestamp } do
+      with_options({ :format_with => :iso_timestamp }) do
         expose :created_at
         expose :updated_at
       end
