@@ -6,7 +6,7 @@
 
 This gem adds Entity support to API frameworks, such as [Grape](https://github.com/intridea/grape). Grape's Entity is an API focussed facade that sits on top of an object model.
 
-## What's New 
+## What's New
 
 We are currently working on a set of "shoulda-style matchers" (sorry, RSpec only right now -- although they've been done in a way that can support test-unit in the future).
 
@@ -51,8 +51,8 @@ array.
 module API
   module Entities
     class Status < Grape::Entity
-      format_with :iso_timestamp { |dt| dt.iso8601 }
-        
+      format_with(:iso_timestamp) { |dt| dt.iso8601 }
+
       expose :user_name
       expose :text, :documentation => { :type => "string", :desc => "Status update text." }
       expose :ip, :if => { :type => :full }
@@ -60,7 +60,7 @@ module API
       expose :digest { |status, options| Digest::MD5.hexdigest(satus.txt) }
       expose :replies, :using => API::Status, :as => :replies
 
-      with_options { :format_with => :iso_timestamp } do
+      with_options({ :format_with => :iso_timestamp }) do
         expose :created_at
         expose :updated_at
       end
