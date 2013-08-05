@@ -100,7 +100,7 @@ describe Grape::Entity do
           subject.expose :birthday, :format_with => :timestamp
 
           model  = { :birthday => Time.gm(2012, 2, 27) }
-          subject.new(mock(model)).as_json[:birthday].should == '02/27/2012'
+          subject.new(double(model)).as_json[:birthday].should == '02/27/2012'
         end
       end
     end
@@ -281,20 +281,20 @@ describe Grape::Entity do
   end
 
   context 'instance methods' do
-    
-    let(:model){ mock(attributes) }
-    
+
+    let(:model){ double(attributes) }
+
     let(:attributes) { {
       :name => 'Bob Bobson',
       :email => 'bob@example.com',
       :birthday => Time.gm(2012, 2, 27),
       :fantasies => ['Unicorns', 'Double Rainbows', 'Nessy'],
       :friends => [
-        mock(:name => "Friend 1", :email => 'friend1@example.com', :fantasies => [], :birthday => Time.gm(2012, 2, 27), :friends => []),
-        mock(:name => "Friend 2", :email => 'friend2@example.com', :fantasies => [], :birthday => Time.gm(2012, 2, 27), :friends => [])
+        double(:name => "Friend 1", :email => 'friend1@example.com', :fantasies => [], :birthday => Time.gm(2012, 2, 27), :friends => []),
+        double(:name => "Friend 2", :email => 'friend2@example.com', :fantasies => [], :birthday => Time.gm(2012, 2, 27), :friends => [])
       ]
     } }
-    
+
     subject{ fresh_class.new(model) }
 
     describe '#serializable_hash' do
@@ -374,7 +374,7 @@ describe Grape::Entity do
             end
           end
         end
-      
+
         it 'serializes embedded objects which respond to #serializable_hash' do
           fresh_class.expose :name, :embedded
           presenter = fresh_class.new(EntitySpec::EmbeddedExampleWithOne.new)
@@ -386,9 +386,9 @@ describe Grape::Entity do
           presenter = fresh_class.new(EntitySpec::EmbeddedExampleWithMany.new)
           presenter.serializable_hash.should == {:name => "abc", :embedded => [{:abc => "def"}, {:abc => "def"}]}
         end
-        
+
       end
-      
+
     end
 
     describe '#value_for' do
@@ -423,18 +423,18 @@ describe Grape::Entity do
 
       context 'child representations' do
         it 'disables root key name for child representations' do
-        
+
           module EntitySpec
             class FriendEntity < Grape::Entity
               root 'friends', 'friend'
               expose :name, :email
             end
           end
-          
+
           fresh_class.class_eval do
             expose :friends, :using => EntitySpec::FriendEntity
           end
-          
+
           rep = subject.send(:value_for, :friends)
           rep.should be_kind_of Array
           rep.reject{|r| r.is_a?(EntitySpec::FriendEntity)}.should be_empty
@@ -450,11 +450,11 @@ describe Grape::Entity do
               expose :email, :if => { :user_type => :admin }
             end
           end
-          
+
           fresh_class.class_eval do
             expose :friends, :using => EntitySpec::FriendEntity
           end
-          
+
           rep = subject.send(:value_for, :friends)
           rep.should be_kind_of Array
           rep.reject{|r| r.is_a?(EntitySpec::FriendEntity)}.should be_empty
@@ -476,11 +476,11 @@ describe Grape::Entity do
               expose :email, :if => { :collection => true }
             end
           end
-          
+
           fresh_class.class_eval do
             expose :friends, :using => EntitySpec::FriendEntity
           end
-          
+
           rep = subject.send(:value_for, :friends, { :collection => false })
           rep.should be_kind_of Array
           rep.reject{|r| r.is_a?(EntitySpec::FriendEntity)}.should be_empty
