@@ -1,7 +1,6 @@
 Next Release
 ============
-* Your contribution here.
-* Fixed bug with to_json.
+* Add `:using` option to `expose SYMBOL BLOCK`
 
 0.3.0 (2013-03-29)
 ==================

@@ -40,14 +40,10 @@ array.
   * `expose SYMBOL, { :as => "alias" }`
     * Expose a value, changing its hash key from SYMBOL to alias
     * `:as` can only be applied to one exposure at a time
-  * `expose SYMBOL BLOCK`
-    * block arguments are object and options
-    * expose the value returned by the block
-    * block can only be applied to one exposure at a time
   * `expose SYMBOL, HASH BLOCK`
     * HASH keys only can be `:using`
     * block arguments are object and options
-    * expose the value returned by the block
+    * expose the value returned by the block (and present by `:using` option)
     * block can only be applied to one exposure at a time
   * `with_options HASH BLOCK`
     * exposures defined within a `with_options` block will inherit any options defined in HASH. Same keys available as `expose SYMBOLS, HASH`
