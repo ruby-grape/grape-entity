@@ -41,9 +41,10 @@ array.
   * `expose SYMBOL, { :as => "alias" }`
     * Expose a value, changing its hash key from SYMBOL to alias
     * `:as` can only be applied to one exposure at a time
-  * `expose SYMBOL BLOCK`
+  * `expose SYMBOL, HASH BLOCK`
+    * HASH keys only can be `:using`
     * block arguments are object and options
-    * expose the value returned by the block
+    * expose the value returned by the block (and present by `:using` option)
     * block can only be applied to one exposure at a time
   * `with_options HASH BLOCK`
     * exposures defined within a `with_options` block will inherit any options defined in HASH. Same keys available as `expose SYMBOLS, HASH`
@@ -62,6 +63,9 @@ module API
         Digest::MD5.hexdigest status.txt
       end
       expose :replies, :using => API::Status, :as => :replies
+      expose :last_reply, :using => API::Status do |status, options|
+        status.replies.last
+      end
 
       with_options({ :format_with => :iso_timestamp }) do
         expose :created_at
