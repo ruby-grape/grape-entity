@@ -4,7 +4,7 @@
 
 ## Introduction
 
-This gem adds Entity support to API frameworks, such as [Grape](https://github.com/intridea/grape). Grape's Entity is an API focussed facade that sits on top of an object model.
+This gem adds Entity support to API frameworks, such as [Grape](https://github.com/intridea/grape). Grape's Entity is an API focused facade that sits on top of an object model.
 
 ## What's New
 
