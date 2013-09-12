@@ -4,6 +4,7 @@ Next Release
 * [#7](https://github.com/intridea/grape-entity/issues/7): Add `serializable` option to `represent` - [@mbleigh](https://github.com/mbleigh).
 * [#18](https://github.com/intridea/grape-entity/pull/18): Add `safe` option to `expose`, will not raise error for a missing attribute - [@fixme](https://github.com/fixme).
 * [#16](https://github.com/intridea/grape-entity/pull/16): Add `:using` option to `expose SYMBOL BLOCK` - [@fahchen](https://github.com/fahchen).
+* [#24](https://github.com/intridea/grape-entity/pull/24): Return documentation with `:as` param considering - [@drakula2k](https://github.com/drakula2k).
 * Your contribution here.
 
 0.3.0 (2013-03-29)
