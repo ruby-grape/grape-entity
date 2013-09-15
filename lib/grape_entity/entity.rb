@@ -174,7 +174,7 @@ module Grape
     def self.documentation
       @documentation ||= exposures.inject({}) do |memo, value|
                            unless value[1][:documentation].nil? || value[1][:documentation].empty?
-                             memo[value[0]] = value[1][:documentation]
+                             memo[key_for(value[0])] = value[1][:documentation]
                            end
                            memo
                          end
@@ -339,7 +339,7 @@ module Grape
       valid_exposures.inject({}) do |output, (attribute, exposure_options)|
         if conditions_met?(exposure_options, opts)
           partial_output = value_for(attribute, opts)
-          output[key_for(attribute)] =
+          output[self.class.key_for(attribute)] =
             if partial_output.respond_to? :serializable_hash
               partial_output.serializable_hash(runtime_options)
             elsif partial_output.kind_of?(Array) && !partial_output.map {|o| o.respond_to? :serializable_hash}.include?(false)
@@ -366,7 +366,7 @@ module Grape
 
     protected
 
-    def key_for(attribute)
+    def self.key_for(attribute)
       exposures[attribute.to_sym][:as] || attribute.to_sym
     end
 

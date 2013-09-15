@@ -605,22 +605,31 @@ describe Grape::Entity do
 
         subject.documentation.should == {:name  => doc, :email => doc}
       end
+
+      it 'returns each defined documentation hash with :as param considering' do
+        doc = {:type => "foo", :desc => "bar"}
+        fresh_class.expose :name, :documentation => doc, :as => :label
+        fresh_class.expose :email, :documentation => doc
+        fresh_class.expose :birthday
+
+        subject.documentation.should == {:label  => doc, :email => doc}
+      end
     end
 
     describe '#key_for' do
       it 'returns the attribute if no :as is set' do
         fresh_class.expose :name
-        subject.send(:key_for, :name).should == :name
+        subject.class.send(:key_for, :name).should == :name
       end
 
       it 'returns a symbolized version of the attribute' do
         fresh_class.expose :name
-        subject.send(:key_for, 'name').should == :name
+        subject.class.send(:key_for, 'name').should == :name
       end
 
       it 'returns the :as alias if one exists' do
         fresh_class.expose :name, :as => :nombre
-        subject.send(:key_for, 'name').should == :nombre
+        subject.class.send(:key_for, 'name').should == :nombre
       end
     end
 
