@@ -344,6 +344,10 @@ module Grape
               partial_output.serializable_hash(runtime_options)
             elsif partial_output.kind_of?(Array) && !partial_output.map {|o| o.respond_to? :serializable_hash}.include?(false)
               partial_output.map {|o| o.serializable_hash}
+            elsif partial_output.kind_of?(Hash)
+              partial_output.each do |key, value|
+                partial_output[key] = value.serializable_hash if value.respond_to? :serializable_hash
+              end
             else
               partial_output
             end

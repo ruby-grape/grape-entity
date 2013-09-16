@@ -387,6 +387,14 @@ describe Grape::Entity do
               { :abc => 'def' }
             end
           end
+          class EmbeddedExampleWithHash
+            def name
+              "abc"
+            end
+            def embedded
+              { :a => nil, :b => EmbeddedExample.new }
+            end
+          end
           class EmbeddedExampleWithMany
             def name
               "abc"
@@ -415,6 +423,12 @@ describe Grape::Entity do
           fresh_class.expose :name, :embedded
           presenter = fresh_class.new(EntitySpec::EmbeddedExampleWithMany.new)
           presenter.serializable_hash.should == {:name => "abc", :embedded => [{:abc => "def"}, {:abc => "def"}]}
+        end
+
+        it 'serializes embedded hashes of objects which respond to #serializable_hash' do
+          fresh_class.expose :name, :embedded
+          presenter = fresh_class.new(EntitySpec::EmbeddedExampleWithHash.new)
+          presenter.serializable_hash.should == {:name => "abc", :embedded => {:a => nil, :b => {:abc => "def"}}}
         end
 
       end
