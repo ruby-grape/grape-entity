@@ -16,36 +16,3 @@ end
 
 task :spec
 task :default => :spec
-
-#
-# TODO: setup a place for documentation and then get this going again.
-#
-# begin
-#   require 'yard'
-#   DOC_FILES = ['lib/**/*.rb', 'README.markdown']
-#   
-#   YARD::Rake::YardocTask.new(:doc) do |t|
-#     t.files   = DOC_FILES
-#   end
-#   
-#   namespace :doc do
-#     YARD::Rake::YardocTask.new(:pages) do |t|
-#       t.files   = DOC_FILES
-#       t.options = ['-o', '../grape.doc']
-#     end
-#     
-#     namespace :pages do
-#       desc 'Generate and publish YARD docs to GitHub pages.'
-#       task :publish => ['doc:pages'] do
-#         Dir.chdir(File.dirname(__FILE__) + '/../grape.doc') do
-#           system("git add .")
-#           system("git add -u")
-#           system("git commit -m 'Generating docs for version #{version}.'")
-#           system("git push origin gh-pages")
-#         end
-#       end
-#     end
-#   end
-# rescue LoadError
-#   puts "You need to install YARD."
-# end
