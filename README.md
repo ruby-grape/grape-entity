@@ -150,7 +150,7 @@ end
 present s, with: Status, user: current_user
 ```
 
-#### Using the Exposure DSL
+### Using the Exposure DSL
 
 Grape ships with a DSL to easily define entities within the context of an existing class:
 
