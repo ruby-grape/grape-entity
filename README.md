@@ -6,48 +6,7 @@
 
 This gem adds Entity support to API frameworks, such as [Grape](https://github.com/intridea/grape). Grape's Entity is an API focused facade that sits on top of an object model.
 
-## What's New
-
-We are currently working on a set of "shoulda-style matchers" (sorry, RSpec only right now -- although they've been done in a way that can support test-unit in the future).
-
-[Grape Entity Matchers](https://github.com/agileanimal/grape-entity-matchers).
-
-This is still a work in progress but worth checking out.
-
-## Reusable Responses with Entities
-
-Entities are a reusable means for converting Ruby objects to API responses.
-Entities can be used to conditionally include fields, nest other entities, and build
-ever larger responses, using inheritance.
-
-### Defining Entities
-
-Entities inherit from Grape::Entity, and define a simple DSL. Exposures can use
-runtime options to determine which fields should be visible, these options are
-available to `:if`, `:unless`, and `:proc`. The option keys `:version` and `:collection`
-will always be defined. The `:version` key is defined as `api.version`. The
-`:collection` key is boolean, and defined as `true` if the object presented is an
-array.
-
-  * `expose SYMBOLS`
-    * define a list of fields which will always be exposed
-  * `expose SYMBOLS, HASH`
-    * HASH keys include `:if`, `:unless`, `:safe`, `:proc`, `:as`, `:using`, `:format_with`, `:documentation`
-      * `:if` and `:unless` accept hashes (passed during runtime), procs (arguments are object and options), or symbols (checks for presence of the specified key on the options hash)
-      * `:safe` is a boolean option, it prevents an exception when accessing non-existent attributes if defined as `true`
-  * `expose SYMBOL, { :format_with => :formatter }`
-    * expose a value, formatting it firsts
-    * `:format_with` can only be applied to one exposure at a time
-  * `expose SYMBOL, { :as => "alias" }`
-    * Expose a value, changing its hash key from SYMBOL to alias
-    * `:as` can only be applied to one exposure at a time
-  * `expose SYMBOL, HASH BLOCK`
-    * HASH keys only can be `:using`
-    * block arguments are object and options
-    * expose the value returned by the block (and present by `:using` option)
-    * block can only be applied to one exposure at a time
-  * `with_options HASH BLOCK`
-    * exposures defined within a `with_options` block will inherit any options defined in HASH. Same keys available as `expose SYMBOLS, HASH`
+### Example
 
 ```ruby
 module API
@@ -56,18 +15,18 @@ module API
       format_with(:iso_timestamp) { |dt| dt.iso8601 }
 
       expose :user_name
-      expose :text, :documentation => { :type => "string", :desc => "Status update text." }
-      expose :ip, :if => { :type => :full }
-      expose :user_type, :user_id, :if => lambda{ |status, options| status.user.public? }
+      expose :text, documentation: { type: "String", desc: "Status update text." }
+      expose :ip, if: { type: :full }
+      expose :user_type, :user_id, if: lambda { |status, options| status.user.public? }
       expose :digest do |status, options|
         Digest::MD5.hexdigest status.txt
       end
-      expose :replies, :using => API::Status, :as => :replies
-      expose :last_reply, :using => API::Status do |status, options|
+      expose :replies, using: API::Status, as: :replies
+      expose :last_reply, using: API::Status do |status, options|
         status.replies.last
       end
 
-      with_options({ :format_with => :iso_timestamp }) do
+      with_options(format_with: :iso_timestamp) do
         expose :created_at
         expose :updated_at
       end
@@ -84,10 +43,99 @@ module API
 end
 ```
 
+## Reusable Responses with Entities
+
+Entities are a reusable means for converting Ruby objects to API responses. Entities can be used to conditionally include fields, nest other entities, and build ever larger responses, using inheritance.
+
+### Defining Entities
+
+Entities inherit from Grape::Entity, and define a simple DSL. Exposures can use runtime options to determine which fields should be visible, these options are available to `:if`, `:unless`, and `:proc`.
+
+#### Basic Exposure
+
+Define a list of fields that will always be exposed.
+
+```ruby
+expose :user_name, :ip
+```
+
+#### Exposing with a Presenter
+
+Don't derive your model classes from `Grape::Entity`, expose them using a presenter.
+
+```ruby
+expose :replies, using: API::Status, as: :replies
+```
+
+#### Conditional Exposure
+
+Use `:if` or `:unless` to expose fields conditionally.
+
+```ruby
+expose :ip, if: { type: :full }
+
+expose :ip, if: lambda { |instance, options| options[:type] == :full } # exposed if the function evaluates to true
+expose :ip, if: :type # exposed if :type is available in the options hash
+expose :ip, if { type: :full } # exposed if options :type has a value of :full
+
+expose :ip, unless: ... # the opposite of :if
+```
+
+#### Safe Exposure
+
+Don't raise an exception and expose as nil, even if the :x cannot be evaluated.
+
+```ruby
+expose :ip, safe: true
+```
+
+#### Runtime Exposure
+
+Use a block or a `Proc` to evaluate exposure at runtime.
+
+```ruby
+expose :digest do |status, options|
+  Digest::MD5.hexdigest status.txt
+end
+```
+
+```ruby
+expose :digest, proc: ... # equivalent to a block
+```
+
+#### Aliases
+
+Expose under a different name with `:as`.
+
+```ruby
+expose :replies, using: API::Status, as: :replies
+```
+
+#### Format Before Exposing
+
+Apply a formatter before exposing a value.
+
+```ruby
+format_with(:iso_timestamp) { |dt| dt.iso8601 }
+with_options(format_with: :iso_timestamp) do
+  expose :created_at
+  expose :updated_at
+end
+```
+
+#### Documentation
+
+Expose documentation with the field. Gets bubbled up when used with Grape and various API documentation systems.
+
+```ruby
+expose :text, documentation: { type: "String", desc: "Status update text." }
+```
+
 ### Options Hash
 
-The options hash contains the runtime environment in `options[:env]`, which includes request parameters in
-`options[:env][:grape.request.params]`, as well as any additional options defined on the entity exposure.
+The option keys `:version` and `:collection` are always defined. The `:version` key is defined as `api.version`. The `:collection` key is boolean, and defined as `true` if the object presented is an array. The options also contain the runtime environment in `:env`, which includes request parameters in `options[:env][:grape.request.params]`.
+
+Any additional options defined on the entity exposure are included as is. In the following example `user` is set to the value of `current_user`.
 
 ```ruby
 class Status < Grape::Entity
@@ -104,8 +152,7 @@ present s, with: Status, user: current_user
 
 #### Using the Exposure DSL
 
-Grape ships with a DSL to easily define entities within the context
-of an existing class:
+Grape ships with a DSL to easily define entities within the context of an existing class:
 
 ```ruby
 class Status
@@ -117,15 +164,11 @@ class Status
 end
 ```
 
-The above will automatically create a `Status::Entity` class and define properties on it according
-to the same rules as above. If you only want to define simple exposures you don't have to supply
-a block and can instead simply supply a list of comma-separated symbols.
+The above will automatically create a `Status::Entity` class and define properties on it according to the same rules as above. If you only want to define simple exposures you don't have to supply a block and can instead simply supply a list of comma-separated symbols.
 
 ### Using Entities
 
-Once an entity is defined, it can be used within endpoints, by calling `present`. The `present`
-method accepts two arguments, the object to be presented and the options associated with it. The
-options hash must always include `:with`, which defines the entity to expose.
+With Grape, once an entity is defined, it can be used within endpoints, by calling `present`. The `present` method accepts two arguments, the object to be presented and the options associated with it. The options hash must always include `:with`, which defines the entity to expose.
 
 If the entity includes documentation it can be included in an endpoint's description.
 
@@ -134,13 +177,13 @@ module API
   class Statuses < Grape::API
     version 'v1'
 
-    desc 'Statuses index', {
+    desc 'Statuses.', {
       :object_fields => API::Entities::Status.documentation
     }
     get '/statuses' do
       statuses = Status.all
       type = current_user.admin? ? :full : :default
-      present statuses, with: API::Entities::Status, :type => type
+      present statuses, with: API::Entities::Status, type: type
     end
   end
 end
@@ -148,8 +191,7 @@ end
 
 ### Entity Organization
 
-In addition to separately organizing entities, it may be useful to put them as namespaced
-classes underneath the model they represent.
+In addition to separately organizing entities, it may be useful to put them as namespaced classes underneath the model they represent.
 
 ```ruby
 class Status
@@ -163,17 +205,11 @@ class Status
 end
 ```
 
-If you organize your entities this way, Grape will automatically detect the `Entity` class and
-use it to present your models. In this example, if you added `present User.new` to your endpoint,
-Grape would automatically detect that there is a `Status::Entity` class and use that as the
-representative entity. This can still be overridden by using the `:with` option or an explicit
-`represents` call.
+If you organize your entities this way, Grape will automatically detect the `Entity` class and use it to present your models. In this example, if you added `present User.new` to your endpoint, Grape would automatically detect that there is a `Status::Entity` class and use that as the representative entity. This can still be overridden by using the `:with` option or an explicit `represents` call.
 
 ### Caveats
 
-Entities with duplicate exposure names and conditions will silently overwrite one another.
-In the following example, when `object.check` equals "foo", only `field_a` will be exposed.
-However, when `object.check` equals "bar" both `field_b` and `foo` will be exposed.
+Entities with duplicate exposure names and conditions will silently overwrite one another. In the following example, when `object.check` equals "foo", only `field_a` will be exposed. However, when `object.check` equals "bar" both `field_b` and `foo` will be exposed.
 
 ```ruby
 module API
@@ -214,6 +250,12 @@ Or install it yourself as:
 
     $ gem install grape-entity
 
+## Testing with Entities
+
+Test API request/response as usual.
+
+Also see [Grape Entity Matchers](https://github.com/agileanimal/grape-entity-matchers).
+
 ## Contributing
 
 1. Fork it
@@ -228,4 +270,5 @@ MIT License. See LICENSE for details.
 
 ## Copyright
 
-Copyright (c) 2010-2013 Michael Bleigh, and Intridea, Inc.
+Copyright (c) 2010-2013 Michael Bleigh, Intridea, Inc., and contributors.
+

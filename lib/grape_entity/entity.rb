@@ -36,7 +36,7 @@ module Grape
   #       get '/users' do
   #         @users = User.all
   #         type = current_user.admin? ? :full : :default
-  #         present @users, :with => API::Entities::User, :type => type
+  #         present @users, :using => API::Entities::User, :type => type
   #       end
   #     end
   #   end
@@ -70,7 +70,7 @@ module Grape
         #
         #   class User
         #     include Grape::Entity::DSL
-        #     
+        #
         #     entity :name, :email
         #   end
         #
@@ -78,7 +78,7 @@ module Grape
         #
         #   class User
         #     include Grape::Entity::DSL
-        #     
+        #
         #     entity :name, :email do
         #       expose :latest_status, using: Status::Entity, if: :include_status
         #       expose :new_attribute, :if => {:version => 'v2'}
@@ -143,7 +143,7 @@ module Grape
     # Set options that will be applied to any exposures declared inside the block.
     #
     # @example Multi-exposure if
-    # 
+    #
     #   class MyEntity < Grape::Entity
     #     with_options :if => {:awesome => true} do
     #       expose :awesome, :sweet
@@ -259,13 +259,13 @@ module Grape
     #       # this will render { "users": [ {"id":"1"}, {"id":"2"} ] }
     #       get '/users' do
     #         @users = User.all
-    #         present @users, :with => API::Entities::User
+    #         present @users, :using => API::Entities::User
     #       end
     #
     #       # this will render { "user": {"id":"1"} }
     #       get '/users/:id' do
     #         @user = User.find(params[:id])
-    #         present @user, :with => API::Entities::User
+    #         present @user, :using => API::Entities::User
     #       end
     #     end
     #   end
@@ -311,7 +311,7 @@ module Grape
     def exposures
       self.class.exposures
     end
-    
+
     def valid_exposures
       exposures.select do |attribute, exposure_options|
         valid_exposure?(attribute, exposure_options)
@@ -401,7 +401,7 @@ module Grape
         object.send(attribute)
       end
     end
-    
+
     def valid_exposure?(attribute, exposure_options)
       exposure_options.has_key?(:proc) || \
       !exposure_options[:safe] || \
