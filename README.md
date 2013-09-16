@@ -84,6 +84,24 @@ module API
 end
 ```
 
+### Options Hash
+
+The options hash contains the runtime environment in `options[:env]`, which includes request parameters in
+`options[:env][:grape.request.params]`, as well as any additional options defined on the entity exposure.
+
+```ruby
+class Status < Grape::Entity
+  expose :user, :if => lambda { |instance, options| options[:user] } do |instance, options|
+    # examine available environment keys with `p options[:env].keys`
+    options[:user]
+  end
+end
+```
+
+```
+present s, with: Status, user: current_user
+```
+
 #### Using the Exposure DSL
 
 Grape ships with a DSL to easily define entities within the context
