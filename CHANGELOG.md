@@ -6,6 +6,7 @@ Next Release
 * [#16](https://github.com/intridea/grape-entity/pull/16): Add `using` option to `expose SYMBOL BLOCK` - [@fahchen](https://github.com/fahchen).
 * [#24](https://github.com/intridea/grape-entity/pull/24): Return documentation with `as` param considered - [@drakula2k](https://github.com/drakula2k).
 * [#27](https://github.com/intridea/grape-entity/pull/27): Properly serializing hashes - [@clintonb](https://github.com/clintonb).
+* [#28](https://github.com/intridea/grape-entity/pull/28): Look for method on entity before calling on the object - [@MichaelXavier](https://github.com/MichaelXavier).
 * Your contribution here.
 
 0.3.0 (2013-03-29)

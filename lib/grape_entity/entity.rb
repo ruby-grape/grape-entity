@@ -390,17 +390,25 @@ module Grape
         using_options = options.dup
         using_options.delete(:collection)
         using_options[:root] = nil
-        exposure_options[:using].represent(object.send(attribute), using_options)
+        exposure_options[:using].represent(delegate_attribute(attribute), using_options)
       elsif exposure_options[:format_with]
         format_with = exposure_options[:format_with]
 
         if format_with.is_a?(Symbol) && formatters[format_with]
-          formatters[format_with].call(object.send(attribute))
+          formatters[format_with].call(delegate_attribute(attribute))
         elsif format_with.is_a?(Symbol)
-          self.send(format_with, object.send(attribute))
+          self.send(format_with, delegate_attribute(attribute))
         elsif format_with.respond_to? :call
-          format_with.call(object.send(attribute))
+          format_with.call(delegate_attribute(attribute))
         end
+      else
+        delegate_attribute(attribute)
+      end
+    end
+
+    def delegate_attribute(attribute)
+      if respond_to?(attribute, true)
+        send(attribute)
       else
         object.send(attribute)
       end

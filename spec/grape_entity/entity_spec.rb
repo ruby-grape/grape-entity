@@ -602,6 +602,26 @@ describe Grape::Entity do
       it 'returns a formatted value if format_with is passed a lambda' do
         subject.send(:value_for, :fantasies).should == ['Nessy', 'Double Rainbows', 'Unicorns']
       end
+
+      it "tries instance methods on the entity first" do
+        module EntitySpec
+          class DelegatingEntity < Grape::Entity
+            root 'friends', 'friend'
+            expose :name
+            expose :email
+
+          private
+            def name
+              "cooler name"
+            end
+          end
+        end
+
+        friend = double("Friend", :name => "joe", :email => "joe@example.com")
+        rep = EntitySpec::DelegatingEntity.new(friend)
+        rep.send(:value_for, :name).should == "cooler name"
+        rep.send(:value_for, :email).should == "joe@example.com"
+      end
     end
 
     describe '#documentation' do
