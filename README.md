@@ -103,6 +103,21 @@ end
 expose :digest, proc: ... # equivalent to a block
 ```
 
+You can also define a method on the entity and it will try that before trying
+on the object the entity wraps.
+
+```
+class ExampleEntity < Grape::Entity
+  expose :attr_not_on_wrapped_object
+  # ...
+private
+
+  def attr_not_on_wrapped_object
+    42
+  end
+end
+```
+
 #### Aliases
 
 Expose under a different name with `:as`.
