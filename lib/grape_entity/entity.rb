@@ -123,8 +123,7 @@ module Grape
     # @option options :documentation Define documenation for an exposed
     #   field, typically the value is a hash with two fields, type and desc.
     def self.expose(*args, &block)
-      options = args.last.is_a?(Hash) ? args.pop : {}
-      options = (@block_options ||= []).inject({}){|final, step| final.merge!(step)}.merge(options)
+      options = merge_options(args.last.is_a?(Hash) ? args.pop : {})
 
       if args.size > 1
         raise ArgumentError, "You may not use the :as option on multi-attribute exposures." if options[:as]
@@ -421,22 +420,59 @@ module Grape
     end
 
     def conditions_met?(exposure_options, options)
-      if_condition = exposure_options[:if]
-      unless_condition = exposure_options[:unless]
+      if_conditions = (exposure_options[:if_extras] || []).dup
+      if_conditions << exposure_options[:if] unless exposure_options[:if].nil?
 
-      case if_condition
-        when Hash; if_condition.each_pair{|k,v| return false if options[k.to_sym] != v }
-        when Proc; return false unless if_condition.call(object, options)
-        when Symbol; return false unless options[if_condition]
+      if_conditions.each do |if_condition|
+        case if_condition
+          when Hash; if_condition.each_pair{|k,v| return false if options[k.to_sym] != v }
+          when Proc; return false unless if_condition.call(object, options)
+          when Symbol; return false unless options[if_condition]
+        end
       end
 
-      case unless_condition
-        when Hash; unless_condition.each_pair{|k,v| return false if options[k.to_sym] == v}
-        when Proc; return false if unless_condition.call(object, options)
-        when Symbol; return false if options[unless_condition]
+      unless_conditions = (exposure_options[:unless_extras] || []).dup
+      unless_conditions << exposure_options[:unless] unless exposure_options[:unless].nil?
+
+      unless_conditions.each do |unless_condition|
+        case unless_condition
+          when Hash; unless_condition.each_pair{|k,v| return false if options[k.to_sym] == v}
+          when Proc; return false if unless_condition.call(object, options)
+          when Symbol; return false if options[unless_condition]
+        end
       end
 
       true
     end
+
+    private
+
+    # Merges the given options with current block options.
+    #
+    # @param options [Hash] Exposure options.
+    def self.merge_options(options)
+      opts = {}
+
+      merge_logic = proc do |key, existing_val, new_val|
+        if [:if, :unless].include?(key)
+          if existing_val.is_a?(Hash) && new_val.is_a?(Hash)
+            existing_val.merge(new_val)
+          elsif new_val.is_a?(Hash)
+            (opts["#{key}_extras".to_sym] ||= []) << existing_val
+            new_val
+          else
+            (opts["#{key}_extras".to_sym] ||= []) << new_val
+            existing_val
+          end
+        else
+          new_val
+        end
+      end
+
+      opts.merge (@block_options ||= []).inject({}) { |final, step|
+        final.merge(step, &merge_logic)
+      }.merge(options, &merge_logic)
+    end
+
   end
 end

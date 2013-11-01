@@ -128,14 +128,96 @@ describe Grape::Entity do
         subject.exposures[:awesome_thing].should == {:if => {:awesome => true}, :using => 'Something'}
       end
 
-      it 'should allow for overrides' do
+      it 'should override nested :as option' do
         subject.class_eval do
-          with_options(:if => {:awesome => true}) do
-            expose :less_awesome_thing, :if => {:awesome => false}
+          with_options(:as => :sweet) do
+            expose :awesome_thing, :as => :extra_smooth
           end
         end
 
-        subject.exposures[:less_awesome_thing].should == {:if => {:awesome => false}}
+        subject.exposures[:awesome_thing].should == {:as => :extra_smooth}
+      end
+
+      it "should merge nested :if option" do
+        match_proc = lambda {|obj, opts| true }
+
+        subject.class_eval do
+          # Symbol
+          with_options(:if => :awesome) do
+            # Hash
+            with_options(:if => {:awesome => true}) do
+              # Proc
+              with_options(:if => match_proc) do
+                # Hash (override existing key and merge new key)
+                with_options(:if => {:awesome => false, :less_awesome => true}) do
+                  expose :awesome_thing
+                end
+              end
+            end
+          end
+        end
+
+        subject.exposures[:awesome_thing].should == {
+          :if => {:awesome => false, :less_awesome => true},
+          :if_extras => [:awesome, match_proc]
+        }
+      end
+
+      it 'should merge nested :unless option' do
+        match_proc = lambda {|obj, opts| true }
+
+        subject.class_eval do
+          # Symbol
+          with_options(:unless => :awesome) do
+            # Hash
+            with_options(:unless => {:awesome => true}) do
+              # Proc
+              with_options(:unless => match_proc) do
+                # Hash (override existing key and merge new key)
+                with_options(:unless => {:awesome => false, :less_awesome => true}) do
+                  expose :awesome_thing
+                end
+              end
+            end
+          end
+        end
+
+        subject.exposures[:awesome_thing].should == {
+          :unless => {:awesome => false, :less_awesome => true},
+          :unless_extras => [:awesome, match_proc]
+        }
+      end
+
+      it 'should override nested :using option' do
+        subject.class_eval do
+          with_options(:using => 'Something') do
+            expose :awesome_thing, :using => 'SometingElse'
+          end
+        end
+
+        subject.exposures[:awesome_thing].should == {:using => 'SometingElse'}
+      end
+
+      it 'should override nested :proc option' do
+        match_proc = lambda {|obj, opts| 'more awesomer' }
+
+        subject.class_eval do
+          with_options(:proc => lambda {|obj, opts| 'awesome' }) do
+            expose :awesome_thing, :proc => match_proc
+          end
+        end
+
+        subject.exposures[:awesome_thing].should == {:proc => match_proc}
+      end
+
+      it 'should override nested :documentation option' do
+        subject.class_eval do
+          with_options(:documentation => {desc: 'Description.'}) do
+            expose :awesome_thing, :documentation => {desc: 'Other description.'}
+          end
+        end
+
+        subject.exposures[:awesome_thing].should == {:documentation => {desc: 'Other description.'}}
       end
     end
 
