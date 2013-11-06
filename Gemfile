@@ -13,4 +13,5 @@ group :development, :test do
   gem 'rspec'
   gem 'rack-test', "~> 0.6.2", :require => "rack/test"
   gem 'github-markup'
+  gem 'rubocop', '~> 0.14.1'
 end
