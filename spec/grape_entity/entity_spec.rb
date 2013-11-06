@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe Grape::Entity do
+
   let(:fresh_class) { Class.new(Grape::Entity) }
 
   context 'class methods' do
@@ -14,33 +15,31 @@ describe Grape::Entity do
         end
 
         it 'sets the same options for all exposures passed' do
-          subject.expose :name, :email, :location, :foo => :bar
-          subject.exposures.values.each{|v| v.should == {:foo => :bar}}
+          subject.expose :name, :email, :location, foo: :bar
+          subject.exposures.values.each { |v| v.should == { foo: :bar } }
         end
       end
 
       context 'option validation' do
         it 'makes sure that :as only works on single attribute calls' do
-          expect{ subject.expose :name, :email, :as => :foo }.to raise_error(ArgumentError)
-          expect{ subject.expose :name, :as => :foo }.not_to raise_error
+          expect { subject.expose :name, :email, as: :foo }.to raise_error ArgumentError
+          expect { subject.expose :name, as: :foo }.not_to raise_error
         end
 
-        it 'makes sure that :format_with as a proc can not be used with a block' do
-          expect { subject.expose :name, :format_with => Proc.new {} do |_| end }.to raise_error(ArgumentError)
+        it 'makes sure that :format_with as a proc cannot be used with a block' do
+          expect { subject.expose :name, format_with: proc { } { } }.to raise_error ArgumentError
         end
       end
 
       context 'with a block' do
         it 'errors out if called with multiple attributes' do
-          expect{ subject.expose(:name, :email) do
-            true
-          end }.to raise_error(ArgumentError)
+          expect { subject.expose(:name, :email) { true } }.to raise_error ArgumentError
         end
 
         it 'sets the :proc option in the exposure options' do
-          block = lambda{|_| true }
-          subject.expose :name, :using => 'Awesome', &block
-          subject.exposures[:name].should == { :proc => block, :using => 'Awesome' }
+          block = lambda { |_| true }
+          subject.expose :name, using: 'Awesome', &block
+          subject.exposures[:name].should == { proc: block, using: 'Awesome' }
         end
       end
 
@@ -73,7 +72,7 @@ describe Grape::Entity do
       end
 
       context 'register formatters' do
-        let(:date_formatter) { lambda {|date| date.strftime('%m/%d/%Y') }}
+        let(:date_formatter) { lambda { |date| date.strftime('%m/%d/%Y') } }
 
         it 'registers a formatter' do
           subject.format_with :timestamp, &date_formatter
@@ -89,7 +88,7 @@ describe Grape::Entity do
         end
 
         it 'does not allow registering a formatter without a block' do
-          expect{ subject.format_with :foo }.to raise_error(ArgumentError)
+          expect { subject.format_with :foo }.to raise_error ArgumentError
         end
 
         it 'formats an exposure with a registered formatter' do
@@ -97,9 +96,9 @@ describe Grape::Entity do
             date.strftime('%m/%d/%Y')
           end
 
-          subject.expose :birthday, :format_with => :timestamp
+          subject.expose :birthday, format_with: :timestamp
 
-          model  = { :birthday => Time.gm(2012, 2, 27) }
+          model  = { birthday: Time.gm(2012, 2, 27) }
           subject.new(double(model)).as_json[:birthday].should == '02/27/2012'
         end
       end
@@ -108,48 +107,48 @@ describe Grape::Entity do
     describe '.with_options' do
       it 'should apply the options to all exposures inside' do
         subject.class_eval do
-          with_options(:if => {:awesome => true}) do
-            expose :awesome_thing, :using => 'Awesome'
+          with_options(if: { awesome: true }) do
+            expose :awesome_thing, using: 'Awesome'
           end
         end
 
-        subject.exposures[:awesome_thing].should == {:if => {:awesome => true}, :using => 'Awesome'}
+        subject.exposures[:awesome_thing].should == { if: { awesome: true }, using: 'Awesome' }
       end
 
       it 'should allow for nested .with_options' do
         subject.class_eval do
-          with_options(:if => {:awesome => true}) do
-            with_options(:using => 'Something') do
+          with_options(if: { awesome: true }) do
+            with_options(using: 'Something') do
               expose :awesome_thing
             end
           end
         end
 
-        subject.exposures[:awesome_thing].should == {:if => {:awesome => true}, :using => 'Something'}
+        subject.exposures[:awesome_thing].should == { if: { awesome: true }, using: 'Something' }
       end
 
       it 'should override nested :as option' do
         subject.class_eval do
-          with_options(:as => :sweet) do
-            expose :awesome_thing, :as => :extra_smooth
+          with_options(as: :sweet) do
+            expose :awesome_thing, as: :extra_smooth
           end
         end
 
-        subject.exposures[:awesome_thing].should == {:as => :extra_smooth}
+        subject.exposures[:awesome_thing].should == { as: :extra_smooth }
       end
 
       it "should merge nested :if option" do
-        match_proc = lambda {|obj, opts| true }
+        match_proc = lambda { |obj, opts| true }
 
         subject.class_eval do
           # Symbol
-          with_options(:if => :awesome) do
+          with_options(if: :awesome) do
             # Hash
-            with_options(:if => {:awesome => true}) do
+            with_options(if: { awesome: true }) do
               # Proc
-              with_options(:if => match_proc) do
+              with_options(if: match_proc) do
                 # Hash (override existing key and merge new key)
-                with_options(:if => {:awesome => false, :less_awesome => true}) do
+                with_options(if: { awesome: false, less_awesome: true }) do
                   expose :awesome_thing
                 end
               end
@@ -158,23 +157,23 @@ describe Grape::Entity do
         end
 
         subject.exposures[:awesome_thing].should == {
-          :if => {:awesome => false, :less_awesome => true},
-          :if_extras => [:awesome, match_proc]
+          if: { awesome: false, less_awesome: true },
+          if_extras: [:awesome, match_proc]
         }
       end
 
       it 'should merge nested :unless option' do
-        match_proc = lambda {|obj, opts| true }
+        match_proc = lambda { |obj, opts| true }
 
         subject.class_eval do
           # Symbol
-          with_options(:unless => :awesome) do
+          with_options(unless: :awesome) do
             # Hash
-            with_options(:unless => {:awesome => true}) do
+            with_options(unless: { awesome: true }) do
               # Proc
-              with_options(:unless => match_proc) do
+              with_options(unless: match_proc) do
                 # Hash (override existing key and merge new key)
-                with_options(:unless => {:awesome => false, :less_awesome => true}) do
+                with_options(unless: { awesome: false, less_awesome: true }) do
                   expose :awesome_thing
                 end
               end
@@ -183,41 +182,41 @@ describe Grape::Entity do
         end
 
         subject.exposures[:awesome_thing].should == {
-          :unless => {:awesome => false, :less_awesome => true},
-          :unless_extras => [:awesome, match_proc]
+          unless: { awesome: false, less_awesome: true },
+          unless_extras: [:awesome, match_proc]
         }
       end
 
       it 'should override nested :using option' do
         subject.class_eval do
-          with_options(:using => 'Something') do
-            expose :awesome_thing, :using => 'SometingElse'
+          with_options(using: 'Something') do
+            expose :awesome_thing, using: 'SometingElse'
           end
         end
 
-        subject.exposures[:awesome_thing].should == {:using => 'SometingElse'}
+        subject.exposures[:awesome_thing].should == { using: 'SometingElse' }
       end
 
       it 'should override nested :proc option' do
-        match_proc = lambda {|obj, opts| 'more awesomer' }
+        match_proc = lambda { |obj, opts| 'more awesomer' }
 
         subject.class_eval do
-          with_options(:proc => lambda {|obj, opts| 'awesome' }) do
-            expose :awesome_thing, :proc => match_proc
+          with_options(proc: lambda { |obj, opts| 'awesome' }) do
+            expose :awesome_thing, proc: match_proc
           end
         end
 
-        subject.exposures[:awesome_thing].should == {:proc => match_proc}
+        subject.exposures[:awesome_thing].should == { proc: match_proc }
       end
 
       it 'should override nested :documentation option' do
         subject.class_eval do
-          with_options(:documentation => {desc: 'Description.'}) do
-            expose :awesome_thing, :documentation => {desc: 'Other description.'}
+          with_options(documentation: { desc: 'Description.' }) do
+            expose :awesome_thing, documentation: { desc: 'Other description.' }
           end
         end
 
-        subject.exposures[:awesome_thing].should == {:documentation => {desc: 'Other description.'}}
+        subject.exposures[:awesome_thing].should == { documentation: { desc: 'Other description.' } }
       end
     end
 
@@ -231,27 +230,27 @@ describe Grape::Entity do
       end
 
       it 'returns multiple entities if called with a collection' do
-        representation = subject.represent(4.times.map{Object.new})
+        representation = subject.represent(4.times.map { Object.new })
         representation.should be_kind_of Array
         representation.size.should == 4
-        representation.reject{|r| r.kind_of?(subject)}.should be_empty
+        representation.reject { |r| r.kind_of?(subject) }.should be_empty
       end
 
-      it 'adds the :collection => true option if called with a collection' do
-        representation = subject.represent(4.times.map{Object.new})
-        representation.each{|r| r.options[:collection].should be_true}
+      it 'adds the collection: true option if called with a collection' do
+        representation = subject.represent(4.times.map { Object.new })
+        representation.each { |r| r.options[:collection].should be_true }
       end
 
-      it 'returns a serialized hash of a single object if :serializable => true' do
-        subject.expose(:awesome){ true }
-        representation = subject.represent(Object.new, :serializable => true)
-        representation.should == {awesome: true}
+      it 'returns a serialized hash of a single object if serializable: true' do
+        subject.expose(:awesome) { true }
+        representation = subject.represent(Object.new, serializable: true)
+        representation.should == { awesome: true }
       end
 
-      it 'returns a serialized array of hashes of multiple objects if :serializable => true' do
-        subject.expose(:awesome){ true }
-        representation = subject.represent(2.times.map{ Object.new }, :serializable => true)
-        representation.should == [{awesome: true},{awesome: true}]
+      it 'returns a serialized array of hashes of multiple objects if serializable: true' do
+        subject.expose(:awesome) { true }
+        representation = subject.represent(2.times.map { Object.new }, serializable: true)
+        representation.should == [{ awesome: true }, { awesome: true }]
       end
     end
 
@@ -272,29 +271,29 @@ describe Grape::Entity do
 
         context 'with an array of objects' do
           it 'allows a root element name to be specified' do
-            representation = subject.represent(4.times.map{Object.new})
+            representation = subject.represent(4.times.map { Object.new })
             representation.should be_kind_of Hash
             representation.should have_key 'things'
             representation['things'].should be_kind_of Array
             representation['things'].size.should == 4
-            representation['things'].reject{|r| r.kind_of?(subject)}.should be_empty
+            representation['things'].reject { |r| r.kind_of?(subject) }.should be_empty
           end
         end
 
         context 'it can be overridden' do
           it 'can be disabled' do
-            representation = subject.represent(4.times.map{Object.new}, :root=>false)
+            representation = subject.represent(4.times.map { Object.new }, root: false)
             representation.should be_kind_of Array
             representation.size.should == 4
-            representation.reject{|r| r.kind_of?(subject)}.should be_empty
+            representation.reject { |r| r.kind_of?(subject) }.should be_empty
           end
           it 'can use a different name' do
-            representation = subject.represent(4.times.map{Object.new}, :root=>'others')
+            representation = subject.represent(4.times.map { Object.new }, root: 'others')
             representation.should be_kind_of Hash
             representation.should have_key 'others'
             representation['others'].should be_kind_of Array
             representation['others'].size.should == 4
-            representation['others'].reject{|r| r.kind_of?(subject)}.should be_empty
+            representation['others'].reject { |r| r.kind_of?(subject) }.should be_empty
           end
         end
       end
@@ -315,10 +314,10 @@ describe Grape::Entity do
 
         context 'with an array of objects' do
           it 'allows a root element name to be specified' do
-            representation = subject.represent(4.times.map{Object.new})
+            representation = subject.represent(4.times.map { Object.new })
             representation.should be_kind_of Array
             representation.size.should == 4
-            representation.reject{|r| r.kind_of?(subject)}.should be_empty
+            representation.reject { |r| r.kind_of?(subject) }.should be_empty
           end
         end
       end
@@ -336,12 +335,12 @@ describe Grape::Entity do
 
         context 'with an array of objects' do
           it 'allows a root element name to be specified' do
-            representation = subject.represent(4.times.map{Object.new})
+            representation = subject.represent(4.times.map { Object.new })
             representation.should be_kind_of Hash
             representation.should have_key('things')
             representation['things'].should be_kind_of Array
             representation['things'].size.should == 4
-            representation['things'].reject{|r| r.kind_of?(subject)}.should be_empty
+            representation['things'].reject { |r| r.kind_of?(subject) }.should be_empty
           end
         end
       end
@@ -349,9 +348,9 @@ describe Grape::Entity do
 
     describe '#initialize' do
       it 'takes an object and an optional options hash' do
-        expect{ subject.new(Object.new) }.not_to raise_error
-        expect{ subject.new }.to raise_error(ArgumentError)
-        expect{ subject.new(Object.new, {}) }.not_to raise_error
+        expect { subject.new(Object.new) }.not_to raise_error
+        expect { subject.new }.to raise_error ArgumentError
+        expect { subject.new(Object.new, {}) }.not_to raise_error
       end
 
       it 'has attribute readers for the object and options' do
@@ -360,44 +359,46 @@ describe Grape::Entity do
         entity.options.should == {}
       end
     end
+
   end
 
   context 'instance methods' do
 
-    let(:model){ double(attributes) }
+    let(:model) { double(attributes) }
 
-    let(:attributes) { {
-      :name => 'Bob Bobson',
-      :email => 'bob@example.com',
-      :birthday => Time.gm(2012, 2, 27),
-      :fantasies => ['Unicorns', 'Double Rainbows', 'Nessy'],
-      :friends => [
-        double(:name => "Friend 1", :email => 'friend1@example.com', :fantasies => [], :birthday => Time.gm(2012, 2, 27), :friends => []),
-        double(:name => "Friend 2", :email => 'friend2@example.com', :fantasies => [], :birthday => Time.gm(2012, 2, 27), :friends => [])
-      ]
-    } }
+    let(:attributes) {
+      {
+        name: 'Bob Bobson',
+        email: 'bob@example.com',
+        birthday: Time.gm(2012, 2, 27),
+        fantasies: ['Unicorns', 'Double Rainbows', 'Nessy'],
+        friends: [
+          double(name: "Friend 1", email: 'friend1@example.com', fantasies: [], birthday: Time.gm(2012, 2, 27), friends: []),
+          double(name: "Friend 2", email: 'friend2@example.com', fantasies: [], birthday: Time.gm(2012, 2, 27), friends: [])
+        ]
+      }
+    }
 
-    subject{ fresh_class.new(model) }
+    subject { fresh_class.new(model) }
 
     describe '#serializable_hash' do
-
       it 'does not throw an exception if a nil options object is passed' do
-        expect{ fresh_class.new(model).serializable_hash(nil) }.not_to raise_error
+        expect { fresh_class.new(model).serializable_hash(nil) }.not_to raise_error
       end
 
       it 'does not blow up when the model is nil' do
         fresh_class.expose :name
-        expect{ fresh_class.new(nil).serializable_hash }.not_to raise_error
+        expect { fresh_class.new(nil).serializable_hash }.not_to raise_error
       end
 
       context "with safe option" do
         it 'does not throw an exception when an attribute is not found on the object' do
-          fresh_class.expose :name, :nonexistent_attribute, :safe => true
-          expect{ fresh_class.new(model).serializable_hash }.not_to raise_error
+          fresh_class.expose :name, :nonexistent_attribute, safe: true
+          expect { fresh_class.new(model).serializable_hash }.not_to raise_error
         end
 
         it "does not expose attributes that don't exist on the object" do
-          fresh_class.expose :email, :nonexistent_attribute, :name, :safe => true
+          fresh_class.expose :email, :nonexistent_attribute, :name, safe: true
 
           res = fresh_class.new(model).serializable_hash
           res.should have_key :email
@@ -407,8 +408,8 @@ describe Grape::Entity do
 
         it "does not expose attributes that don't exist on the object, even with criteria" do
           fresh_class.expose :email
-          fresh_class.expose :nonexistent_attribute, :safe => true, :if => lambda { false }
-          fresh_class.expose :nonexistent_attribute2, :safe => true, :if => lambda { true }
+          fresh_class.expose :nonexistent_attribute, safe: true, if: lambda { false }
+          fresh_class.expose :nonexistent_attribute2, safe: true, if: lambda { true }
 
           res = fresh_class.new(model).serializable_hash
           res.should have_key :email
@@ -420,7 +421,7 @@ describe Grape::Entity do
       context "without safe option" do
         it 'should throw an exception when an attribute is not found on the object' do
           fresh_class.expose :name, :nonexistent_attribute
-          expect{ fresh_class.new(model).serializable_hash }.to raise_error
+          expect { fresh_class.new(model).serializable_hash }.to raise_error
         end
 
         it "exposes attributes that don't exist on the object only when they are generated by a block" do
@@ -432,9 +433,9 @@ describe Grape::Entity do
         end
 
         it "does not expose attributes that are generated by a block but have not passed criteria" do
-          fresh_class.expose :nonexistent_attribute, :proc => lambda {|model, _|
+          fresh_class.expose :nonexistent_attribute, proc: lambda { |model, _|
             "I exist, but it is not yet my time to shine"
-          }, :if => lambda { |model, _| false }
+          },                                         if: lambda { |model, _| false }
           res = fresh_class.new(model).serializable_hash
           res.should_not have_key :nonexistent_attribute
         end
@@ -454,41 +455,47 @@ describe Grape::Entity do
       end
 
       it "does not expose attributes that are generated by a block but have not passed criteria" do
-        fresh_class.expose :nonexistent_attribute, :proc => lambda {|model, _|
+        fresh_class.expose :nonexistent_attribute, proc: lambda { |model, _|
           "I exist, but it is not yet my time to shine"
-        }, :if => lambda { |model, _| false }
+        },                                         if: lambda { |model, _| false }
         res = fresh_class.new(model).serializable_hash
         res.should_not have_key :nonexistent_attribute
       end
 
       context '#serializable_hash' do
-
         module EntitySpec
+
           class EmbeddedExample
             def serializable_hash(opts = {})
-              { :abc => 'def' }
+              { abc: 'def' }
             end
           end
+
           class EmbeddedExampleWithHash
             def name
               "abc"
             end
+
             def embedded
-              { :a => nil, :b => EmbeddedExample.new }
+              { a: nil, b: EmbeddedExample.new }
             end
           end
+
           class EmbeddedExampleWithMany
             def name
               "abc"
             end
+
             def embedded
-              [ EmbeddedExample.new, EmbeddedExample.new ]
+              [EmbeddedExample.new, EmbeddedExample.new]
             end
           end
+
           class EmbeddedExampleWithOne
             def name
               "abc"
             end
+
             def embedded
               EmbeddedExample.new
             end
@@ -498,41 +505,39 @@ describe Grape::Entity do
         it 'serializes embedded objects which respond to #serializable_hash' do
           fresh_class.expose :name, :embedded
           presenter = fresh_class.new(EntitySpec::EmbeddedExampleWithOne.new)
-          presenter.serializable_hash.should == {:name => "abc", :embedded => {:abc => "def"}}
+          presenter.serializable_hash.should == { name: "abc", embedded: { abc: "def" } }
         end
 
         it 'serializes embedded arrays of objects which respond to #serializable_hash' do
           fresh_class.expose :name, :embedded
           presenter = fresh_class.new(EntitySpec::EmbeddedExampleWithMany.new)
-          presenter.serializable_hash.should == {:name => "abc", :embedded => [{:abc => "def"}, {:abc => "def"}]}
+          presenter.serializable_hash.should == { name: "abc", embedded: [{ abc: "def" }, { abc: "def" }] }
         end
 
         it 'serializes embedded hashes of objects which respond to #serializable_hash' do
           fresh_class.expose :name, :embedded
           presenter = fresh_class.new(EntitySpec::EmbeddedExampleWithHash.new)
-          presenter.serializable_hash.should == {:name => "abc", :embedded => {:a => nil, :b => {:abc => "def"}}}
+          presenter.serializable_hash.should == { name: "abc", embedded: { a: nil, b: { abc: "def" } } }
         end
-
       end
-
     end
 
     describe '#value_for' do
       before do
         fresh_class.class_eval do
           expose :name, :email
-          expose :friends, :using => self
+          expose :friends, using: self
           expose :computed do |_, options|
             options[:awesome]
           end
 
-          expose :birthday, :format_with => :timestamp
+          expose :birthday, format_with: :timestamp
 
           def timestamp(date)
             date.strftime('%m/%d/%Y')
           end
 
-          expose :fantasies, :format_with => lambda {|f| f.reverse }
+          expose :fantasies, format_with: lambda { |f| f.reverse }
         end
       end
 
@@ -542,7 +547,7 @@ describe Grape::Entity do
 
       it 'instantiates a representation if that is called for' do
         rep = subject.send(:value_for, :friends)
-        rep.reject{|r| r.is_a?(fresh_class)}.should be_empty
+        rep.reject { |r| r.is_a?(fresh_class) }.should be_empty
         rep.first.serializable_hash[:name].should == 'Friend 1'
         rep.last.serializable_hash[:name].should == 'Friend 2'
       end
@@ -558,12 +563,12 @@ describe Grape::Entity do
           end
 
           fresh_class.class_eval do
-            expose :friends, :using => EntitySpec::FriendEntity
+            expose :friends, using: EntitySpec::FriendEntity
           end
 
           rep = subject.send(:value_for, :friends)
           rep.should be_kind_of Array
-          rep.reject{|r| r.is_a?(EntitySpec::FriendEntity)}.should be_empty
+          rep.reject { |r| r.is_a?(EntitySpec::FriendEntity) }.should be_empty
           rep.first.serializable_hash[:name].should == 'Friend 1'
           rep.last.serializable_hash[:name].should == 'Friend 2'
         end
@@ -577,16 +582,16 @@ describe Grape::Entity do
           end
 
           fresh_class.class_eval do
-            expose :custom_friends, :using => EntitySpec::FriendEntity do |user, options|
+            expose :custom_friends, using: EntitySpec::FriendEntity do |user, options|
               user.friends
             end
           end
 
           rep = subject.send(:value_for, :custom_friends)
           rep.should be_kind_of Array
-          rep.reject{|r| r.is_a?(EntitySpec::FriendEntity)}.should be_empty
-          rep.first.serializable_hash.should == { :name => 'Friend 1', :email => 'friend1@example.com'}
-          rep.last.serializable_hash.should == { :name => 'Friend 2', :email => 'friend2@example.com'}
+          rep.reject { |r| r.is_a?(EntitySpec::FriendEntity) }.should be_empty
+          rep.first.serializable_hash.should == { name: 'Friend 1', email: 'friend1@example.com' }
+          rep.last.serializable_hash.should == { name: 'Friend 2', email: 'friend2@example.com' }
         end
         it "passes through the proc which returns single object with custom options(:using)" do
           module EntitySpec
@@ -597,14 +602,14 @@ describe Grape::Entity do
           end
 
           fresh_class.class_eval do
-            expose :first_friend, :using => EntitySpec::FriendEntity do |user, options|
+            expose :first_friend, using: EntitySpec::FriendEntity do |user, options|
               user.friends.first
             end
           end
 
           rep = subject.send(:value_for, :first_friend)
           rep.should be_kind_of EntitySpec::FriendEntity
-          rep.serializable_hash.should == { :name => 'Friend 1', :email => 'friend1@example.com'}
+          rep.serializable_hash.should == { name: 'Friend 1', email: 'friend1@example.com' }
         end
         it "passes through the proc which returns empty with custom options(:using)" do
           module EntitySpec
@@ -615,7 +620,7 @@ describe Grape::Entity do
           end
 
           fresh_class.class_eval do
-            expose :first_friend, :using => EntitySpec::FriendEntity do |user, options|
+            expose :first_friend, using: EntitySpec::FriendEntity do |user, options|
 
             end
           end
@@ -630,23 +635,23 @@ describe Grape::Entity do
             class FriendEntity < Grape::Entity
               root 'friends', 'friend'
               expose :name
-              expose :email, :if => { :user_type => :admin }
+              expose :email, if: { user_type: :admin }
             end
           end
 
           fresh_class.class_eval do
-            expose :friends, :using => EntitySpec::FriendEntity
+            expose :friends, using: EntitySpec::FriendEntity
           end
 
           rep = subject.send(:value_for, :friends)
           rep.should be_kind_of Array
-          rep.reject{|r| r.is_a?(EntitySpec::FriendEntity)}.should be_empty
+          rep.reject { |r| r.is_a?(EntitySpec::FriendEntity) }.should be_empty
           rep.first.serializable_hash[:email].should be_nil
           rep.last.serializable_hash[:email].should be_nil
 
-          rep = subject.send(:value_for, :friends, { :user_type => :admin })
+          rep = subject.send(:value_for, :friends, { user_type: :admin })
           rep.should be_kind_of Array
-          rep.reject{|r| r.is_a?(EntitySpec::FriendEntity)}.should be_empty
+          rep.reject { |r| r.is_a?(EntitySpec::FriendEntity) }.should be_empty
           rep.first.serializable_hash[:email].should == 'friend1@example.com'
           rep.last.serializable_hash[:email].should == 'friend2@example.com'
         end
@@ -656,17 +661,17 @@ describe Grape::Entity do
             class FriendEntity < Grape::Entity
               root 'friends', 'friend'
               expose :name
-              expose :email, :if => { :collection => true }
+              expose :email, if: { collection: true }
             end
           end
 
           fresh_class.class_eval do
-            expose :friends, :using => EntitySpec::FriendEntity
+            expose :friends, using: EntitySpec::FriendEntity
           end
 
-          rep = subject.send(:value_for, :friends, { :collection => false })
+          rep = subject.send(:value_for, :friends, { collection: false })
           rep.should be_kind_of Array
-          rep.reject{|r| r.is_a?(EntitySpec::FriendEntity)}.should be_empty
+          rep.reject { |r| r.is_a?(EntitySpec::FriendEntity) }.should be_empty
           rep.first.serializable_hash[:email].should == 'friend1@example.com'
           rep.last.serializable_hash[:email].should == 'friend2@example.com'
         end
@@ -674,7 +679,7 @@ describe Grape::Entity do
       end
 
       it 'calls through to the proc if there is one' do
-        subject.send(:value_for, :computed, :awesome => 123).should == 123
+        subject.send(:value_for, :computed, awesome: 123).should == 123
       end
 
       it 'returns a formatted value if format_with is passed' do
@@ -692,14 +697,15 @@ describe Grape::Entity do
             expose :name
             expose :email
 
-          private
+            private
+
             def name
               "cooler name"
             end
           end
         end
 
-        friend = double("Friend", :name => "joe", :email => "joe@example.com")
+        friend = double("Friend", name: "joe", email: "joe@example.com")
         rep = EntitySpec::DelegatingEntity.new(friend)
         rep.send(:value_for, :name).should == "cooler name"
         rep.send(:value_for, :email).should == "joe@example.com"
@@ -714,21 +720,21 @@ describe Grape::Entity do
       end
 
       it 'returns each defined documentation hash' do
-        doc = {:type => "foo", :desc => "bar"}
-        fresh_class.expose :name, :documentation => doc
-        fresh_class.expose :email, :documentation => doc
+        doc = { type: "foo", desc: "bar" }
+        fresh_class.expose :name, documentation: doc
+        fresh_class.expose :email, documentation: doc
         fresh_class.expose :birthday
 
-        subject.documentation.should == {:name  => doc, :email => doc}
+        subject.documentation.should == { name: doc, email: doc }
       end
 
       it 'returns each defined documentation hash with :as param considering' do
-        doc = {:type => "foo", :desc => "bar"}
-        fresh_class.expose :name, :documentation => doc, :as => :label
-        fresh_class.expose :email, :documentation => doc
+        doc = { type: "foo", desc: "bar" }
+        fresh_class.expose :name, documentation: doc, as: :label
+        fresh_class.expose :email, documentation: doc
         fresh_class.expose :birthday
 
-        subject.documentation.should == {:label  => doc, :email => doc}
+        subject.documentation.should == { label: doc, email: doc }
       end
     end
 
@@ -744,68 +750,68 @@ describe Grape::Entity do
       end
 
       it 'returns the :as alias if one exists' do
-        fresh_class.expose :name, :as => :nombre
+        fresh_class.expose :name, as: :nombre
         subject.class.send(:key_for, 'name').should == :nombre
       end
     end
 
     describe '#conditions_met?' do
       it 'only passes through hash :if exposure if all attributes match' do
-        exposure_options = {:if => {:condition1 => true, :condition2 => true}}
+        exposure_options = { if: { condition1: true, condition2: true } }
 
         subject.send(:conditions_met?, exposure_options, {}).should be_false
-        subject.send(:conditions_met?, exposure_options, :condition1 => true).should be_false
-        subject.send(:conditions_met?, exposure_options, :condition1 => true, :condition2 => true).should be_true
-        subject.send(:conditions_met?, exposure_options, :condition1 => false, :condition2 => true).should be_false
-        subject.send(:conditions_met?, exposure_options, :condition1 => true, :condition2 => true, :other => true).should be_true
+        subject.send(:conditions_met?, exposure_options, condition1: true).should be_false
+        subject.send(:conditions_met?, exposure_options, condition1: true, condition2: true).should be_true
+        subject.send(:conditions_met?, exposure_options, condition1: false, condition2: true).should be_false
+        subject.send(:conditions_met?, exposure_options, condition1: true, condition2: true, other: true).should be_true
       end
 
       it 'looks for presence/truthiness if a symbol is passed' do
-        exposure_options = {:if => :condition1}
+        exposure_options = { if: :condition1 }
 
         subject.send(:conditions_met?, exposure_options, {}).should be_false
-        subject.send(:conditions_met?, exposure_options, {:condition1 => true}).should be_true
-        subject.send(:conditions_met?, exposure_options, {:condition1 => false}).should be_false
-        subject.send(:conditions_met?, exposure_options, {:condition1 => nil}).should be_false
+        subject.send(:conditions_met?, exposure_options, { condition1: true }).should be_true
+        subject.send(:conditions_met?, exposure_options, { condition1: false }).should be_false
+        subject.send(:conditions_met?, exposure_options, { condition1: nil }).should be_false
       end
 
       it 'looks for absence/falsiness if a symbol is passed' do
-        exposure_options = {:unless => :condition1}
+        exposure_options = { unless: :condition1 }
 
         subject.send(:conditions_met?, exposure_options, {}).should be_true
-        subject.send(:conditions_met?, exposure_options, {:condition1 => true}).should be_false
-        subject.send(:conditions_met?, exposure_options, {:condition1 => false}).should be_true
-        subject.send(:conditions_met?, exposure_options, {:condition1 => nil}).should be_true
+        subject.send(:conditions_met?, exposure_options, { condition1: true }).should be_false
+        subject.send(:conditions_met?, exposure_options, { condition1: false }).should be_true
+        subject.send(:conditions_met?, exposure_options, { condition1: nil }).should be_true
       end
 
       it 'only passes through proc :if exposure if it returns truthy value' do
-        exposure_options = {:if => lambda{|_,opts| opts[:true]}}
+        exposure_options = { if: lambda { |_, opts| opts[:true] } }
 
-        subject.send(:conditions_met?, exposure_options, :true => false).should be_false
-        subject.send(:conditions_met?, exposure_options, :true => true).should be_true
+        subject.send(:conditions_met?, exposure_options, true: false).should be_false
+        subject.send(:conditions_met?, exposure_options, true: true).should be_true
       end
 
       it 'only passes through hash :unless exposure if any attributes do not match' do
-        exposure_options = {:unless => {:condition1 => true, :condition2 => true}}
+        exposure_options = { unless: { condition1: true, condition2: true } }
 
         subject.send(:conditions_met?, exposure_options, {}).should be_true
-        subject.send(:conditions_met?, exposure_options, :condition1 => true).should be_false
-        subject.send(:conditions_met?, exposure_options, :condition1 => true, :condition2 => true).should be_false
-        subject.send(:conditions_met?, exposure_options, :condition1 => false, :condition2 => true).should be_false
-        subject.send(:conditions_met?, exposure_options, :condition1 => true, :condition2 => true, :other => true).should be_false
-        subject.send(:conditions_met?, exposure_options, :condition1 => false, :condition2 => false).should be_true
+        subject.send(:conditions_met?, exposure_options, condition1: true).should be_false
+        subject.send(:conditions_met?, exposure_options, condition1: true, condition2: true).should be_false
+        subject.send(:conditions_met?, exposure_options, condition1: false, condition2: true).should be_false
+        subject.send(:conditions_met?, exposure_options, condition1: true, condition2: true, other: true).should be_false
+        subject.send(:conditions_met?, exposure_options, condition1: false, condition2: false).should be_true
       end
 
       it 'only passes through proc :unless exposure if it returns falsy value' do
-        exposure_options = {:unless => lambda{|_,options| options[:true] == true}}
+        exposure_options = { unless: lambda { |_, options| options[:true] == true } }
 
-        subject.send(:conditions_met?, exposure_options, :true => false).should be_true
-        subject.send(:conditions_met?, exposure_options, :true => true).should be_false
+        subject.send(:conditions_met?, exposure_options, true: false).should be_true
+        subject.send(:conditions_met?, exposure_options, true: true).should be_false
       end
     end
 
     describe '::DSL' do
-      subject{ Class.new }
+      subject { Class.new }
 
       it 'creates an Entity class when called' do
         subject.should_not be_const_defined :Entity
@@ -814,7 +820,7 @@ describe Grape::Entity do
       end
 
       context 'pre-mixed' do
-        before{ subject.send(:include, Grape::Entity::DSL) }
+        before { subject.send(:include, Grape::Entity::DSL) }
 
         it 'is able to define entity traits through DSL' do
           subject.entity do
@@ -837,7 +843,7 @@ describe Grape::Entity do
         end
 
         context 'instance' do
-          let(:instance){ subject.new }
+          let(:instance) { subject.new }
 
           describe '#entity' do
             it 'is an instance of the entity class' do
@@ -849,11 +855,12 @@ describe Grape::Entity do
             end
 
             it 'should instantiate with options if provided' do
-              instance.entity(:awesome => true).options.should == {:awesome => true}
+              instance.entity(awesome: true).options.should == { awesome: true }
             end
           end
         end
       end
     end
+
   end
 end

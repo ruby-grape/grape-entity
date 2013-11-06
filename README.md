@@ -154,7 +154,7 @@ Any additional options defined on the entity exposure are included as is. In the
 
 ```ruby
 class Status < Grape::Entity
-  expose :user, :if => lambda { |instance, options| options[:user] } do |instance, options|
+  expose :user, if: lambda { |instance, options| options[:user] } do |instance, options|
     # examine available environment keys with `p options[:env].keys`
     options[:user]
   end
@@ -193,7 +193,7 @@ module API
     version 'v1'
 
     desc 'Statuses.', {
-      :object_fields => API::Entities::Status.documentation
+      object_fields: API::Entities::Status.documentation
     }
     get '/statuses' do
       statuses = Status.all
@@ -230,8 +230,8 @@ Entities with duplicate exposure names and conditions will silently overwrite on
 module API
   module Entities
     class Status < Grape::Entity
-      expose :field_a, :foo, :if => lambda { |object, options| object.check == "foo" }
-      expose :field_b, :foo, :if => lambda { |object, options| object.check == "bar" }
+      expose :field_a, :foo, if: lambda { |object, options| object.check == "foo" }
+      expose :field_b, :foo, if: lambda { |object, options| object.check == "bar" }
     end
   end
 end
@@ -243,9 +243,9 @@ This can be problematic, when you have mixed collections. Using `respond_to?` is
 module API
   module Entities
     class Status < Grape::Entity
-      expose :field_a, :if => lambda { |object, options| object.check == "foo" }
-      expose :field_b, :if => lambda { |object, options| object.check == "bar" }
-      expose :foo, :if => lambda { |object, options| object.respond_to?(:foo) }
+      expose :field_a, if: lambda { |object, options| object.check == "foo" }
+      expose :field_b, if: lambda { |object, options| object.check == "bar" }
+      expose :foo, if: lambda { |object, options| object.respond_to?(:foo) }
     end
   end
 end
@@ -273,11 +273,12 @@ Also see [Grape Entity Matchers](https://github.com/agileanimal/grape-entity-mat
 
 ## Contributing
 
-1. Fork it
+1. Fork the project
 2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Write tests. Make changes. Run `rubocop`.
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+5. Create a new pull request
 
 ## License
 
