@@ -12,11 +12,11 @@ module Grape
   #     module Entities
   #       class User < Grape::Entity
   #         expose :first_name, :last_name, :screen_name, :location
-  #         expose :field, :documentation => {:type => "string", :desc => "describe the field"}
-  #         expose :latest_status, :using => API::Status, :as => :status, :unless => {:collection => true}
-  #         expose :email, :if => {:type => :full}
-  #         expose :new_attribute, :if => {:version => 'v2'}
-  #         expose(:name){|model,options| [model.first_name, model.last_name].join(' ')}
+  #         expose :field, documentation: { type: "string", desc: "describe the field" }
+  #         expose :latest_status, using: API::Status, as: :status, unless: { collection: true }
+  #         expose :email, if: { type: :full }
+  #         expose :new_attribute, if: { version: 'v2' }
+  #         expose(:name) { |model, options| [model.first_name, model.last_name].join(' ') }
   #       end
   #     end
   #   end
@@ -32,11 +32,11 @@ module Grape
   #     class Users < Grape::API
   #       version 'v2'
   #
-  #       desc 'User index', { :object_fields => API::Entities::User.documentation }
+  #       desc 'User index', { object_fields: API::Entities::User.documentation }
   #       get '/users' do
   #         @users = User.all
   #         type = current_user.admin? ? :full : :default
-  #         present @users, :using => API::Entities::User, :type => type
+  #         present @users, using: API::Entities::User,  type: type
   #       end
   #     end
   #   end
@@ -48,16 +48,16 @@ module Grape
     module DSL
       def self.included(base)
         base.extend ClassMethods
-        ancestor_entity_class = base.ancestors.detect{|a| a.entity_class if a.respond_to?(:entity_class)}
+        ancestor_entity_class = base.ancestors.detect { |a| a.entity_class if a.respond_to?(:entity_class) }
         base.const_set(:Entity, Class.new(ancestor_entity_class || Grape::Entity)) unless const_defined?(:Entity)
       end
 
       module ClassMethods
         # Returns the automatically-created entity class for this
         # Class.
-        def entity_class(search_ancestors=true)
+        def entity_class(search_ancestors = true)
           klass = const_get(:Entity) if const_defined?(:Entity)
-          klass ||= ancestors.detect{|a| a.entity_class(false) if a.respond_to?(:entity_class) } if search_ancestors
+          klass ||= ancestors.detect { |a| a.entity_class(false) if a.respond_to?(:entity_class) } if search_ancestors
           klass
         end
 
@@ -81,11 +81,11 @@ module Grape
         #
         #     entity :name, :email do
         #       expose :latest_status, using: Status::Entity, if: :include_status
-        #       expose :new_attribute, :if => {:version => 'v2'}
+        #       expose :new_attribute, if: { version: 'v2' }
         #     end
         #   end
         def entity(*exposures, &block)
-          entity_class.expose *exposures if exposures.any?
+          entity_class.expose(*exposures) if exposures.any?
           entity_class.class_eval(&block) if block_given?
           entity_class
         end
@@ -144,7 +144,7 @@ module Grape
     # @example Multi-exposure if
     #
     #   class MyEntity < Grape::Entity
-    #     with_options :if => {:awesome => true} do
+    #     with_options if: { awesome: true } do
     #       expose :awesome, :sweet
     #     end
     #   end
@@ -172,11 +172,11 @@ module Grape
     # #docmentation, any exposure without a documentation key will be ignored.
     def self.documentation
       @documentation ||= exposures.inject({}) do |memo, value|
-                           unless value[1][:documentation].nil? || value[1][:documentation].empty?
-                             memo[key_for(value[0])] = value[1][:documentation]
-                           end
-                           memo
-                         end
+        unless value[1][:documentation].nil? || value[1][:documentation].empty?
+          memo[key_for(value[0])] = value[1][:documentation]
+        end
+        memo
+      end
 
       if superclass.respond_to? :documentation
         @documentation = superclass.documentation.merge(@documentation)
@@ -191,8 +191,6 @@ module Grape
     # @param name [Symbol] the name of the formatter
     # @param block [Proc] the block that will interpret the exposed attribute
     #
-    #
-    #
     # @example Formatter declaration
     #
     #   module API
@@ -202,7 +200,7 @@ module Grape
     #           date.strftime('%m/%d/%Y')
     #         end
     #
-    #         expose :birthday, :last_signed_in, :format_with => :timestamp
+    #         expose :birthday, :last_signed_in, format_with: :timestamp
     #       end
     #     end
     #   end
@@ -255,20 +253,20 @@ module Grape
     #     class Users < Grape::API
     #       version 'v2'
     #
-    #       # this will render { "users": [ {"id":"1"}, {"id":"2"} ] }
+    #       # this will render { "users" : [ { "id" : "1" }, { "id" : "2" } ] }
     #       get '/users' do
     #         @users = User.all
-    #         present @users, :using => API::Entities::User
+    #         present @users, using: API::Entities::User
     #       end
     #
-    #       # this will render { "user": {"id":"1"} }
+    #       # this will render { "user" : { "id" : "1" } }
     #       get '/users/:id' do
     #         @user = User.find(params[:id])
-    #         present @user, :using => API::Entities::User
+    #         present @user, using: API::Entities::User
     #       end
     #     end
     #   end
-    def self.root(plural, singular=nil)
+    def self.root(plural, singular = nil)
       @collection_root = plural
       @root = singular
     end
@@ -283,23 +281,24 @@ module Grape
     # @param options [Hash] Options that will be passed through to each entity
     #   representation.
     #
-    # @option options :root [String] override the default root name set for the
-    #   entity. Pass nil or false to represent the object or objects with no
-    #   root name even if one is defined for the entity.
+    # @option options :root [String] override the default root name set for the entity.
+    #   Pass nil or false to represent the object or objects with no root name
+    #   even if one is defined for the entity.
     def self.represent(objects, options = {})
       if objects.respond_to?(:to_ary)
-        inner = objects.to_ary().map{|o| self.new(o, {:collection => true}.merge(options))}
+        inner = objects.to_ary.map { |o| new(o, { collection: true }.merge(options)) }
         inner = inner.map(&:serializable_hash) if options[:serializable]
       else
-        inner = self.new(objects, options)
+        inner = new(objects, options)
         inner = inner.serializable_hash if options[:serializable]
       end
 
       root_element = if options.has_key?(:root)
-        options[:root]
-      else
-        objects.respond_to?(:to_ary) ? @collection_root : @root
-      end
+                       options[:root]
+                     else
+                       objects.respond_to?(:to_ary) ? @collection_root : @root
+                     end
+
       root_element ? { root_element => inner } : inner
     end
 
@@ -341,8 +340,8 @@ module Grape
           output[self.class.key_for(attribute)] =
             if partial_output.respond_to? :serializable_hash
               partial_output.serializable_hash(runtime_options)
-            elsif partial_output.kind_of?(Array) && !partial_output.map {|o| o.respond_to? :serializable_hash}.include?(false)
-              partial_output.map {|o| o.serializable_hash}
+            elsif partial_output.kind_of?(Array) && !partial_output.map { |o| o.respond_to? :serializable_hash }.include?(false)
+              partial_output.map { |o| o.serializable_hash }
             elsif partial_output.kind_of?(Hash)
               partial_output.each do |key, value|
                 partial_output[key] = value.serializable_hash if value.respond_to? :serializable_hash
@@ -355,7 +354,7 @@ module Grape
       end
     end
 
-    alias :as_json :serializable_hash
+    alias_method :as_json, :serializable_hash
 
     def to_json(options = {})
       options = options.to_h if options && options.respond_to?(:to_h)
@@ -396,7 +395,7 @@ module Grape
         if format_with.is_a?(Symbol) && formatters[format_with]
           formatters[format_with].call(delegate_attribute(attribute))
         elsif format_with.is_a?(Symbol)
-          self.send(format_with, delegate_attribute(attribute))
+          send(format_with, delegate_attribute(attribute))
         elsif format_with.respond_to? :call
           format_with.call(delegate_attribute(attribute))
         end
@@ -425,9 +424,9 @@ module Grape
 
       if_conditions.each do |if_condition|
         case if_condition
-          when Hash; if_condition.each_pair{|k,v| return false if options[k.to_sym] != v }
-          when Proc; return false unless if_condition.call(object, options)
-          when Symbol; return false unless options[if_condition]
+        when Hash then if_condition.each_pair { |k, v| return false if options[k.to_sym] != v }
+        when Proc then return false unless if_condition.call(object, options)
+        when Symbol then return false unless options[if_condition]
         end
       end
 
@@ -436,9 +435,9 @@ module Grape
 
       unless_conditions.each do |unless_condition|
         case unless_condition
-          when Hash; unless_condition.each_pair{|k,v| return false if options[k.to_sym] == v}
-          when Proc; return false if unless_condition.call(object, options)
-          when Symbol; return false if options[unless_condition]
+        when Hash then unless_condition.each_pair { |k, v| return false if options[k.to_sym] == v }
+        when Proc then return false if unless_condition.call(object, options)
+        when Symbol then return false if options[unless_condition]
         end
       end
 
@@ -469,7 +468,8 @@ module Grape
         end
       end
 
-      opts.merge (@block_options ||= []).inject({}) { |final, step|
+      @block_options ||= []
+      opts.merge @block_options.inject({}) { |final, step|
         final.merge(step, &merge_logic)
       }.merge(options, &merge_logic)
     end
