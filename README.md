@@ -271,6 +271,10 @@ Test API request/response as usual.
 
 Also see [Grape Entity Matchers](https://github.com/agileanimal/grape-entity-matchers).
 
+## Project Resources
+
+* Need help? [Grape Google Group](http://groups.google.com/group/ruby-grape)
+
 ## Contributing
 
 1. Fork the project
