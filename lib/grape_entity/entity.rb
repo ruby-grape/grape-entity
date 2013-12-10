@@ -36,7 +36,7 @@ module Grape
   #       get '/users' do
   #         @users = User.all
   #         type = current_user.admin? ? :full : :default
-  #         present @users, using: API::Entities::User,  type: type
+  #         present @users, with: API::Entities::User, type: type
   #       end
   #     end
   #   end
@@ -256,13 +256,13 @@ module Grape
     #       # this will render { "users" : [ { "id" : "1" }, { "id" : "2" } ] }
     #       get '/users' do
     #         @users = User.all
-    #         present @users, using: API::Entities::User
+    #         present @users, with: API::Entities::User
     #       end
     #
     #       # this will render { "user" : { "id" : "1" } }
     #       get '/users/:id' do
     #         @user = User.find(params[:id])
-    #         present @user, using: API::Entities::User
+    #         present @user, with: API::Entities::User
     #       end
     #     end
     #   end
