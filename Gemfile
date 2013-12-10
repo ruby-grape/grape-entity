@@ -15,3 +15,8 @@ group :development, :test do
   gem 'github-markup'
   gem 'rubocop', '~> 0.14.1'
 end
+
+platforms :rbx do
+  gem 'rubysl', '~> 2.0'
+  gem 'parser', '2.1.0.pre1'
+end
