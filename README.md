@@ -106,7 +106,7 @@ expose :digest, proc: ... # equivalent to a block
 You can also define a method on the entity and it will try that before trying
 on the object the entity wraps.
 
-```
+```ruby
 class ExampleEntity < Grape::Entity
   expose :attr_not_on_wrapped_object
   # ...
