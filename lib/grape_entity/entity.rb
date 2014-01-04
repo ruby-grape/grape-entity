@@ -171,9 +171,9 @@ module Grape
     # the values are document keys in the entity's documentation key. When calling
     # #docmentation, any exposure without a documentation key will be ignored.
     def self.documentation
-      @documentation ||= exposures.inject({}) do |memo, value|
-        unless value[1][:documentation].nil? || value[1][:documentation].empty?
-          memo[key_for(value[0])] = value[1][:documentation]
+      @documentation ||= exposures.inject({}) do |memo, (attribute, exposure_options)|
+        unless exposure_options[:documentation].nil? || exposure_options[:documentation].empty?
+          memo[key_for(attribute)] = exposure_options[:documentation]
         end
         memo
       end
@@ -286,7 +286,7 @@ module Grape
     #   even if one is defined for the entity.
     def self.represent(objects, options = {})
       if objects.respond_to?(:to_ary)
-        inner = objects.to_ary.map { |o| new(o, { collection: true }.merge(options)) }
+        inner = objects.to_ary.map { |object| new(object, { collection: true }.merge(options)) }
         inner = inner.map(&:serializable_hash) if options[:serializable]
       else
         inner = new(objects, options)
