@@ -407,8 +407,12 @@ module Grape
     def delegate_attribute(attribute)
       if respond_to?(attribute, true)
         send(attribute)
-      else
+      elsif object.respond_to?(attribute, true)
         object.send(attribute)
+      elsif object.respond_to?(:[], true)
+        object.send(:[], attribute)
+      else
+        raise ArgumentError, ":attribute was unable to be found anywhere"
       end
     end
 
