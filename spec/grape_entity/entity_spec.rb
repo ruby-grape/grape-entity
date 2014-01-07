@@ -41,6 +41,36 @@ describe Grape::Entity do
           subject.expose :name, using: 'Awesome', &block
           subject.exposures[:name].should == { proc: block, using: 'Awesome' }
         end
+
+        it 'references an instance of the entity without any options' do
+          subject.expose(:size) { self }
+          subject.represent(Hash.new).send(:value_for, :size).should be_an_instance_of fresh_class
+        end
+
+        it 'references an instance of the entity with :using option' do
+          module EntitySpec
+            class SomeObject1
+              attr_accessor :prop1
+              
+              def initialize
+                @prop1 = "value1"
+              end
+            end
+            
+            class BogusEntity < Grape::Entity
+              expose :prop1
+            end
+          end
+
+          subject.expose(:bogus, using: EntitySpec::BogusEntity) { self.object.prop1 = "MODIFIED 2"; self.object }
+          
+          object = EntitySpec::SomeObject1.new
+          value = subject.represent(object).send(:value_for, :bogus)
+          value.should be_instance_of EntitySpec::BogusEntity
+          
+          prop1 = value.send(:value_for, :prop1)
+          prop1.should == "MODIFIED 2"
+        end
       end
 
       context 'inherited exposures' do
@@ -100,6 +130,24 @@ describe Grape::Entity do
 
           model  = { birthday: Time.gm(2012, 2, 27) }
           subject.new(double(model)).as_json[:birthday].should == '02/27/2012'
+        end
+        
+        it 'formats an exposure with a :format_with lambda that returns a value from the entity instance' do
+          object = Hash.new
+          
+          subject.expose(:size, format_with: lambda{|value| self.object.class.to_s})
+          subject.represent(object).send(:value_for, :size).should == object.class.to_s
+        end
+        
+        it 'formats an exposure with a :format_with symbol that returns a value from the entity instance' do
+          subject.format_with :size_formatter do |date|
+            self.object.class.to_s
+          end
+
+          object = Hash.new
+          
+          subject.expose(:size, format_with: :size_formatter)
+          subject.represent(object).send(:value_for, :size).should == object.class.to_s
         end
       end
     end
@@ -190,11 +238,11 @@ describe Grape::Entity do
       it 'should override nested :using option' do
         subject.class_eval do
           with_options(using: 'Something') do
-            expose :awesome_thing, using: 'SometingElse'
+            expose :awesome_thing, using: 'SomethingElse'
           end
         end
 
-        subject.exposures[:awesome_thing].should == { using: 'SometingElse' }
+        subject.exposures[:awesome_thing].should == { using: 'SomethingElse' }
       end
 
       it 'should override nested :proc option' do

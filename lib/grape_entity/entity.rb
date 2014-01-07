@@ -171,9 +171,9 @@ module Grape
     # the values are document keys in the entity's documentation key. When calling
     # #docmentation, any exposure without a documentation key will be ignored.
     def self.documentation
-      @documentation ||= exposures.inject({}) do |memo, value|
-        unless value[1][:documentation].nil? || value[1][:documentation].empty?
-          memo[key_for(value[0])] = value[1][:documentation]
+      @documentation ||= exposures.inject({}) do |memo, (attribute, exposure_options)|
+        unless exposure_options[:documentation].nil? || exposure_options[:documentation].empty?
+          memo[key_for(attribute)] = exposure_options[:documentation]
         end
         memo
       end
@@ -286,7 +286,7 @@ module Grape
     #   even if one is defined for the entity.
     def self.represent(objects, options = {})
       if objects.respond_to?(:to_ary)
-        inner = objects.to_ary.map { |o| new(o, { collection: true }.merge(options)) }
+        inner = objects.to_ary.map { |object| new(object, { collection: true }.merge(options)) }
         inner = inner.map(&:serializable_hash) if options[:serializable]
       else
         inner = new(objects, options)
@@ -380,9 +380,9 @@ module Grape
           using_options = options.dup
           using_options.delete(:collection)
           using_options[:root] = nil
-          exposure_options[:using].represent(exposure_options[:proc].call(object, options), using_options)
+          exposure_options[:using].represent(instance_exec(object, options, &exposure_options[:proc]), using_options)
         else
-          exposure_options[:proc].call(object, options)
+          instance_exec(object, options, &exposure_options[:proc])
         end
       elsif exposure_options[:using]
         using_options = options.dup
@@ -393,11 +393,11 @@ module Grape
         format_with = exposure_options[:format_with]
 
         if format_with.is_a?(Symbol) && formatters[format_with]
-          formatters[format_with].call(delegate_attribute(attribute))
+          instance_exec(delegate_attribute(attribute), &formatters[format_with])
         elsif format_with.is_a?(Symbol)
           send(format_with, delegate_attribute(attribute))
         elsif format_with.respond_to? :call
-          format_with.call(delegate_attribute(attribute))
+          instance_exec(delegate_attribute(attribute), &format_with)
         end
       else
         delegate_attribute(attribute)
@@ -425,7 +425,7 @@ module Grape
       if_conditions.each do |if_condition|
         case if_condition
         when Hash then if_condition.each_pair { |k, v| return false if options[k.to_sym] != v }
-        when Proc then return false unless if_condition.call(object, options)
+        when Proc then return false unless instance_exec(object, options, &if_condition)
         when Symbol then return false unless options[if_condition]
         end
       end
@@ -436,7 +436,7 @@ module Grape
       unless_conditions.each do |unless_condition|
         case unless_condition
         when Hash then unless_condition.each_pair { |k, v| return false if options[k.to_sym] == v }
-        when Proc then return false if unless_condition.call(object, options)
+        when Proc then return false if instance_exec(object, options, &unless_condition)
         when Symbol then return false if options[unless_condition]
         end
       end
