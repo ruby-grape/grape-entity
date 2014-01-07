@@ -473,6 +473,5 @@ module Grape
         final.merge(step, &merge_logic)
       }.merge(options, &merge_logic)
     end
-
   end
 end

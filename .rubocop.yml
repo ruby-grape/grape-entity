@@ -63,3 +63,7 @@ Blocks:
 WordArray:
   # %w vs. [ '', ... ]
   Enabled: false
+
+CyclomaticComplexity:
+  Enabled: false
+

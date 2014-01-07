@@ -27,7 +27,7 @@ describe Grape::Entity do
         end
 
         it 'makes sure that :format_with as a proc cannot be used with a block' do
-          expect { subject.expose :name, format_with: proc { } { } }.to raise_error ArgumentError
+          expect { subject.expose :name, format_with: proc {} {} }.to raise_error ArgumentError
         end
       end
 
@@ -51,23 +51,26 @@ describe Grape::Entity do
           module EntitySpec
             class SomeObject1
               attr_accessor :prop1
-              
+
               def initialize
                 @prop1 = "value1"
               end
             end
-            
+
             class BogusEntity < Grape::Entity
               expose :prop1
             end
           end
 
-          subject.expose(:bogus, using: EntitySpec::BogusEntity) { self.object.prop1 = "MODIFIED 2"; self.object }
-          
+          subject.expose(:bogus, using: EntitySpec::BogusEntity) do
+            object.prop1 = "MODIFIED 2"
+            object
+          end
+
           object = EntitySpec::SomeObject1.new
           value = subject.represent(object).send(:value_for, :bogus)
           value.should be_instance_of EntitySpec::BogusEntity
-          
+
           prop1 = value.send(:value_for, :prop1)
           prop1.should == "MODIFIED 2"
         end
@@ -131,21 +134,21 @@ describe Grape::Entity do
           model  = { birthday: Time.gm(2012, 2, 27) }
           subject.new(double(model)).as_json[:birthday].should == '02/27/2012'
         end
-        
+
         it 'formats an exposure with a :format_with lambda that returns a value from the entity instance' do
           object = Hash.new
-          
-          subject.expose(:size, format_with: lambda{|value| self.object.class.to_s})
+
+          subject.expose(:size, format_with: lambda { |value| self.object.class.to_s })
           subject.represent(object).send(:value_for, :size).should == object.class.to_s
         end
-        
+
         it 'formats an exposure with a :format_with symbol that returns a value from the entity instance' do
           subject.format_with :size_formatter do |date|
             self.object.class.to_s
           end
 
           object = Hash.new
-          
+
           subject.expose(:size, format_with: :size_formatter)
           subject.represent(object).send(:value_for, :size).should == object.class.to_s
         end
@@ -512,7 +515,6 @@ describe Grape::Entity do
 
       context '#serializable_hash' do
         module EntitySpec
-
           class EmbeddedExample
             def serializable_hash(opts = {})
               { abc: 'def' }
@@ -697,7 +699,7 @@ describe Grape::Entity do
           rep.first.serializable_hash[:email].should be_nil
           rep.last.serializable_hash[:email].should be_nil
 
-          rep = subject.send(:value_for, :friends, { user_type: :admin })
+          rep = subject.send(:value_for, :friends,  user_type: :admin)
           rep.should be_kind_of Array
           rep.reject { |r| r.is_a?(EntitySpec::FriendEntity) }.should be_empty
           rep.first.serializable_hash[:email].should == 'friend1@example.com'
@@ -717,7 +719,7 @@ describe Grape::Entity do
             expose :friends, using: EntitySpec::FriendEntity
           end
 
-          rep = subject.send(:value_for, :friends, { collection: false })
+          rep = subject.send(:value_for, :friends,  collection: false)
           rep.should be_kind_of Array
           rep.reject { |r| r.is_a?(EntitySpec::FriendEntity) }.should be_empty
           rep.first.serializable_hash[:email].should == 'friend1@example.com'
@@ -818,18 +820,18 @@ describe Grape::Entity do
         exposure_options = { if: :condition1 }
 
         subject.send(:conditions_met?, exposure_options, {}).should be_false
-        subject.send(:conditions_met?, exposure_options, { condition1: true }).should be_true
-        subject.send(:conditions_met?, exposure_options, { condition1: false }).should be_false
-        subject.send(:conditions_met?, exposure_options, { condition1: nil }).should be_false
+        subject.send(:conditions_met?, exposure_options,  condition1: true).should be_true
+        subject.send(:conditions_met?, exposure_options,  condition1: false).should be_false
+        subject.send(:conditions_met?, exposure_options,  condition1: nil).should be_false
       end
 
       it 'looks for absence/falsiness if a symbol is passed' do
         exposure_options = { unless: :condition1 }
 
         subject.send(:conditions_met?, exposure_options, {}).should be_true
-        subject.send(:conditions_met?, exposure_options, { condition1: true }).should be_false
-        subject.send(:conditions_met?, exposure_options, { condition1: false }).should be_true
-        subject.send(:conditions_met?, exposure_options, { condition1: nil }).should be_true
+        subject.send(:conditions_met?, exposure_options,  condition1: true).should be_false
+        subject.send(:conditions_met?, exposure_options,  condition1: false).should be_true
+        subject.send(:conditions_met?, exposure_options,  condition1: nil).should be_true
       end
 
       it 'only passes through proc :if exposure if it returns truthy value' do
