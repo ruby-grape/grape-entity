@@ -19,4 +19,5 @@ end
 platforms :rbx do
   gem 'rubysl', '~> 2.0'
   gem 'parser', '~> 2.1'
+  gem 'racc', '~> 1.4'
 end
