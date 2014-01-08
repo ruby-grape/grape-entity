@@ -153,6 +153,58 @@ module Grape
       yield
       @block_options.pop
     end
+    
+    # Merge exposures from another entity into the current entity 
+    # as a way to "flatten" multiple models for use in formats such as "CSV".
+    #
+    # @example Merge child entity into parent
+    #
+    #   class Address < Grape::Entity
+    #     expose :street, :city, :state, :zip
+    #   end
+    # 
+    #   class Contact < Grape::Entity
+    #     expose :name
+    #     expose :addresses, using: Address, unless: { format: :csv }
+    #     merge_with Address, if: { format: :csv } do
+    #       object.addresses.first
+    #     end
+    #   end
+    def self.merge_with(*entity_classes, &block)
+      merge_options     = entity_classes.last.is_a?(Hash) ? entity_classes.pop.dup : {}
+      except_attributes = [merge_options.delete(:except)].compact
+      only_attributes   = [merge_options.delete(:only)].compact
+      prefix            = merge_options.delete(:prefix)
+      suffix            = merge_options.delete(:suffix)
+      
+      merge_options[:object] = block if block_given?
+      
+      entity_classes.each do |entity_class|
+        raise ArgumentError, "#{entity_class} must be a Grape::Entity" unless entity_class < Grape::Entity
+        
+        merged_entities[entity_class] = merge_options
+        
+        entity_class.exposures.each_pair do |attribute, expose_options|
+          next if except_attributes.include?(attribute)
+          next if only_attributes.any? && !only_attributes.include?(attribute)
+          
+          options = expose_options.dup.merge(merge_options)
+          
+          [:if, :unless].each do |condition|
+            if merge_options.has_key?(condition) && expose_options.has_key?(condition)
+              options[condition] = Proc.new{|object, instance_options| conditions_met?(merge_options, instance_options) && conditions_met?(expose_options, instance_options)}
+            end
+          end
+          
+          expose :"#{prefix}#{attribute}#{suffix}", options
+        end
+        
+      end
+    end
+    
+    def self.merged_entities
+      @merged_entities ||= superclass.respond_to?(:merged_entities) ? superclass.exposures.dup : {}
+    end
 
     # Returns a hash of exposures that have been declared for this Entity or ancestors. The keys
     # are symbolized references to methods on the containing object, the values are
