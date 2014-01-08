@@ -388,29 +388,38 @@ module Grape
         using_options = options.dup
         using_options.delete(:collection)
         using_options[:root] = nil
-        exposure_options[:using].represent(delegate_attribute(attribute), using_options)
+        exposure_options[:using].represent(delegate_attribute(attribute, exposure_options[:object]), using_options)
       elsif exposure_options[:format_with]
         format_with = exposure_options[:format_with]
 
         if format_with.is_a?(Symbol) && formatters[format_with]
-          instance_exec(delegate_attribute(attribute), &formatters[format_with])
+          instance_exec(delegate_attribute(attribute, exposure_options[:object]), &formatters[format_with])
         elsif format_with.is_a?(Symbol)
-          send(format_with, delegate_attribute(attribute))
+          send(format_with, delegate_attribute(attribute, exposure_options[:object]))
         elsif format_with.respond_to? :call
-          instance_exec(delegate_attribute(attribute), &format_with)
+          instance_exec(delegate_attribute(attribute, exposure_options[:object]), &format_with)
         end
       else
-        delegate_attribute(attribute)
+        delegate_attribute(attribute, exposure_options[:object])
       end
     end
 
-    def delegate_attribute(attribute)
+    def delegate_attribute(attribute, alternate_object = nil)
+      target_object = case alternate_object
+                      when Symbol
+                        send(alternate_object)
+                      when Proc
+                        instance_exec(&alternate_object)
+                      else
+                        object
+                      end
+      
       if respond_to?(attribute, true)
         send(attribute)
-      elsif object.respond_to?(attribute, true)
-        object.send(attribute)
-      elsif object.respond_to?(:[], true)
-        object.send(:[], attribute)
+      elsif target_object.respond_to?(attribute, true)
+        target_object.send(attribute)
+      elsif target_object.respond_to?(:[], true)
+        target_object.send(:[], attribute)
       else
         raise ArgumentError, ":attribute was unable to be found anywhere"
       end
