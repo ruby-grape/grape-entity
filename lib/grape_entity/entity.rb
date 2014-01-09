@@ -1,6 +1,16 @@
 require 'multi_json'
 
 module Grape
+  # The AttributeNotFoundError class indicates that an attribute defined 
+  # by an exposure was not found on the target object of an entity.
+  class AttributeNotFoundError < StandardError
+    attr_reader :attribute
+    
+    def initialize(message, attribute)
+      super(message)
+      @attribute = attribute.to_sym
+    end
+  end
   # An Entity is a lightweight structure that allows you to easily
   # represent data from your application in a consistent and abstracted
   # way in your API. Entities can also provide documentation for the
@@ -475,7 +485,7 @@ module Grape
       elsif target_object.respond_to?(:[], true)
         target_object.send(:[], attribute)
       else
-        raise ArgumentError, ":attribute was unable to be found anywhere"
+        raise AttributeNotFoundError.new(attribute.to_s, attribute)
       end
     end
     
