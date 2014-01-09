@@ -1,6 +1,16 @@
 require 'multi_json'
 
 module Grape
+  # The AttributeNotFoundError class indicates that an attribute defined 
+  # by an exposure was not found on the target object of an entity.
+  class AttributeNotFoundError < StandardError
+    attr_reader :attribute
+    
+    def initialize(message, attribute)
+      super(message)
+      @attribute = attribute.to_sym
+    end
+  end
   # An Entity is a lightweight structure that allows you to easily
   # represent data from your application in a consistent and abstracted
   # way in your API. Entities can also provide documentation for the
@@ -122,6 +132,9 @@ module Grape
     #   block to the expose call to achieve the same effect.
     # @option options :documentation Define documenation for an exposed
     #   field, typically the value is a hash with two fields, type and desc.
+    # @option options [Symbol, Proc] :object Specifies the target object to get 
+    #   an attribute value from. A [Symbol] references a method on the [#object]. 
+    #   A [Proc] should return an alternate object.
     def self.expose(*args, &block)
       options = merge_options(args.last.is_a?(Hash) ? args.pop : {})
 
@@ -152,6 +165,99 @@ module Grape
       (@block_options ||= []).push(options)
       yield
       @block_options.pop
+    end
+    
+    # Merge exposures from another entity into the current entity 
+    # as a way to "flatten" multiple models for use in formats such as "CSV".
+    #
+    # @overload merge_with(*entity_classes, &block)
+    #   @param entity_classes [Entity] list of entities to copy exposures from 
+    #     (The last parameter can be a [Hash] with options)
+    #   @param block [Proc] A block that returns the target object to retrieve attribute 
+    #     values from.
+    #
+    # @overload merge_with(*entity_classes, options, &block)
+    #   @param entity_classes [Entity] list of entities to copy exposures from 
+    #     (The last parameter can be a [Hash] with options)
+    #   @param options [Hash] Options merged into each exposure that is copied from 
+    #     the specified entities. Some additional options determine how exposures are 
+    #     copied.
+    #     @see expose
+    #   @param block [Proc] A block that returns the target object to retrieve attribute 
+    #     values from. Stored in the [expose] :object option.
+    #   @option options [Symbol, Array<Symbol>] :except Attributes to skip when copying exposures
+    #   @option options [Symbol, Array<Symbol>] :only Attributes to include when copying exposures
+    #   @option options [String] :prefix String to prefix attributes with
+    #   @option options [String] :suffix String to suffix attributes with
+    #   @option options :if Criteria that are evaluated to determine if an exposure 
+    #     should be represented. If a copied exposure already has the :if option specified, 
+    #     a [Proc] is created that wraps both :if conditions.
+    #     @see expose Check out the description of the default :if option
+    #   @option options :unless Criteria that are evaluated to determine if an exposure 
+    #     should be represented. If a copied exposure already has the :unless option specified, 
+    #     a [Proc] is created that wraps both :unless conditions.
+    #     @see expose Check out the description of the default :unless option
+    #   @param block [Proc] A block that returns the target object to retrieve attribute 
+    #     values from.
+    #
+    # @raise ArgumentError Entity classes must inherit from [Entity]
+    #
+    # @example Merge child entity into parent
+    #
+    #   class Address < Grape::Entity
+    #     expose :id, :street, :city, :state, :zip
+    #   end
+    # 
+    #   class Contact < Grape::Entity
+    #     expose :id, :name
+    #     expose :addresses, using: Address, unless: { format: :csv }
+    #     merge_with Address, if: { format: :csv }, except: :id do
+    #       object.addresses.first
+    #     end
+    #   end
+    def self.merge_with(*entity_classes, &block)
+      merge_options     = entity_classes.last.is_a?(Hash) ? entity_classes.pop.dup : {}
+      except_attributes = [merge_options.delete(:except)].flatten.compact
+      only_attributes   = [merge_options.delete(:only)].flatten.compact
+      prefix            = merge_options.delete(:prefix)
+      suffix            = merge_options.delete(:suffix)
+      
+      merge_options[:object] = block if block_given?
+      
+      entity_classes.each do |entity_class|
+        raise ArgumentError, "#{entity_class} must be a Grape::Entity" unless entity_class < Entity
+        
+        merged_entities[entity_class] = merge_options
+        
+        entity_class.exposures.each_pair do |attribute, original_options|
+          next if except_attributes.any? && except_attributes.include?(attribute)
+          next if only_attributes.any? && !only_attributes.include?(attribute)
+          
+          original_options = original_options.dup
+          exposure_options = original_options.merge(merge_options)
+          
+          [:if, :unless].each do |condition|
+            if merge_options.has_key?(condition) && original_options.has_key?(condition)
+              
+              # only overwrite original_options[:object] if a new object is specified
+              if merge_options.has_key? :object
+                original_options[:object] = merge_options[:object]
+              end
+              
+              exposure_options[condition] = Proc.new{|object, instance_options|
+                conditions_met?(original_options, instance_options) &&
+                conditions_met?(merge_options, instance_options)
+              }
+            end
+          end
+          
+          expose :"#{prefix}#{attribute}#{suffix}", exposure_options
+        end
+      end
+    end
+    
+    def self.merged_entities
+      @merged_entities ||= superclass.respond_to?(:merged_entities) ? superclass.exposures.dup : {}
     end
 
     # Returns a hash of exposures that have been declared for this Entity or ancestors. The keys
@@ -388,27 +494,55 @@ module Grape
         using_options = options.dup
         using_options.delete(:collection)
         using_options[:root] = nil
-        exposure_options[:using].represent(delegate_attribute(attribute), using_options)
+        exposure_options[:using].represent(delegate_attribute(attribute, exposure_options), using_options)
       elsif exposure_options[:format_with]
         format_with = exposure_options[:format_with]
 
         if format_with.is_a?(Symbol) && formatters[format_with]
-          instance_exec(delegate_attribute(attribute), &formatters[format_with])
+          instance_exec(delegate_attribute(attribute, exposure_options), &formatters[format_with])
         elsif format_with.is_a?(Symbol)
-          send(format_with, delegate_attribute(attribute))
+          send(format_with, delegate_attribute(attribute, exposure_options))
         elsif format_with.respond_to? :call
-          instance_exec(delegate_attribute(attribute), &format_with)
+          instance_exec(delegate_attribute(attribute, exposure_options), &format_with)
         end
       else
-        delegate_attribute(attribute)
+        delegate_attribute(attribute, exposure_options)
       end
     end
-
-    def delegate_attribute(attribute)
+    
+    # Detects what target object to retrieve the attribute value from.
+    #
+    # @param attribute [Symbol] Name of attribute to get a value from the target object
+    # @param alternate_object [Symbol, Proc] Specifies a target object to use 
+    #   instead of [#object] by referencing a method on the instance with a symbol, 
+    #   or evaluating a [Proc] and using the result as the target object. The original 
+    #   [#object] is used if no alternate object is specified.
+    #
+    # @raise [AttributeNotFoundError]
+    def delegate_attribute(attribute, options = {})
+      target_object = select_target_object(options)
+      
       if respond_to?(attribute, true)
         send(attribute)
+      elsif target_object.respond_to?(attribute, true)
+        target_object.send(attribute)
+      elsif target_object.respond_to?(:[], true)
+        target_object.send(:[], attribute)
       else
-        object.send(attribute)
+        raise AttributeNotFoundError.new(attribute.to_s, attribute)
+      end
+    end
+    
+    def select_target_object(options)
+      alternate_object = options[:object]
+      
+      case alternate_object
+      when Symbol
+        send(alternate_object)
+      when Proc
+        instance_exec(&alternate_object)
+      else
+        object
       end
     end
 
@@ -425,7 +559,7 @@ module Grape
       if_conditions.each do |if_condition|
         case if_condition
         when Hash then if_condition.each_pair { |k, v| return false if options[k.to_sym] != v }
-        when Proc then return false unless instance_exec(object, options, &if_condition)
+        when Proc then return false unless instance_exec(select_target_object(exposure_options), options, &if_condition)
         when Symbol then return false unless options[if_condition]
         end
       end
@@ -436,7 +570,7 @@ module Grape
       unless_conditions.each do |unless_condition|
         case unless_condition
         when Hash then unless_condition.each_pair { |k, v| return false if options[k.to_sym] == v }
-        when Proc then return false if instance_exec(object, options, &unless_condition)
+        when Proc then return false if instance_exec(select_target_object(exposure_options), options, &unless_condition)
         when Symbol then return false if options[unless_condition]
         end
       end
