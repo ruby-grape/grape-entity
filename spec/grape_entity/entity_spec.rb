@@ -267,6 +267,254 @@ describe Grape::Entity do
         subject.exposures[:awesome_thing].should == { documentation: { desc: 'Other description.' } }
       end
     end
+    
+    describe '.merge_with' do
+      let(:contacts) do
+        (1..3).map do |c|
+          OpenStruct.new(
+            id: "contact#{c}",
+            name: "Contact Name #{c}",
+            addresses: (1..3).map do |a|
+              OpenStruct.new(
+                id: "address#{a}",
+                street: "#{a} Main St.",
+                city: ["Boston", "New York", "Seattle"][a - 1],
+                state: ["MA", "NY", "WA"][a - 1],
+                zip: "1000#{a}"
+              )
+            end
+          )
+        end
+      end
+      
+      it "copies another entity's exposures" do
+        address_entity = Class.new(Grape::Entity)
+        address_entity.expose :id, :street, :city, :state, :zip
+        contact_entity = Class.new(Grape::Entity)
+        contact_entity.expose :id, :name
+        contact_entity.expose :addresses, using: address_entity
+        
+        address_exposures = address_entity.exposures.keys
+        contact_exposures = contact_entity.exposures.keys
+        
+        contact_entity.merge_with address_entity do
+          object.addresses.last
+        end
+        
+        merged_exposures = contact_entity.exposures.keys
+        
+        merged_exposures.sort.should == (address_exposures + contact_exposures).uniq.sort
+      end
+      
+      it "doesn't affect the merged entities exposures" do
+        address_entity = Class.new(Grape::Entity)
+        address_entity.expose :id, :street, :city, :state, :zip
+        contact_entity = Class.new(Grape::Entity)
+        contact_entity.expose :id, :name
+        contact_entity.expose :addresses, using: address_entity
+        
+        address_exposures = address_entity.exposures.keys
+        contact_exposures = contact_entity.exposures.keys
+        
+        contact_entity.merge_with address_entity do
+          object.addresses.last
+        end
+        
+        address_exposures.should == address_entity.exposures.keys
+      end
+      
+      it "copies exposures from multiple entities" do
+        email_entity = Class.new(Grape::Entity)
+        email_entity.expose :id, :label, :email
+        address_entity = Class.new(Grape::Entity)
+        address_entity.expose :id, :street, :city, :state, :zip
+        contact_entity = Class.new(Grape::Entity)
+        contact_entity.expose :id, :name
+        contact_entity.expose :addresses, using: address_entity
+        
+        email_exposures   = email_entity.exposures.keys
+        address_exposures = address_entity.exposures.keys
+        contact_exposures = contact_entity.exposures.keys
+        
+        contact_entity.merge_with email_entity, address_entity do
+          object.addresses.last
+        end
+        
+        merged_exposures = contact_entity.exposures.keys
+        
+        merged_exposures.sort.should == (email_exposures + address_exposures + contact_exposures).uniq.sort
+      end
+      
+      it "excludes specified exposures" do
+        address_entity = Class.new(Grape::Entity)
+        address_entity.expose :id, :street, :city, :state, :zip
+        contact_entity = Class.new(Grape::Entity)
+        contact_entity.expose :id, :name
+        contact_entity.expose :addresses, using: address_entity
+        
+        merge_options = {
+          except: [:state, :zip]
+        }
+        
+        contact_entity.merge_with address_entity, merge_options do
+          object.addresses.last
+        end
+        
+        merged_exposures = contact_entity.exposures.keys
+        
+        merged_exposures.should include(:street, :city)
+        merged_exposures.should_not include(:state, :zip)
+      end
+      
+      it "only includes specified exposures" do
+        address_entity = Class.new(Grape::Entity)
+        address_entity.expose :id, :street, :city, :state, :zip
+        contact_entity = Class.new(Grape::Entity)
+        contact_entity.expose :id, :name
+        contact_entity.expose :addresses, using: address_entity
+        
+        merge_options = {
+          only: [:state, :zip]
+        }
+        
+        contact_entity.merge_with address_entity, merge_options do
+          object.addresses.last
+        end
+        
+        merged_exposures = contact_entity.exposures.keys
+        
+        merged_exposures.should_not include(:street, :city)
+        merged_exposures.should include(:state, :zip)
+      end
+      
+      it "adds a prefix to each attribute" do
+        address_entity = Class.new(Grape::Entity)
+        address_entity.expose :id, :street, :city, :state, :zip
+        contact_entity = Class.new(Grape::Entity)
+        contact_entity.expose :id, :name
+        contact_entity.expose :addresses, using: address_entity
+        
+        merge_options = {
+          prefix: "prefix_"
+        }
+        
+        contact_entity.merge_with address_entity, merge_options do
+          object.addresses.last
+        end
+        
+        merged_exposures = contact_entity.exposures.keys
+        
+        merged_exposures.should_not include(:street, :city, :state, :zip)
+        merged_exposures.should include(:prefix_id, :prefix_street, :prefix_city, :prefix_state, :prefix_zip)
+      end
+      
+      it "adds a suffix to each attribute" do
+        address_entity = Class.new(Grape::Entity)
+        address_entity.expose :id, :street, :city, :state, :zip
+        contact_entity = Class.new(Grape::Entity)
+        contact_entity.expose :id, :name
+        contact_entity.expose :addresses, using: address_entity
+        
+        merge_options = {
+          suffix: "_suffix"
+        }
+        
+        contact_entity.merge_with address_entity, merge_options do
+          object.addresses.last
+        end
+        
+        merged_exposures = contact_entity.exposures.keys
+        
+        merged_exposures.should_not include(:street, :city, :state, :zip)
+        merged_exposures.should include(:id_suffix, :street_suffix, :city_suffix, :state_suffix, :zip_suffix)
+      end
+      
+      it "evaluates the :if option as well as the copied exposure's :if option" do
+        address_entity = Class.new(Grape::Entity)
+        address_entity.expose :id, :street, :city, :state
+        address_entity.expose :zip, if: Proc.new{|object| object.zip != "10003" }
+        contact_entity = Class.new(Grape::Entity)
+        contact_entity.expose :id, :name
+        contact_entity.expose :addresses, using: address_entity
+        
+        merge_options = {
+          if: { format: :csv },
+          except: :id
+        }
+        
+        contact_entity.merge_with address_entity, merge_options do
+          object.addresses.last
+        end
+        
+        entity = contact_entity.new(contacts[0], format: :csv).serializable_hash
+        
+        entity[:addresses][0].should have_key(:zip)
+        entity[:addresses][1].should have_key(:zip)
+        entity[:addresses][2].should_not have_key(:zip)
+        entity.should_not have_key(:zip)
+        
+        contact_entity.merge_with address_entity, merge_options do
+          object.addresses.first
+        end
+        
+        entity = contact_entity.new(contacts[0], format: :csv).serializable_hash
+        
+        entity[:addresses][0].should have_key(:zip)
+        entity[:addresses][1].should have_key(:zip)
+        entity[:addresses][2].should_not have_key(:zip)
+        entity.should have_key(:zip)
+        
+        entity = contact_entity.new(contacts[0], format: :json).serializable_hash
+        
+        entity[:addresses][0].should have_key(:zip)
+        entity[:addresses][1].should have_key(:zip)
+        entity[:addresses][2].should_not have_key(:zip)
+        entity.should_not have_key(:zip)
+      end
+      
+      it "evaluates the :unless option as well as the copied exposure's :unless option" do
+        address_entity = Class.new(Grape::Entity)
+        address_entity.expose :id, :street, :city, :state
+        address_entity.expose :zip, unless: Proc.new{|object| object.zip == "10003" }
+        contact_entity = Class.new(Grape::Entity)
+        contact_entity.expose :id, :name
+        contact_entity.expose :addresses, using: address_entity
+        
+        merge_options = {
+          unless: { format: :csv },
+          except: :id
+        }
+        
+        contact_entity.merge_with address_entity, merge_options do
+          object.addresses.last
+        end
+        
+        entity = contact_entity.new(contacts[0], format: :csv).serializable_hash
+        
+        entity[:addresses][0].should have_key(:zip)
+        entity[:addresses][1].should have_key(:zip)
+        entity[:addresses][2].should_not have_key(:zip)
+        entity.should have_key(:zip)
+        
+        contact_entity.merge_with address_entity, merge_options do
+          object.addresses.first
+        end
+        
+        entity = contact_entity.new(contacts[0], format: :csv).serializable_hash
+        
+        entity[:addresses][0].should have_key(:zip)
+        entity[:addresses][1].should have_key(:zip)
+        entity[:addresses][2].should_not have_key(:zip)
+        entity.should have_key(:zip)
+        
+        entity = contact_entity.new(contacts[0], format: :json).serializable_hash
+        
+        entity[:addresses][0].should have_key(:zip)
+        entity[:addresses][1].should have_key(:zip)
+        entity[:addresses][2].should_not have_key(:zip)
+        entity.should_not have_key(:zip)
+      end
+    end
 
     describe '.represent' do
       it 'returns a single entity if called with one object' do
