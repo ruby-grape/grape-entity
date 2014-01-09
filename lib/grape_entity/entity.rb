@@ -440,31 +440,33 @@ module Grape
         using_options = options.dup
         using_options.delete(:collection)
         using_options[:root] = nil
-        exposure_options[:using].represent(delegate_attribute(attribute, exposure_options[:object]), using_options)
+        exposure_options[:using].represent(delegate_attribute(attribute, exposure_options), using_options)
       elsif exposure_options[:format_with]
         format_with = exposure_options[:format_with]
 
         if format_with.is_a?(Symbol) && formatters[format_with]
-          instance_exec(delegate_attribute(attribute, exposure_options[:object]), &formatters[format_with])
+          instance_exec(delegate_attribute(attribute, exposure_options), &formatters[format_with])
         elsif format_with.is_a?(Symbol)
-          send(format_with, delegate_attribute(attribute, exposure_options[:object]))
+          send(format_with, delegate_attribute(attribute, exposure_options))
         elsif format_with.respond_to? :call
-          instance_exec(delegate_attribute(attribute, exposure_options[:object]), &format_with)
+          instance_exec(delegate_attribute(attribute, exposure_options), &format_with)
         end
       else
-        delegate_attribute(attribute, exposure_options[:object])
+        delegate_attribute(attribute, exposure_options)
       end
     end
-
-    def delegate_attribute(attribute, alternate_object = nil)
-      target_object = case alternate_object
-                      when Symbol
-                        send(alternate_object)
-                      when Proc
-                        instance_exec(&alternate_object)
-                      else
-                        object
-                      end
+    
+    # Detects what target object to retrieve the attribute value from.
+    #
+    # @param attribute [Symbol] Name of attribute to get a value from the target object
+    # @param alternate_object [Symbol, Proc] Specifies a target object to use 
+    #   instead of [#object] by referencing a method on the instance with a symbol, 
+    #   or evaluating a [Proc] and using the result as the target object. The original 
+    #   [#object] is used if no alternate object is specified.
+    #
+    # @raise [AttributeNotFoundError]
+    def delegate_attribute(attribute, options = {})
+      target_object = select_target_object(options)
       
       if respond_to?(attribute, true)
         send(attribute)
@@ -474,6 +476,19 @@ module Grape
         target_object.send(:[], attribute)
       else
         raise ArgumentError, ":attribute was unable to be found anywhere"
+      end
+    end
+    
+    def select_target_object(options)
+      alternate_object = options[:object]
+      
+      case alternate_object
+      when Symbol
+        send(alternate_object)
+      when Proc
+        instance_exec(&alternate_object)
+      else
+        object
       end
     end
 
@@ -490,7 +505,7 @@ module Grape
       if_conditions.each do |if_condition|
         case if_condition
         when Hash then if_condition.each_pair { |k, v| return false if options[k.to_sym] != v }
-        when Proc then return false unless instance_exec(object, options, &if_condition)
+        when Proc then return false unless instance_exec(select_target_object(exposure_options), options, &if_condition)
         when Symbol then return false unless options[if_condition]
         end
       end
@@ -501,7 +516,7 @@ module Grape
       unless_conditions.each do |unless_condition|
         case unless_condition
         when Hash then unless_condition.each_pair { |k, v| return false if options[k.to_sym] == v }
-        when Proc then return false if instance_exec(object, options, &unless_condition)
+        when Proc then return false if instance_exec(select_target_object(exposure_options), options, &unless_condition)
         when Symbol then return false if options[unless_condition]
         end
       end
