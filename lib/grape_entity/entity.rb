@@ -132,10 +132,22 @@ module Grape
 
       raise ArgumentError, "You may not use block-setting when also using format_with" if block_given? && options[:format_with].respond_to?(:call)
 
-      options[:proc] = block if block_given?
+      options[:proc] = block if block_given? && block.parameters.any?
 
+      @nested_attributes ||= []
       args.each do |attribute|
+        unless @nested_attributes.empty?
+          attribute = "#{@nested_attributes.last}__#{attribute}"
+        end
+
         exposures[attribute.to_sym] = options
+
+        # Nested exposures are given in a block with no parameters.
+        if block_given? && block.parameters.empty?
+          @nested_attributes << attribute
+          block.call
+          @nested_attributes.pop
+        end
       end
     end
 
@@ -368,27 +380,33 @@ module Grape
 
     protected
 
+    def self.name_for(attribute)
+      attribute.to_s.split('__').last.to_sym
+    end
+
     def self.key_for(attribute)
-      exposures[attribute.to_sym][:as] || attribute.to_sym
+      exposures[attribute.to_sym][:as] || name_for(attribute)
     end
 
     def value_for(attribute, options = {})
       exposure_options = exposures[attribute.to_sym]
 
-      if exposure_options[:proc]
-        if exposure_options[:using]
-          using_options = options.dup
-          using_options.delete(:collection)
-          using_options[:root] = nil
-          exposure_options[:using].represent(instance_exec(object, options, &exposure_options[:proc]), using_options)
-        else
-          instance_exec(object, options, &exposure_options[:proc])
-        end
-      elsif exposure_options[:using]
+      nested_exposures = exposures.select { |a, _| a.to_s =~ /^#{attribute}__/ }
+
+      if exposure_options[:using]
         using_options = options.dup
         using_options.delete(:collection)
         using_options[:root] = nil
-        exposure_options[:using].represent(delegate_attribute(attribute), using_options)
+
+        if exposure_options[:proc]
+          exposure_options[:using].represent(instance_exec(object, options, &exposure_options[:proc]), using_options)
+        else
+          exposure_options[:using].represent(delegate_attribute(attribute), using_options)
+        end
+
+      elsif exposure_options[:proc]
+        instance_exec(object, options, &exposure_options[:proc])
+
       elsif exposure_options[:format_with]
         format_with = exposure_options[:format_with]
 
@@ -399,23 +417,30 @@ module Grape
         elsif format_with.respond_to? :call
           instance_exec(delegate_attribute(attribute), &format_with)
         end
+
+      elsif nested_exposures.any?
+        Hash[nested_exposures.map do |nested_attribute, _|
+          [self.class.key_for(nested_attribute), value_for(nested_attribute, options)]
+        end]
+
       else
         delegate_attribute(attribute)
       end
     end
 
     def delegate_attribute(attribute)
-      if respond_to?(attribute, true)
-        send(attribute)
+      name = self.class.name_for(attribute)
+      if respond_to?(name, true)
+        send(name)
       else
-        object.send(attribute)
+        object.send(name)
       end
     end
 
     def valid_exposure?(attribute, exposure_options)
       exposure_options.has_key?(:proc) || \
       !exposure_options[:safe] || \
-      object.respond_to?(attribute)
+      object.respond_to?(self.class.name_for(attribute))
     end
 
     def conditions_met?(exposure_options, options)
