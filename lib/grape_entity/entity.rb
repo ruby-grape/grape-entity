@@ -198,17 +198,26 @@ module Grape
           next if except_attributes.include?(attribute)
           next if only_attributes.any? && !only_attributes.include?(attribute)
           
-          options = expose_options.dup.merge(merge_options)
+          original_options = original_options.dup
+          exposure_options = original_options.merge(merge_options)
           
           [:if, :unless].each do |condition|
-            if merge_options.has_key?(condition) && expose_options.has_key?(condition)
-              options[condition] = Proc.new{|object, instance_options| conditions_met?(merge_options, instance_options) && conditions_met?(expose_options, instance_options)}
+            if merge_options.has_key?(condition) && original_options.has_key?(condition)
+              
+              # only overwrite original_options[:object] if a new object is specified
+              if merge_options.has_key? :object
+                original_options[:object] = merge_options[:object]
+              end
+              
+              exposure_options[condition] = Proc.new{|object, instance_options|
+                conditions_met?(original_options, instance_options) &&
+                conditions_met?(merge_options, instance_options)
+              }
             end
           end
           
-          expose :"#{prefix}#{attribute}#{suffix}", options
+          expose :"#{prefix}#{attribute}#{suffix}", exposure_options
         end
-        
       end
     end
     
