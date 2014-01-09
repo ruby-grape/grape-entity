@@ -36,17 +36,6 @@ describe Grape::Entity do
           expect { subject.expose(:name, :email) { true } }.to raise_error ArgumentError
         end
 
-        it 'sets the :proc option in the exposure options' do
-          block = lambda { |_| true }
-          subject.expose :name, using: 'Awesome', &block
-          subject.exposures[:name].should == { proc: block, using: 'Awesome' }
-        end
-
-        it 'references an instance of the entity without any options' do
-          subject.expose(:size) { self }
-          subject.represent(Hash.new).send(:value_for, :size).should be_an_instance_of fresh_class
-        end
-
         it 'references an instance of the entity with :using option' do
           module EntitySpec
             class SomeObject1
@@ -73,6 +62,49 @@ describe Grape::Entity do
 
           prop1 = value.send(:value_for, :prop1)
           prop1.should == "MODIFIED 2"
+        end
+
+        context 'with parameters passed to the block' do
+          it 'sets the :proc option in the exposure options' do
+            block = lambda { |_| true }
+            subject.expose :name, using: 'Awesome', &block
+            subject.exposures[:name].should == { proc: block, using: 'Awesome' }
+          end
+
+          it 'references an instance of the entity without any options' do
+            subject.expose(:size) { |_| self }
+            subject.represent(Hash.new).send(:value_for, :size).should be_an_instance_of fresh_class
+          end
+        end
+
+        context 'with no parameters passed to the block' do
+          it 'adds a nested exposure' do
+            subject.expose :awesome do
+              subject.expose :nested do
+                subject.expose :moar_nested, as: 'weee'
+              end
+              subject.expose :another_nested, using: 'Awesome'
+            end
+
+            subject.exposures.should == {
+              awesome: {},
+              awesome__nested: {},
+              awesome__nested__moar_nested: { as: 'weee' },
+              awesome__another_nested: { using: 'Awesome' }
+            }
+          end
+
+          it 'represents the exposure as a hash of its nested exposures' do
+            subject.expose :awesome do
+              subject.expose(:nested) { |_| "value" }
+              subject.expose(:another_nested) { |_| "value" }
+            end
+
+            subject.represent({}).send(:value_for, :awesome).should == {
+              nested: "value",
+              another_nested: "value"
+            }
+          end
         end
       end
 
@@ -293,13 +325,13 @@ describe Grape::Entity do
       end
 
       it 'returns a serialized hash of a single object if serializable: true' do
-        subject.expose(:awesome) { true }
+        subject.expose(:awesome) { |_| true }
         representation = subject.represent(Object.new, serializable: true)
         representation.should == { awesome: true }
       end
 
       it 'returns a serialized array of hashes of multiple objects if serializable: true' do
-        subject.expose(:awesome) { true }
+        subject.expose(:awesome) { |_| true }
         representation = subject.represent(2.times.map { Object.new }, serializable: true)
         representation.should == [{ awesome: true }, { awesome: true }]
       end

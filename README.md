@@ -18,6 +18,10 @@ module API
       expose :text, documentation: { type: "String", desc: "Status update text." }
       expose :ip, if: { type: :full }
       expose :user_type, :user_id, if: lambda { |status, options| status.user.public? }
+      expose :contact_info do
+        expose :phone
+        expose :address, using: API::Address
+      end
       expose :digest do |status, options|
         Digest::MD5.hexdigest status.txt
       end
@@ -89,9 +93,23 @@ Don't raise an exception and expose as nil, even if the :x cannot be evaluated.
 expose :ip, safe: true
 ```
 
+#### Nested Exposure
+
+Supply a block to define a hash using nested exposures.
+
+```ruby
+expose :contact_info do
+  expose :phone
+  expose :address, using: API::Address
+end
+```
+
 #### Runtime Exposure
 
-Use a block or a `Proc` to evaluate exposure at runtime.
+Use a block or a `Proc` to evaluate exposure at runtime. The supplied block or
+`Proc` will be called with two parameters: the represented object and runtime options.
+
+**NOTE:** A block supplied with no parameters will be evaluated as a nested exposure (see above).
 
 ```ruby
 expose :digest do |status, options|
