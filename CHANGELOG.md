@@ -10,6 +10,7 @@ Next Release
 * [#28](https://github.com/intridea/grape-entity/pull/28): Look for method on entity before calling it on the object - [@MichaelXavier](https://github.com/MichaelXavier).
 * [#33](https://github.com/intridea/grape-entity/pull/33): Support proper merging of nested conditionals - [@wyattisimo](https://github.com/wyattisimo).
 * [#43](https://github.com/intridea/grape-entity/pull/43): Call procs in context of entity instance - [@joelvh](https://github.com/joelvh).
+* [#47](https://github.com/intridea/grape-entity/pull/47): Support nested exposures - [@wyattisimo](https://github.com/wyattisimo).
 * Your contribution here.
 
 0.3.0 (2013-03-29)
