@@ -11,6 +11,10 @@ This gem adds Entity support to API frameworks, such as [Grape](https://github.c
 ```ruby
 module API
   module Entities
+    class User < Grape::Entity
+      expose :id, :name, :email
+    end
+    
     class Status < Grape::Entity
       format_with(:iso_timestamp) { |dt| dt.iso8601 }
 
@@ -29,6 +33,15 @@ module API
       with_options(format_with: :iso_timestamp) do
         expose :created_at
         expose :updated_at
+      end
+      
+      # Expose User if the Status is not being flattened.
+      expose :user, using: API::Entities::User, unless: { flatten: true }
+      
+      # "Flatten" User exposures into the Status entity.
+      # This will add :user_name and :user_email to the status (skipping :id).
+      merge_with API::Entities::User, prefix: "user_", except: :id, if: { flatten: true } do
+        object.user
       end
     end
   end
