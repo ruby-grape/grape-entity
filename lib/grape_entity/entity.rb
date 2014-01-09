@@ -182,20 +182,20 @@ module Grape
     #   end
     def self.merge_with(*entity_classes, &block)
       merge_options     = entity_classes.last.is_a?(Hash) ? entity_classes.pop.dup : {}
-      except_attributes = [merge_options.delete(:except)].compact
-      only_attributes   = [merge_options.delete(:only)].compact
+      except_attributes = [merge_options.delete(:except)].flatten.compact
+      only_attributes   = [merge_options.delete(:only)].flatten.compact
       prefix            = merge_options.delete(:prefix)
       suffix            = merge_options.delete(:suffix)
       
       merge_options[:object] = block if block_given?
       
       entity_classes.each do |entity_class|
-        raise ArgumentError, "#{entity_class} must be a Grape::Entity" unless entity_class < Grape::Entity
+        raise ArgumentError, "#{entity_class} must be a Grape::Entity" unless entity_class < Entity
         
         merged_entities[entity_class] = merge_options
         
-        entity_class.exposures.each_pair do |attribute, expose_options|
-          next if except_attributes.include?(attribute)
+        entity_class.exposures.each_pair do |attribute, original_options|
+          next if except_attributes.any? && except_attributes.include?(attribute)
           next if only_attributes.any? && !only_attributes.include?(attribute)
           
           original_options = original_options.dup
