@@ -21,8 +21,8 @@ module API
       expose :digest do |status, options|
         Digest::MD5.hexdigest status.txt
       end
-      expose :replies, using: API::Status, as: :replies
-      expose :last_reply, using: API::Status do |status, options|
+      expose :replies, using: API::Entities::Status, as: :replies
+      expose :last_reply, using: API::Entities::Status do |status, options|
         status.replies.last
       end
 
@@ -64,7 +64,7 @@ expose :user_name, :ip
 Don't derive your model classes from `Grape::Entity`, expose them using a presenter.
 
 ```ruby
-expose :replies, using: API::Status, as: :replies
+expose :replies, using: API::Entities::Status, as: :replies
 ```
 
 #### Conditional Exposure
@@ -123,7 +123,7 @@ end
 Expose under a different name with `:as`.
 
 ```ruby
-expose :replies, using: API::Status, as: :replies
+expose :replies, using: API::Entities::Status, as: :replies
 ```
 
 #### Format Before Exposing
