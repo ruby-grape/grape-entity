@@ -132,6 +132,9 @@ module Grape
     #   block to the expose call to achieve the same effect.
     # @option options :documentation Define documenation for an exposed
     #   field, typically the value is a hash with two fields, type and desc.
+    # @option options [Symbol, Proc] :object Specifies the target object to get 
+    #   an attribute value from. A [Symbol] references a method on the [#object]. 
+    #   A [Proc] should return an alternate object.
     def self.expose(*args, &block)
       options = merge_options(args.last.is_a?(Hash) ? args.pop : {})
 
@@ -167,16 +170,48 @@ module Grape
     # Merge exposures from another entity into the current entity 
     # as a way to "flatten" multiple models for use in formats such as "CSV".
     #
+    # @overload merge_with(*entity_classes, &block)
+    #   @param entity_classes [Entity] list of entities to copy exposures from 
+    #     (The last parameter can be a [Hash] with options)
+    #   @param block [Proc] A block that returns the target object to retrieve attribute 
+    #     values from.
+    #
+    # @overload merge_with(*entity_classes, options, &block)
+    #   @param entity_classes [Entity] list of entities to copy exposures from 
+    #     (The last parameter can be a [Hash] with options)
+    #   @param options [Hash] Options merged into each exposure that is copied from 
+    #     the specified entities. Some additional options determine how exposures are 
+    #     copied.
+    #     @see expose
+    #   @param block [Proc] A block that returns the target object to retrieve attribute 
+    #     values from. Stored in the [expose] :object option.
+    #   @option options [Symbol, Array<Symbol>] :except Attributes to skip when copying exposures
+    #   @option options [Symbol, Array<Symbol>] :only Attributes to include when copying exposures
+    #   @option options [String] :prefix String to prefix attributes with
+    #   @option options [String] :suffix String to suffix attributes with
+    #   @option options :if Criteria that are evaluated to determine if an exposure 
+    #     should be represented. If a copied exposure already has the :if option specified, 
+    #     a [Proc] is created that wraps both :if conditions.
+    #     @see expose Check out the description of the default :if option
+    #   @option options :unless Criteria that are evaluated to determine if an exposure 
+    #     should be represented. If a copied exposure already has the :unless option specified, 
+    #     a [Proc] is created that wraps both :unless conditions.
+    #     @see expose Check out the description of the default :unless option
+    #   @param block [Proc] A block that returns the target object to retrieve attribute 
+    #     values from.
+    #
+    # @raise ArgumentError Entity classes must inherit from [Entity]
+    #
     # @example Merge child entity into parent
     #
     #   class Address < Grape::Entity
-    #     expose :street, :city, :state, :zip
+    #     expose :id, :street, :city, :state, :zip
     #   end
     # 
     #   class Contact < Grape::Entity
-    #     expose :name
+    #     expose :id, :name
     #     expose :addresses, using: Address, unless: { format: :csv }
-    #     merge_with Address, if: { format: :csv } do
+    #     merge_with Address, if: { format: :csv }, except: :id do
     #       object.addresses.first
     #     end
     #   end
