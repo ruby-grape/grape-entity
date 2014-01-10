@@ -62,9 +62,9 @@ describe Grape::Entity do
             end
           end
 
-          subject.expose(:bogus, using: EntitySpec::BogusEntity) do
-            object.prop1 = "MODIFIED 2"
-            object
+          subject.expose(:bogus, using: EntitySpec::BogusEntity) do |entity|
+            entity.prop1 = "MODIFIED 2"
+            entity
           end
 
           object = EntitySpec::SomeObject1.new
