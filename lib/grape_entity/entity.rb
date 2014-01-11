@@ -388,10 +388,14 @@ module Grape
       exposures[attribute.to_sym][:as] || name_for(attribute)
     end
 
+    def self.nested_exposures_for(attribute)
+      exposures.select { |a, _| a.to_s =~ /^#{attribute}__/ }
+    end
+
     def value_for(attribute, options = {})
       exposure_options = exposures[attribute.to_sym]
 
-      nested_exposures = exposures.select { |a, _| a.to_s =~ /^#{attribute}__/ }
+      nested_exposures = self.class.nested_exposures_for(attribute)
 
       if exposure_options[:using]
         using_options = options.dup
@@ -438,6 +442,8 @@ module Grape
     end
 
     def valid_exposure?(attribute, exposure_options)
+      nested_exposures = self.class.nested_exposures_for(attribute)
+      (nested_exposures.any? && nested_exposures.all? { |a, o| valid_exposure?(a, o) }) || \
       exposure_options.has_key?(:proc) || \
       !exposure_options[:safe] || \
       object.respond_to?(self.class.name_for(attribute))

@@ -105,6 +105,21 @@ describe Grape::Entity do
               another_nested: "value"
             }
           end
+
+          it 'is safe if its nested exposures are safe' do
+            subject.with_options safe: true do
+              subject.expose :awesome do
+                subject.expose(:nested) { |_| "value" }
+              end
+              subject.expose :not_awesome do
+                subject.expose :nested
+              end
+            end
+
+            valid_keys = subject.represent({}).valid_exposures.keys
+            valid_keys.include?(:awesome).should == true && \
+            valid_keys.include?(:not_awesome).should == false
+          end
         end
       end
 
