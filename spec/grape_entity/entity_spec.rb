@@ -207,6 +207,16 @@ describe Grape::Entity do
     end
 
     describe '.with_options' do
+      it 'should raise an error for unknown options' do
+        block = proc do
+          with_options(unknown: true) do
+            expose :awesome_thing
+          end
+        end
+
+        expect { subject.class_eval(&block) }.to raise_error ArgumentError
+      end
+
       it 'should apply the options to all exposures inside' do
         subject.class_eval do
           with_options(if: { awesome: true }) do
