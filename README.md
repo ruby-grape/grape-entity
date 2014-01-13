@@ -269,6 +269,8 @@ module API
 end
 ```
 
+Also note that an `ArgumentError` is raised when unknown options are passed to either `expose` or `with_options`.
+
 ## Installation
 
 Add this line to your application's Gemfile:

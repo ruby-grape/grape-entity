@@ -15,8 +15,8 @@ describe Grape::Entity do
         end
 
         it 'sets the same options for all exposures passed' do
-          subject.expose :name, :email, :location, foo: :bar
-          subject.exposures.values.each { |v| v.should == { foo: :bar } }
+          subject.expose :name, :email, :location, documentation: true
+          subject.exposures.values.each { |v| v.should == { documentation: true } }
         end
       end
 
@@ -28,6 +28,10 @@ describe Grape::Entity do
 
         it 'makes sure that :format_with as a proc cannot be used with a block' do
           expect { subject.expose :name, format_with: proc {} {} }.to raise_error ArgumentError
+        end
+
+        it 'makes sure unknown options are not silently ignored' do
+          expect { subject.expose :name, unknown: nil }.to raise_error ArgumentError
         end
       end
 
@@ -203,6 +207,16 @@ describe Grape::Entity do
     end
 
     describe '.with_options' do
+      it 'should raise an error for unknown options' do
+        block = proc do
+          with_options(unknown: true) do
+            expose :awesome_thing
+          end
+        end
+
+        expect { subject.class_eval(&block) }.to raise_error ArgumentError
+      end
+
       it 'should apply the options to all exposures inside' do
         subject.class_eval do
           with_options(if: { awesome: true }) do
@@ -292,6 +306,15 @@ describe Grape::Entity do
           end
         end
 
+        subject.exposures[:awesome_thing].should == { using: 'SomethingElse' }
+      end
+
+      it 'should alias :with option to :using option' do
+        subject.class_eval do
+          with_options(using: 'Something') do
+            expose :awesome_thing, with: 'SomethingElse'
+          end
+        end
         subject.exposures[:awesome_thing].should == { using: 'SomethingElse' }
       end
 
