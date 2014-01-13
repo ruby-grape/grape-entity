@@ -4,6 +4,7 @@ gemspec
 
 group :development, :test do
   gem 'pry'
+  gem 'pry-nav'
   gem 'guard'
   gem 'guard-rspec'
   gem 'guard-bundler'

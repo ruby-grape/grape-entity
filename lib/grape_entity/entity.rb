@@ -394,6 +394,8 @@ module Grape
       nested_exposures = exposures.select { |a, _| a.to_s =~ /^#{attribute}__/ }
 
       if exposure_options[:using]
+        exposure_options[:using] = exposure_options[:using].constantize if exposure_options[:using].respond_to? :constantize
+
         using_options = options.dup
         using_options.delete(:collection)
         using_options[:root] = nil

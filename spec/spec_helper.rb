@@ -8,3 +8,4 @@ require 'bundler'
 Bundler.require :default, :test
 
 require 'pry'
+require 'active_support/core_ext'

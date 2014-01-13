@@ -71,6 +71,14 @@ Don't derive your model classes from `Grape::Entity`, expose them using a presen
 expose :replies, using: API::Status, as: :replies
 ```
 
+#### Specify the Presenter's Class in String.
+
+You could also specify the presenter's class in string in full path in the `using` option, in order to avoid the dependency requirement.
+
+```ruby
+expose :replies, using: 'API::Status', as: :replies
+```
+
 #### Conditional Exposure
 
 Use `:if` or `:unless` to expose fields conditionally.
