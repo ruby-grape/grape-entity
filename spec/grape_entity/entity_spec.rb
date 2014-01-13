@@ -299,6 +299,15 @@ describe Grape::Entity do
         subject.exposures[:awesome_thing].should == { using: 'SomethingElse' }
       end
 
+      it 'should alias :with option to :using option' do
+        subject.class_eval do
+          with_options(using: 'Something') do
+            expose :awesome_thing, with: 'SomethingElse'
+          end
+        end
+        subject.exposures[:awesome_thing].should == { using: 'SomethingElse' }
+      end
+
       it 'should override nested :proc option' do
         match_proc = lambda { |obj, opts| 'more awesomer' }
 
