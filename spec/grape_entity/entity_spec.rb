@@ -203,7 +203,7 @@ describe Grape::Entity do
     end
 
     describe '.with_options' do
-      it 'should apply the options to all exposures inside' do
+      it 'applies the options to all exposures inside' do
         subject.class_eval do
           with_options(if: { awesome: true }) do
             expose :awesome_thing, using: 'Awesome'
@@ -213,7 +213,7 @@ describe Grape::Entity do
         subject.exposures[:awesome_thing].should == { if: { awesome: true }, using: 'Awesome' }
       end
 
-      it 'should allow for nested .with_options' do
+      it 'allows for nested .with_options' do
         subject.class_eval do
           with_options(if: { awesome: true }) do
             with_options(using: 'Something') do
@@ -225,7 +225,7 @@ describe Grape::Entity do
         subject.exposures[:awesome_thing].should == { if: { awesome: true }, using: 'Something' }
       end
 
-      it 'should override nested :as option' do
+      it 'overrides nested :as option' do
         subject.class_eval do
           with_options(as: :sweet) do
             expose :awesome_thing, as: :extra_smooth
@@ -235,7 +235,7 @@ describe Grape::Entity do
         subject.exposures[:awesome_thing].should == { as: :extra_smooth }
       end
 
-      it "should merge nested :if option" do
+      it "merges nested :if option" do
         match_proc = lambda { |obj, opts| true }
 
         subject.class_eval do
@@ -260,7 +260,7 @@ describe Grape::Entity do
         }
       end
 
-      it 'should merge nested :unless option' do
+      it 'merges nested :unless option' do
         match_proc = lambda { |obj, opts| true }
 
         subject.class_eval do
@@ -285,7 +285,7 @@ describe Grape::Entity do
         }
       end
 
-      it 'should override nested :using option' do
+      it 'overrides nested :using option' do
         subject.class_eval do
           with_options(using: 'Something') do
             expose :awesome_thing, using: 'SomethingElse'
@@ -295,7 +295,7 @@ describe Grape::Entity do
         subject.exposures[:awesome_thing].should == { using: 'SomethingElse' }
       end
 
-      it 'should override nested :proc option' do
+      it 'overrides nested :proc option' do
         match_proc = lambda { |obj, opts| 'more awesomer' }
 
         subject.class_eval do
@@ -307,7 +307,7 @@ describe Grape::Entity do
         subject.exposures[:awesome_thing].should == { proc: match_proc }
       end
 
-      it 'should override nested :documentation option' do
+      it 'overrides nested :documentation option' do
         subject.class_eval do
           with_options(documentation: { desc: 'Description.' }) do
             expose :awesome_thing, documentation: { desc: 'Other description.' }
@@ -517,7 +517,7 @@ describe Grape::Entity do
       end
 
       context "without safe option" do
-        it 'should throw an exception when an attribute is not found on the object' do
+        it 'throws an exception when an attribute is not found on the object' do
           fresh_class.expose :name, :nonexistent_attribute
           expect { fresh_class.new(model).serializable_hash }.to raise_error
         end
@@ -651,7 +651,6 @@ describe Grape::Entity do
 
       context 'child representations' do
         it 'disables root key name for child representations' do
-
           module EntitySpec
             class FriendEntity < Grape::Entity
               root 'friends', 'friend'
@@ -690,6 +689,7 @@ describe Grape::Entity do
           rep.first.serializable_hash.should == { name: 'Friend 1', email: 'friend1@example.com' }
           rep.last.serializable_hash.should == { name: 'Friend 2', email: 'friend2@example.com' }
         end
+
         it "passes through the proc which returns single object with custom options(:using)" do
           module EntitySpec
             class FriendEntity < Grape::Entity
@@ -708,6 +708,7 @@ describe Grape::Entity do
           rep.should be_kind_of EntitySpec::FriendEntity
           rep.serializable_hash.should == { name: 'Friend 1', email: 'friend1@example.com' }
         end
+
         it "passes through the proc which returns empty with custom options(:using)" do
           module EntitySpec
             class FriendEntity < Grape::Entity
@@ -772,7 +773,6 @@ describe Grape::Entity do
           rep.first.serializable_hash[:email].should == 'friend1@example.com'
           rep.last.serializable_hash[:email].should == 'friend2@example.com'
         end
-
       end
 
       it 'calls through to the proc if there is one' do
@@ -806,6 +806,37 @@ describe Grape::Entity do
         rep = EntitySpec::DelegatingEntity.new(friend)
         rep.send(:value_for, :name).should == "cooler name"
         rep.send(:value_for, :email).should == "joe@example.com"
+      end
+
+      context "using" do
+        before do
+          module EntitySpec
+            class UserEntity < Grape::Entity
+              expose :name, :email
+            end
+          end
+        end
+        it "string" do
+          fresh_class.class_eval do
+            expose :friends, using: "EntitySpec::UserEntity"
+          end
+
+          rep = subject.send(:value_for, :friends)
+          rep.should be_kind_of Array
+          rep.size.should == 2
+          rep.all? { |r| r.is_a?(EntitySpec::UserEntity) }.should be_true
+        end
+
+        it 'class' do
+          fresh_class.class_eval do
+            expose :friends, using: EntitySpec::UserEntity
+          end
+
+          rep = subject.send(:value_for, :friends)
+          rep.should be_kind_of Array
+          rep.size.should == 2
+          rep.all? { |r| r.is_a?(EntitySpec::UserEntity) }.should be_true
+        end
       end
     end
 
@@ -951,13 +982,12 @@ describe Grape::Entity do
               instance.entity.object.should == instance
             end
 
-            it 'should instantiate with options if provided' do
+            it 'instantiates with options if provided' do
               instance.entity(awesome: true).options.should == { awesome: true }
             end
           end
         end
       end
     end
-
   end
 end
