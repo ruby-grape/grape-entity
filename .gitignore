@@ -37,3 +37,8 @@ tmp
 
 ## PROJECT::SPECIFIC
 .project
+
+
+## RVM
+.ruby-version
+.ruby-gemset

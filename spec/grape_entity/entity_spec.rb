@@ -650,8 +650,23 @@ describe Grape::Entity do
       end
 
       context 'child representations' do
-        it 'disables root key name for child representations' do
+        it 'corrects find the class constant specified in string' do
+          module EntitySpec
+            class UserEntity < Grape::Entity
+              expose :name, :email
+            end
+          end
 
+          fresh_class.class_eval do
+            expose :friends, using: "EntitySpec::UserEntity"
+          end
+
+          rep = subject.send(:value_for, :friends)
+          rep.should be_kind_of Array
+          rep.reject { |r| r.is_a?(EntitySpec::UserEntity) }.should be_empty
+        end
+
+        it 'disables root key name for child representations' do
           module EntitySpec
             class FriendEntity < Grape::Entity
               root 'friends', 'friend'

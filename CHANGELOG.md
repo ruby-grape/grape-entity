@@ -13,6 +13,11 @@ Next Release
 * [#47](https://github.com/intridea/grape-entity/pull/47): Support nested exposures - [@wyattisimo](https://github.com/wyattisimo).
 * Your contribution here.
 
+
+0.4.0 (2014-01-13)
+=================
+* [#46](https://github.com/intridea/grape-entity/issues/46): Enable specifying presenter class in string in full path for `using` option, in order to avoid dependency requirement. - [@larryzhao](https://github.com/larryzhao)
+
 0.3.0 (2013-03-29)
 ==================
 
