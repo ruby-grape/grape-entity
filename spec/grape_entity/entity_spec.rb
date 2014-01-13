@@ -15,8 +15,8 @@ describe Grape::Entity do
         end
 
         it 'sets the same options for all exposures passed' do
-          subject.expose :name, :email, :location, foo: :bar
-          subject.exposures.values.each { |v| v.should == { foo: :bar } }
+          subject.expose :name, :email, :location, documentation: true
+          subject.exposures.values.each { |v| v.should == { documentation: true } }
         end
       end
 
@@ -28,6 +28,10 @@ describe Grape::Entity do
 
         it 'makes sure that :format_with as a proc cannot be used with a block' do
           expect { subject.expose :name, format_with: proc {} {} }.to raise_error ArgumentError
+        end
+
+        it 'makes sure unknown options are not silently ignored' do
+          expect { subject.expose :name, unknown: nil }.to raise_error ArgumentError
         end
       end
 

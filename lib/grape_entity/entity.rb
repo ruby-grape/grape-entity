@@ -477,10 +477,19 @@ module Grape
 
     private
 
+    # All supported options.
+    OPTIONS = [
+      :as, :if, :unless, :using, :proc, :documentation, :format_with, :safe, :if_extras, :unless_extras
+    ].to_set.freeze
+
     # Merges the given options with current block options.
     #
     # @param options [Hash] Exposure options.
     def self.merge_options(options)
+      options.keys.each do |key|
+        raise ArgumentError, "#{key.inspect} is not a valid option." unless OPTIONS.include?(key)
+      end
+
       opts = {}
 
       merge_logic = proc do |key, existing_val, new_val|
