@@ -11,6 +11,7 @@ Next Release
 * [#33](https://github.com/intridea/grape-entity/pull/33): Support proper merging of nested conditionals - [@wyattisimo](https://github.com/wyattisimo).
 * [#43](https://github.com/intridea/grape-entity/pull/43): Call procs in context of entity instance - [@joelvh](https://github.com/joelvh).
 * [#47](https://github.com/intridea/grape-entity/pull/47): Support nested exposures - [@wyattisimo](https://github.com/wyattisimo).
+* [#51](https://github.com/intridea/grape-entity/pull/51): Raise exception if unknown option is passed. Alias `:with` option to `:using` for consistency with grape api endpoints - [@aj0strow](https://github.com/aj0strow). 
 * Your contribution here.
 
 0.3.0 (2013-03-29)
