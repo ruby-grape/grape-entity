@@ -32,7 +32,7 @@ module Grape
   #     class Users < Grape::API
   #       version 'v2'
   #
-  #       desc 'User index', { object_fields: API::Entities::User.documentation }
+  #       desc 'User index', { params: API::Entities::User.documentation }
   #       get '/users' do
   #         @users = User.all
   #         type = current_user.admin? ? :full : :default
