@@ -161,7 +161,7 @@ module Grape
     #     end
     #   end
     def self.with_options(options)
-      (@block_options ||= []).push(options)
+      (@block_options ||= []).push(valid_options(options))
       yield
       @block_options.pop
     end
@@ -479,6 +479,11 @@ module Grape
 
     private
 
+    # All supported options.
+    OPTIONS = [
+      :as, :if, :unless, :using, :with, :proc, :documentation, :format_with, :safe, :if_extras, :unless_extras
+    ].to_set.freeze
+
     # Merges the given options with current block options.
     #
     # @param options [Hash] Exposure options.
@@ -504,7 +509,20 @@ module Grape
       @block_options ||= []
       opts.merge @block_options.inject({}) { |final, step|
         final.merge(step, &merge_logic)
-      }.merge(options, &merge_logic)
+      }.merge(valid_options(options), &merge_logic)
+    end
+
+    # Raises an error if the given options include unknown keys.
+    # Renames aliased options.
+    #
+    # @param options [Hash] Exposure options.
+    def self.valid_options(options)
+      options.keys.each do |key|
+        raise ArgumentError, "#{key.inspect} is not a valid option." unless OPTIONS.include?(key)
+      end
+
+      options[:using] = options.delete(:with) if options.has_key?(:with)
+      options
     end
   end
 end

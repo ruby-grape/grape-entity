@@ -12,6 +12,8 @@ Next Release
 * [#43](https://github.com/intridea/grape-entity/pull/43): Call procs in context of entity instance - [@joelvh](https://github.com/joelvh).
 * [#47](https://github.com/intridea/grape-entity/pull/47): Support nested exposures - [@wyattisimo](https://github.com/wyattisimo).
 * [#46](https://github.com/intridea/grape-entity/issues/46), [#50](https://github.com/intridea/grape-entity/pull/50): Added support for specifying the presenter class in `using` in string format - [@larryzhao](https://github.com/larryzhao).
+* [#51](https://github.com/intridea/grape-entity/pull/51): Raise `ArgumentError` if an unknown option is used with `expose` - [@aj0strow](https://github.com/aj0strow).
+* [#51](https://github.com/intridea/grape-entity/pull/51): Alias `:with` to `:using`, consistently with the Grape api endpoints - [@aj0strow](https://github.com/aj0strow).
 * Your contribution here.
 
 0.3.0 (2013-03-29)
