@@ -1,5 +1,11 @@
 Next Release
 ============
+
+* Your contribution here.
+
+0.4.0 (2014-01-27)
+==================
+
 * Ruby 1.8.x is no longer supported - [@dblock](https://github.com/dblock).
 * [#36](https://github.com/intridea/grape-entity/pull/36): Enforcing Ruby style guidelines via Rubocop - [@dblock](https://github.com/dblock).
 * [#7](https://github.com/intridea/grape-entity/issues/7): Added `serializable` option to `represent` - [@mbleigh](https://github.com/mbleigh).
@@ -14,7 +20,6 @@ Next Release
 * [#46](https://github.com/intridea/grape-entity/issues/46), [#50](https://github.com/intridea/grape-entity/pull/50): Added support for specifying the presenter class in `using` in string format - [@larryzhao](https://github.com/larryzhao).
 * [#51](https://github.com/intridea/grape-entity/pull/51): Raise `ArgumentError` if an unknown option is used with `expose` - [@aj0strow](https://github.com/aj0strow).
 * [#51](https://github.com/intridea/grape-entity/pull/51): Alias `:with` to `:using`, consistently with the Grape api endpoints - [@aj0strow](https://github.com/aj0strow).
-* Your contribution here.
 
 0.3.0 (2013-03-29)
 ==================
