@@ -1,4 +1,5 @@
 require 'multi_json'
+require 'set'
 
 module Grape
   # An Entity is a lightweight structure that allows you to easily
