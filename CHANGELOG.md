@@ -1,8 +1,7 @@
-Next Release
-============
+0.4.1 (2014-02-13)
+==================
 
-* [#54](https://github.com/intridea/grape-entity/issues/54): Fix: undefined method `to_set' - [@aj0strow](https://github.com/aj0strow).
-* Your contribution here.
+* [#54](https://github.com/intridea/grape-entity/issues/54): Fix: undefined method `to_set` - [@aj0strow](https://github.com/aj0strow).
 
 0.4.0 (2014-01-27)
 ==================
