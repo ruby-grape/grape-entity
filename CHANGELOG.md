@@ -1,3 +1,8 @@
+Next Release
+============
+
+* Your contribution here.
+
 0.4.1 (2014-02-13)
 ==================
 
