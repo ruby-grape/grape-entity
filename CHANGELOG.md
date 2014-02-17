@@ -1,6 +1,7 @@
 Next Release
 ============
 
+* [#57](https://github.com/intridea/grape-entity/issues/57): Fix duplicated entries when using nested fields - [@Nerian](https://github.com/Nerian).
 * Your contribution here.
 
 0.4.1 (2014-02-13)
