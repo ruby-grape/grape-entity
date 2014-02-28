@@ -92,9 +92,9 @@ describe Grape::Entity do
 
             subject.exposures.should == {
               awesome: {},
-              awesome__nested: {},
-              awesome__nested__moar_nested: { as: 'weee' },
-              awesome__another_nested: { using: 'Awesome' }
+              awesome__nested: { nested: true },
+              awesome__nested__moar_nested: { as: 'weee', nested: true },
+              awesome__another_nested: { using: 'Awesome', nested: true }
             }
           end
 
@@ -110,6 +110,26 @@ describe Grape::Entity do
             }
           end
 
+          it 'does not represent attributes, declared inside nested exposure, outside of it' do
+            subject.expose :awesome do
+              subject.expose(:nested) { |_| "value" }
+              subject.expose(:another_nested) { |_| "value" }
+              subject.expose :second_level_nested do
+                subject.expose(:deeply_exposed_attr) { |_| "value" }
+              end
+            end
+
+            subject.represent({}).serializable_hash.should == {
+              awesome: {
+                nested: "value",
+                another_nested: "value",
+                second_level_nested: {
+                    deeply_exposed_attr: "value"
+                }
+              }
+            }
+          end
+
           it 'is safe if its nested exposures are safe' do
             subject.with_options safe: true do
               subject.expose :awesome do
@@ -121,6 +141,7 @@ describe Grape::Entity do
             end
 
             valid_keys = subject.represent({}).valid_exposures.keys
+
             valid_keys.include?(:awesome).should == true && \
             valid_keys.include?(:not_awesome).should == false
           end

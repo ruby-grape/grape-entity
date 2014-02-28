@@ -2,6 +2,8 @@ Next Release
 ============
 
 * Your contribution here.
+* [#60] (https://github.com/intridea/grape-entity/issues/59): Performance issues introduced by nested exposures - [@AlexYankee](https://github.com/AlexYankee).
+* [#60] (https://github.com/intridea/grape-entity/issues/57): Nested exposure double-exposes a field - [@AlexYankee](https://github.com/AlexYankee).
 
 0.4.1 (2014-02-13)
 ==================
