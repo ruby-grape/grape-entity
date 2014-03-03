@@ -136,9 +136,13 @@ module Grape
       options[:proc] = block if block_given? && block.parameters.any?
 
       @nested_attributes ||= []
+
       args.each do |attribute|
         unless @nested_attributes.empty?
           attribute = "#{@nested_attributes.last}__#{attribute}"
+          options[:nested] = true
+          nested_exposures[@nested_attributes.last.to_sym] ||= {}
+          nested_exposures[@nested_attributes.last.to_sym][attribute.to_sym] = options
         end
 
         exposures[attribute.to_sym] = options
@@ -178,6 +182,16 @@ module Grape
       end
 
       @exposures
+    end
+
+    def self.nested_exposures
+      @nested_exposures ||= {}
+
+      if superclass.respond_to? :nested_exposures
+        @nested_exposures = superclass.nested_exposures.merge(@nested_exposures)
+      end
+
+      @nested_exposures
     end
 
     # Returns a hash, the keys are symbolized references to fields in the entity,
@@ -324,7 +338,7 @@ module Grape
     end
 
     def valid_exposures
-      exposures.select do |attribute, exposure_options|
+      exposures.reject { |a, options| options[:nested] }.select do |attribute, exposure_options|
         valid_exposure?(attribute, exposure_options)
       end
     end
@@ -390,7 +404,7 @@ module Grape
     end
 
     def self.nested_exposures_for(attribute)
-      exposures.select { |a, _| a.to_s =~ /^#{attribute}__/ }
+      nested_exposures[attribute] || {}
     end
 
     def value_for(attribute, options = {})
