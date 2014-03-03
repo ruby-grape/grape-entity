@@ -104,10 +104,21 @@ describe Grape::Entity do
               subject.expose(:another_nested) { |_| "value" }
             end
 
-            subject.represent({}).send(:value_for, :awesome).should == {
-              nested: "value",
-              another_nested: "value"
-            }
+            subject.represent({}).serializable_hash.should == { awesome: { nested: "value", another_nested: "value" } }
+          end
+
+          it "represents the exposure of deeply nested exposures" do
+            subject.expose :name do
+              subject.expose(:first_name) { |_| "value" }
+              subject.expose(:last_name) { |_| "value" }
+              subject.expose(:locations) do
+                subject.expose(:spanish) { |_| "value" }
+                subject.expose(:english) { |_| "value" }
+                subject.expose(:french) { |_| "value" }
+              end
+            end
+
+            subject.represent({}).serializable_hash.should == { name: { first_name: "value", last_name: "value", locations: { spanish: 'value',  english: 'value', french: 'value'} } }
           end
 
           it 'does not represent attributes, declared inside nested exposure, outside of it' do
