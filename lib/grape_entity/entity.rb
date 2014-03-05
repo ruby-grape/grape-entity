@@ -141,8 +141,8 @@ module Grape
         unless @nested_attributes.empty?
           attribute = "#{@nested_attributes.last}__#{attribute}"
           options[:nested] = true
-          nested_exposures[@nested_attributes.last.to_sym] ||= {}
-          nested_exposures[@nested_attributes.last.to_sym][attribute.to_sym] = options
+          nested_exposures_hash[@nested_attributes.last.to_sym] ||= {}
+          nested_exposures_hash[@nested_attributes.last.to_sym][attribute.to_sym] = options
         end
 
         exposures[attribute.to_sym] = options
@@ -184,14 +184,20 @@ module Grape
       @exposures
     end
 
-    def self.nested_exposures
-      @nested_exposures ||= {}
-
-      if superclass.respond_to? :nested_exposures
-        @nested_exposures = superclass.nested_exposures.merge(@nested_exposures)
+    class << self
+      attr_accessor :_nested_exposures_hash
+      def nested_exposures_hash
+        self._nested_exposures_hash ||= {}
       end
+      def nested_exposures
+        value = self.nested_exposures_hash
 
-      @nested_exposures
+        if superclass.respond_to? :nested_exposures
+          value = superclass.nested_exposures.merge(value)
+        end
+
+        value
+      end
     end
 
     # Returns a hash, the keys are symbolized references to fields in the entity,
