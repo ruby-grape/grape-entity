@@ -155,14 +155,14 @@ describe Grape::Entity do
             ClassRoom.represent({}).serializable_hash.should == {
               parents: [
                 {
-                  user: { id: "value", in_first: 'value' },
+                  user: { in_first: 'value' },
                   children: [
                     { user: { in_first: 'value', user_id: "value", display_id: "value" } },
                     { user: { in_first: 'value', user_id: "value", display_id: "value" } }
                   ]
                 },
                 {
-                  user: { id: "value", in_first: 'value' },
+                  user: { in_first: 'value' },
                   children: [
                     { user: { in_first: 'value', user_id: "value", display_id: "value" } },
                     { user: { in_first: 'value', user_id: "value", display_id: "value" } }

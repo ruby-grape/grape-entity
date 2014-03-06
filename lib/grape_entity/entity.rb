@@ -195,7 +195,7 @@ module Grape
         value = nested_exposures_hash
 
         if superclass.respond_to? :nested_exposures
-          value = superclass.nested_exposures.merge(value)
+          value = superclass.nested_exposures.deep_merge(value)
         end
 
         value
