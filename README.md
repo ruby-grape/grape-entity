@@ -172,7 +172,7 @@ expose :text, documentation: { type: "String", desc: "Status update text." }
 
 ### Options Hash
 
-The option keys `:version` and `:collection` are always defined. The `:version` key is defined as `api.version`. The `:collection` key is boolean, and defined as `true` if the object presented is an array. The options also contain the runtime environment in `:env`, which includes request parameters in `options[:env][:grape.request.params]`.
+The option keys `:version` and `:collection` are always defined. The `:version` key is defined as `api.version`. The `:collection` key is boolean, and defined as `true` if the object presented is an array. The options also contain the runtime environment in `:env`, which includes request parameters in `options[:env]['grape.request.params']`.
 
 Any additional options defined on the entity exposure are included as is. In the following example `user` is set to the value of `current_user`.
 
