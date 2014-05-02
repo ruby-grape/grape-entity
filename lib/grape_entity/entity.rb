@@ -423,9 +423,7 @@ module Grape
       if exposure_options[:using]
         exposure_options[:using] = exposure_options[:using].constantize if exposure_options[:using].respond_to? :constantize
 
-        using_options = options.dup
-        using_options.delete(:collection)
-        using_options[:root] = nil
+        using_options = attribute_entity_options(options)
 
         if exposure_options[:proc]
           exposure_options[:using].represent(instance_exec(object, options, &exposure_options[:proc]), using_options)
@@ -451,9 +449,8 @@ module Grape
         Hash[nested_exposures.map do |nested_attribute, _|
           [self.class.key_for(nested_attribute), value_for(nested_attribute, options)]
         end]
-
       else
-        delegate_attribute(attribute)
+        delegate_representable_attribute(attribute, options)
       end
     end
 
@@ -464,6 +461,14 @@ module Grape
       else
         object.send(name)
       end
+    end
+
+    def delegate_representable_attribute(attribute, options = {})
+      val = delegate_attribute(attribute)
+      val = val.entity if val.respond_to?(:entity)
+      val = val.class.entity_class.represent(val, attribute_entity_options(options)) if val.class.respond_to?(:entity_class)
+
+      val
     end
 
     def valid_exposure?(attribute, exposure_options)
@@ -501,6 +506,13 @@ module Grape
     end
 
     private
+
+    def attribute_entity_options(options)
+      opts = options.dup
+      opts.delete(:collection)
+      opts[:root] = nil
+      opts
+    end
 
     # All supported options.
     OPTIONS = [
