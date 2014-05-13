@@ -1,6 +1,6 @@
 # Grape::Entity
 
-[![Build Status](https://travis-ci.org/agileanimal/grape-entity.png?branch=master)](https://travis-ci.org/agileanimal/grape-entity)
+[![Build Status](https://travis-ci.org/intridea/grape-entity.svg?branch=master)](https://travis-ci.org/intridea/grape-entity)
 
 ## Introduction
 
