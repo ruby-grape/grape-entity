@@ -1,5 +1,5 @@
 AllCops:
-  Excludes:
+  Exclude:
     - vendor/**
 
 LineLength:
@@ -21,15 +21,6 @@ CollectionMethods:
 
 Encoding:
   # no need to always specify encoding
-  Enabled: false
-
-HashMethods:
-  # key? instead of has_key?
-  # value? instead of has_value?
-  Enabled: false
-
-StringLiterals:
-  # use single or double-quoted strings, as you please
   Enabled: false
 
 Void:
@@ -67,3 +58,6 @@ WordArray:
 CyclomaticComplexity:
   Enabled: false
 
+FileName:
+  # allow grape-entity.rb for a require
+  Enabled: false

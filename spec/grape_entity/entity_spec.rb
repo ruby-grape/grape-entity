@@ -46,7 +46,7 @@ describe Grape::Entity do
               attr_accessor :prop1
 
               def initialize
-                @prop1 = "value1"
+                @prop1 = 'value1'
               end
             end
 
@@ -56,7 +56,7 @@ describe Grape::Entity do
           end
 
           subject.expose(:bogus, using: EntitySpec::BogusEntity) do |entity|
-            entity.prop1 = "MODIFIED 2"
+            entity.prop1 = 'MODIFIED 2'
             entity
           end
 
@@ -65,7 +65,7 @@ describe Grape::Entity do
           value.should be_instance_of EntitySpec::BogusEntity
 
           prop1 = value.send(:value_for, :prop1)
-          prop1.should == "MODIFIED 2"
+          prop1.should == 'MODIFIED 2'
         end
 
         context 'with parameters passed to the block' do
@@ -100,37 +100,37 @@ describe Grape::Entity do
 
           it 'represents the exposure as a hash of its nested exposures' do
             subject.expose :awesome do
-              subject.expose(:nested) { |_| "value" }
-              subject.expose(:another_nested) { |_| "value" }
+              subject.expose(:nested) { |_| 'value' }
+              subject.expose(:another_nested) { |_| 'value' }
             end
 
             subject.represent({}).send(:value_for, :awesome).should == {
-              nested: "value",
-              another_nested: "value"
+              nested: 'value',
+              another_nested: 'value'
             }
           end
 
           it 'does not represent attributes, declared inside nested exposure, outside of it' do
             subject.expose :awesome do
-              subject.expose(:nested) { |_| "value" }
-              subject.expose(:another_nested) { |_| "value" }
+              subject.expose(:nested) { |_| 'value' }
+              subject.expose(:another_nested) { |_| 'value' }
               subject.expose :second_level_nested do
-                subject.expose(:deeply_exposed_attr) { |_| "value" }
+                subject.expose(:deeply_exposed_attr) { |_| 'value' }
               end
             end
 
             subject.represent({}).serializable_hash.should == {
               awesome: {
-                nested: "value",
-                another_nested: "value",
+                nested: 'value',
+                another_nested: 'value',
                 second_level_nested: {
-                    deeply_exposed_attr: "value"
+                  deeply_exposed_attr: 'value'
                 }
               }
             }
           end
 
-          it "complex nested attributes" do
+          it 'complex nested attributes' do
             class ClassRoom < Grape::Entity
               expose(:parents, using: 'Parent') { |_| [{}, {}] }
             end
@@ -157,15 +157,15 @@ describe Grape::Entity do
                 {
                   user: { in_first: 'value' },
                   children: [
-                    { user: { in_first: 'value', user_id: "value", display_id: "value" } },
-                    { user: { in_first: 'value', user_id: "value", display_id: "value" } }
+                    { user: { in_first: 'value', user_id: 'value', display_id: 'value' } },
+                    { user: { in_first: 'value', user_id: 'value', display_id: 'value' } }
                   ]
                 },
                 {
                   user: { in_first: 'value' },
                   children: [
-                    { user: { in_first: 'value', user_id: "value", display_id: "value" } },
-                    { user: { in_first: 'value', user_id: "value", display_id: "value" } }
+                    { user: { in_first: 'value', user_id: 'value', display_id: 'value' } },
+                    { user: { in_first: 'value', user_id: 'value', display_id: 'value' } }
                   ]
                 }
               ]
@@ -175,7 +175,7 @@ describe Grape::Entity do
           it 'is safe if its nested exposures are safe' do
             subject.with_options safe: true do
               subject.expose :awesome do
-                subject.expose(:nested) { |_| "value" }
+                subject.expose(:nested) { |_| 'value' }
               end
               subject.expose :not_awesome do
                 subject.expose :nested
@@ -252,12 +252,12 @@ describe Grape::Entity do
         it 'formats an exposure with a :format_with lambda that returns a value from the entity instance' do
           object = Hash.new
 
-          subject.expose(:size, format_with: lambda { |value| self.object.class.to_s })
+          subject.expose(:size, format_with: lambda { |_value| self.object.class.to_s })
           subject.represent(object).send(:value_for, :size).should == object.class.to_s
         end
 
         it 'formats an exposure with a :format_with symbol that returns a value from the entity instance' do
-          subject.format_with :size_formatter do |date|
+          subject.format_with :size_formatter do |_date|
             self.object.class.to_s
           end
 
@@ -312,8 +312,8 @@ describe Grape::Entity do
         subject.exposures[:awesome_thing].should == { as: :extra_smooth }
       end
 
-      it "merges nested :if option" do
-        match_proc = lambda { |obj, opts| true }
+      it 'merges nested :if option' do
+        match_proc = lambda { |_obj, _opts| true }
 
         subject.class_eval do
           # Symbol
@@ -338,7 +338,7 @@ describe Grape::Entity do
       end
 
       it 'merges nested :unless option' do
-        match_proc = lambda { |obj, opts| true }
+        match_proc = lambda { |_, _| true }
 
         subject.class_eval do
           # Symbol
@@ -382,10 +382,10 @@ describe Grape::Entity do
       end
 
       it 'overrides nested :proc option' do
-        match_proc = lambda { |obj, opts| 'more awesomer' }
+        match_proc = lambda { |_obj, _opts| 'more awesomer' }
 
         subject.class_eval do
-          with_options(proc: lambda { |obj, opts| 'awesome' }) do
+          with_options(proc: lambda { |_obj, _opts| 'awesome' }) do
             expose :awesome_thing, proc: match_proc
           end
         end
@@ -557,8 +557,8 @@ describe Grape::Entity do
         birthday: Time.gm(2012, 2, 27),
         fantasies: ['Unicorns', 'Double Rainbows', 'Nessy'],
         friends: [
-          double(name: "Friend 1", email: 'friend1@example.com', fantasies: [], birthday: Time.gm(2012, 2, 27), friends: []),
-          double(name: "Friend 2", email: 'friend2@example.com', fantasies: [], birthday: Time.gm(2012, 2, 27), friends: [])
+          double(name: 'Friend 1', email: 'friend1@example.com', fantasies: [], birthday: Time.gm(2012, 2, 27), friends: []),
+          double(name: 'Friend 2', email: 'friend2@example.com', fantasies: [], birthday: Time.gm(2012, 2, 27), friends: [])
         ]
       }
     }
@@ -575,7 +575,7 @@ describe Grape::Entity do
         expect { fresh_class.new(nil).serializable_hash }.not_to raise_error
       end
 
-      context "with safe option" do
+      context 'with safe option' do
         it 'does not throw an exception when an attribute is not found on the object' do
           fresh_class.expose :name, :nonexistent_attribute, safe: true
           expect { fresh_class.new(model).serializable_hash }.not_to raise_error
@@ -602,24 +602,24 @@ describe Grape::Entity do
         end
       end
 
-      context "without safe option" do
+      context 'without safe option' do
         it 'throws an exception when an attribute is not found on the object' do
           fresh_class.expose :name, :nonexistent_attribute
           expect { fresh_class.new(model).serializable_hash }.to raise_error
         end
 
         it "exposes attributes that don't exist on the object only when they are generated by a block" do
-          fresh_class.expose :nonexistent_attribute do |model, _|
-            "well, I do exist after all"
+          fresh_class.expose :nonexistent_attribute do |_model, _opts|
+            'well, I do exist after all'
           end
           res = fresh_class.new(model).serializable_hash
           res.should have_key :nonexistent_attribute
         end
 
-        it "does not expose attributes that are generated by a block but have not passed criteria" do
-          fresh_class.expose :nonexistent_attribute, proc: lambda { |model, _|
-            "I exist, but it is not yet my time to shine"
-          },                                         if: lambda { |model, _| false }
+        it 'does not expose attributes that are generated by a block but have not passed criteria' do
+          fresh_class.expose :nonexistent_attribute, proc: lambda { |_model, _opts|
+            'I exist, but it is not yet my time to shine'
+          },                                         if: lambda { |_model, _opts| false }
           res = fresh_class.new(model).serializable_hash
           res.should_not have_key :nonexistent_attribute
         end
@@ -631,17 +631,17 @@ describe Grape::Entity do
           end
         end
 
-        fresh_class.expose :nonexistent_attribute, using: EntitySpec::TestEntity do |model, _|
-          "well, I do exist after all"
+        fresh_class.expose :nonexistent_attribute, using: EntitySpec::TestEntity do |_model, _opts|
+          'well, I do exist after all'
         end
         res = fresh_class.new(model).serializable_hash
         res.should have_key :nonexistent_attribute
       end
 
-      it "does not expose attributes that are generated by a block but have not passed criteria" do
-        fresh_class.expose :nonexistent_attribute, proc: lambda { |model, _|
-          "I exist, but it is not yet my time to shine"
-        },                                         if: lambda { |model, _| false }
+      it 'does not expose attributes that are generated by a block but have not passed criteria' do
+        fresh_class.expose :nonexistent_attribute, proc: lambda { |_, _|
+          'I exist, but it is not yet my time to shine'
+        },                                         if: lambda { |_, _| false }
         res = fresh_class.new(model).serializable_hash
         res.should_not have_key :nonexistent_attribute
       end
@@ -649,14 +649,14 @@ describe Grape::Entity do
       context '#serializable_hash' do
         module EntitySpec
           class EmbeddedExample
-            def serializable_hash(opts = {})
+            def serializable_hash(_opts = {})
               { abc: 'def' }
             end
           end
 
           class EmbeddedExampleWithHash
             def name
-              "abc"
+              'abc'
             end
 
             def embedded
@@ -666,7 +666,7 @@ describe Grape::Entity do
 
           class EmbeddedExampleWithMany
             def name
-              "abc"
+              'abc'
             end
 
             def embedded
@@ -676,7 +676,7 @@ describe Grape::Entity do
 
           class EmbeddedExampleWithOne
             def name
-              "abc"
+              'abc'
             end
 
             def embedded
@@ -688,19 +688,19 @@ describe Grape::Entity do
         it 'serializes embedded objects which respond to #serializable_hash' do
           fresh_class.expose :name, :embedded
           presenter = fresh_class.new(EntitySpec::EmbeddedExampleWithOne.new)
-          presenter.serializable_hash.should == { name: "abc", embedded: { abc: "def" } }
+          presenter.serializable_hash.should == { name: 'abc', embedded: { abc: 'def' } }
         end
 
         it 'serializes embedded arrays of objects which respond to #serializable_hash' do
           fresh_class.expose :name, :embedded
           presenter = fresh_class.new(EntitySpec::EmbeddedExampleWithMany.new)
-          presenter.serializable_hash.should == { name: "abc", embedded: [{ abc: "def" }, { abc: "def" }] }
+          presenter.serializable_hash.should == { name: 'abc', embedded: [{ abc: 'def' }, { abc: 'def' }] }
         end
 
         it 'serializes embedded hashes of objects which respond to #serializable_hash' do
           fresh_class.expose :name, :embedded
           presenter = fresh_class.new(EntitySpec::EmbeddedExampleWithHash.new)
-          presenter.serializable_hash.should == { name: "abc", embedded: { a: nil, b: { abc: "def" } } }
+          presenter.serializable_hash.should == { name: 'abc', embedded: { a: nil, b: { abc: 'def' } } }
         end
       end
     end
@@ -755,7 +755,7 @@ describe Grape::Entity do
           rep.last.serializable_hash[:name].should == 'Friend 2'
         end
 
-        it "passes through the proc which returns an array of objects with custom options(:using)" do
+        it 'passes through the proc which returns an array of objects with custom options(:using)' do
           module EntitySpec
             class FriendEntity < Grape::Entity
               root 'friends', 'friend'
@@ -764,7 +764,7 @@ describe Grape::Entity do
           end
 
           fresh_class.class_eval do
-            expose :custom_friends, using: EntitySpec::FriendEntity do |user, options|
+            expose :custom_friends, using: EntitySpec::FriendEntity do |user, _opts|
               user.friends
             end
           end
@@ -776,7 +776,7 @@ describe Grape::Entity do
           rep.last.serializable_hash.should == { name: 'Friend 2', email: 'friend2@example.com' }
         end
 
-        it "passes through the proc which returns single object with custom options(:using)" do
+        it 'passes through the proc which returns single object with custom options(:using)' do
           module EntitySpec
             class FriendEntity < Grape::Entity
               root 'friends', 'friend'
@@ -785,7 +785,7 @@ describe Grape::Entity do
           end
 
           fresh_class.class_eval do
-            expose :first_friend, using: EntitySpec::FriendEntity do |user, options|
+            expose :first_friend, using: EntitySpec::FriendEntity do |user, _opts|
               user.friends.first
             end
           end
@@ -795,7 +795,7 @@ describe Grape::Entity do
           rep.serializable_hash.should == { name: 'Friend 1', email: 'friend1@example.com' }
         end
 
-        it "passes through the proc which returns empty with custom options(:using)" do
+        it 'passes through the proc which returns empty with custom options(:using)' do
           module EntitySpec
             class FriendEntity < Grape::Entity
               root 'friends', 'friend'
@@ -804,8 +804,7 @@ describe Grape::Entity do
           end
 
           fresh_class.class_eval do
-            expose :first_friend, using: EntitySpec::FriendEntity do |user, options|
-
+            expose :first_friend, using: EntitySpec::FriendEntity do |_user, _opts|
             end
           end
 
@@ -873,7 +872,7 @@ describe Grape::Entity do
         subject.send(:value_for, :fantasies).should == ['Nessy', 'Double Rainbows', 'Unicorns']
       end
 
-      it "tries instance methods on the entity first" do
+      it 'tries instance methods on the entity first' do
         module EntitySpec
           class DelegatingEntity < Grape::Entity
             root 'friends', 'friend'
@@ -883,18 +882,18 @@ describe Grape::Entity do
             private
 
             def name
-              "cooler name"
+              'cooler name'
             end
           end
         end
 
-        friend = double("Friend", name: "joe", email: "joe@example.com")
+        friend = double('Friend', name: 'joe', email: 'joe@example.com')
         rep = EntitySpec::DelegatingEntity.new(friend)
-        rep.send(:value_for, :name).should == "cooler name"
-        rep.send(:value_for, :email).should == "joe@example.com"
+        rep.send(:value_for, :name).should == 'cooler name'
+        rep.send(:value_for, :email).should == 'joe@example.com'
       end
 
-      context "using" do
+      context 'using' do
         before do
           module EntitySpec
             class UserEntity < Grape::Entity
@@ -902,9 +901,9 @@ describe Grape::Entity do
             end
           end
         end
-        it "string" do
+        it 'string' do
           fresh_class.class_eval do
-            expose :friends, using: "EntitySpec::UserEntity"
+            expose :friends, using: 'EntitySpec::UserEntity'
           end
 
           rep = subject.send(:value_for, :friends)
@@ -934,7 +933,7 @@ describe Grape::Entity do
       end
 
       it 'returns each defined documentation hash' do
-        doc = { type: "foo", desc: "bar" }
+        doc = { type: 'foo', desc: 'bar' }
         fresh_class.expose :name, documentation: doc
         fresh_class.expose :email, documentation: doc
         fresh_class.expose :birthday
@@ -943,7 +942,7 @@ describe Grape::Entity do
       end
 
       it 'returns each defined documentation hash with :as param considering' do
-        doc = { type: "foo", desc: "bar" }
+        doc = { type: 'foo', desc: 'bar' }
         fresh_class.expose :name, documentation: doc, as: :label
         fresh_class.expose :email, documentation: doc
         fresh_class.expose :birthday

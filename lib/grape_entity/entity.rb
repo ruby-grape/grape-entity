@@ -127,11 +127,11 @@ module Grape
       options = merge_options(args.last.is_a?(Hash) ? args.pop : {})
 
       if args.size > 1
-        raise ArgumentError, "You may not use the :as option on multi-attribute exposures." if options[:as]
-        raise ArgumentError, "You may not use block-setting on multi-attribute exposures." if block_given?
+        raise ArgumentError, 'You may not use the :as option on multi-attribute exposures.' if options[:as]
+        raise ArgumentError, 'You may not use block-setting on multi-attribute exposures.' if block_given?
       end
 
-      raise ArgumentError, "You may not use block-setting when also using format_with" if block_given? && options[:format_with].respond_to?(:call)
+      raise ArgumentError, 'You may not use block-setting when also using format_with' if block_given? && options[:format_with].respond_to?(:call)
 
       options[:proc] = block if block_given? && block.parameters.any?
 
@@ -247,7 +247,7 @@ module Grape
     #   end
     #
     def self.format_with(name, &block)
-      raise ArgumentError, "You must pass a block for formatters" unless block_given?
+      raise ArgumentError, 'You must pass a block for formatters' unless block_given?
       formatters[name.to_sym] = block
     end
 
@@ -328,7 +328,7 @@ module Grape
         inner = inner.serializable_hash if options[:serializable]
       end
 
-      root_element = if options.has_key?(:root)
+      root_element = if options.key?(:root)
                        options[:root]
                      else
                        objects.respond_to?(:to_ary) ? @collection_root : @root
@@ -346,7 +346,7 @@ module Grape
     end
 
     def valid_exposures
-      exposures.reject { |a, options| options[:nested] }.select do |attribute, exposure_options|
+      exposures.reject { |_, options| options[:nested] }.select do |attribute, exposure_options|
         valid_exposure?(attribute, exposure_options)
       end
     end
@@ -469,7 +469,7 @@ module Grape
     def valid_exposure?(attribute, exposure_options)
       nested_exposures = self.class.nested_exposures_for(attribute)
       (nested_exposures.any? && nested_exposures.all? { |a, o| valid_exposure?(a, o) }) || \
-      exposure_options.has_key?(:proc) || \
+      exposure_options.key?(:proc) || \
       !exposure_options[:safe] || \
       object.respond_to?(self.class.name_for(attribute))
     end
@@ -499,8 +499,6 @@ module Grape
 
       true
     end
-
-    private
 
     # All supported options.
     OPTIONS = [
@@ -544,7 +542,7 @@ module Grape
         raise ArgumentError, "#{key.inspect} is not a valid option." unless OPTIONS.include?(key)
       end
 
-      options[:using] = options.delete(:with) if options.has_key?(:with)
+      options[:using] = options.delete(:with) if options.key?(:with)
       options
     end
   end
