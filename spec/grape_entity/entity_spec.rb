@@ -924,6 +924,28 @@ describe Grape::Entity do
           rep.all? { |r| r.is_a?(EntitySpec::UserEntity) }.should be_true
         end
       end
+
+      context "object from DSL class" do
+        it "should use the DSL class's entity" do
+          module EntitySpec
+            class ObjectWithDSL
+              include Grape::Entity::DSL
+              entity do
+                expose(:foo) { "FOO" }
+              end
+
+              def as_json
+                { bar: "BAR" }
+              end
+              alias_method :serializable_hash, :as_json
+            end
+          end
+
+          fresh_class.expose(:object_with_dsl)
+          model.should_receive(:object_with_dsl).and_return(EntitySpec::ObjectWithDSL.new)
+          subject.send(:value_for, :object_with_dsl).should be_kind_of(EntitySpec::ObjectWithDSL::Entity)
+        end
+      end
     end
 
     describe '#documentation' do
