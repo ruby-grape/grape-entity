@@ -110,6 +110,15 @@ expose :contact_info do
 end
 ```
 
+#### Collection Exposure
+
+Use `root(plural, singular = nil)` to expose an object or a collection of objects with a root key.
+
+```ruby
+root 'users', 'user'
+expose :id, :name, ...
+```
+
 #### Runtime Exposure
 
 Use a block or a `Proc` to evaluate exposure at runtime. The supplied block or
