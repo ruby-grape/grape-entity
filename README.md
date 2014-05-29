@@ -86,7 +86,7 @@ expose :ip, if: { type: :full }
 
 expose :ip, if: lambda { |instance, options| options[:type] == :full } # exposed if the function evaluates to true
 expose :ip, if: :type # exposed if :type is available in the options hash
-expose :ip, if { type: :full } # exposed if options :type has a value of :full
+expose :ip, if: { type: :full } # exposed if options :type has a value of :full
 
 expose :ip, unless: ... # the opposite of :if
 ```
