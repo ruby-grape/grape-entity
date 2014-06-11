@@ -501,7 +501,7 @@ module Grape
     def conditions_met?(exposure_options, options)
       if_conditions = []
       unless exposure_options[:if_extras].nil?
-        if_conditions.concat(exposure_options[:if_extras]) 
+        if_conditions.concat(exposure_options[:if_extras])
       end
       if_conditions << exposure_options[:if] unless exposure_options[:if].nil?
 

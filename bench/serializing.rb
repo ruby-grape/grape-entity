@@ -10,7 +10,7 @@ module Models
     end
   end
 
-  class ClassRoom 
+  class ClassRoom
     attr_reader :students
     attr_accessor :teacher
     def initialize(opts = {})
@@ -51,7 +51,7 @@ module Entities
   class ClassRoom < Grape::Entity
     expose :teacher, using: 'Entities::Teacher'
     expose :students, using: 'Entities::Student'
-    expose :size do |model, opts|
+    expose :size do |model, _opts|
       model.students.count
     end
   end
@@ -62,7 +62,7 @@ module Entities
 
   class Student < Entities::Person
     expose :grade
-    expose :failing do |model, opts|
+    expose :failing do |model, _opts|
       model.grade == 'F'
     end
   end
@@ -72,18 +72,17 @@ module Entities
   end
 end
 
+teacher1 = Models::Teacher.new(name: 'John Smith', tenure: 2)
+classroom1 = Models::ClassRoom.new(teacher: teacher1)
+classroom1.students << Models::Student.new(name: 'Bobby', grade: 'A')
+classroom1.students << Models::Student.new(name: 'Billy', grade: 'B')
 
-teacher1 = Models::Teacher.new(:name => "John Smith", :tenure => 2)
-classroom1 = Models::ClassRoom.new(:teacher => teacher1)
-classroom1.students << Models::Student.new(:name => "Bobby", :grade => 'A' )
-classroom1.students << Models::Student.new(:name => "Billy", :grade => 'B' )
-
-teacher2 = Models::Teacher.new(:name => "Lisa Barns")
-classroom2 = Models::ClassRoom.new(:teacher => teacher2, :tenure => 15)
-classroom2.students << Models::Student.new(:name => "Eric", :grade => 'A' )
-classroom2.students << Models::Student.new(:name => "Eddie", :grade => 'C' )
-classroom2.students << Models::Student.new(:name => "Arnie", :grade => 'C' )
-classroom2.students << Models::Student.new(:name => "Alvin", :grade => 'F' )
+teacher2 = Models::Teacher.new(name: 'Lisa Barns')
+classroom2 = Models::ClassRoom.new(teacher: teacher2, tenure: 15)
+classroom2.students << Models::Student.new(name: 'Eric', grade: 'A')
+classroom2.students << Models::Student.new(name: 'Eddie', grade: 'C')
+classroom2.students << Models::Student.new(name: 'Arnie', grade: 'C')
+classroom2.students << Models::Student.new(name: 'Alvin', grade: 'F')
 school = Models::School.new
 school.classrooms << classroom1
 school.classrooms << classroom2
@@ -91,9 +90,9 @@ school.classrooms << classroom2
 iters = 5000
 
 Benchmark.bm do |bm|
-  bm.report("serializing") do
+  bm.report('serializing') do
     iters.times do
-      Entities::School.represent(school, :serializable => true)
+      Entities::School.represent(school, serializable: true)
     end
   end
 end
