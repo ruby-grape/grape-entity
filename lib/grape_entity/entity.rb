@@ -139,7 +139,9 @@ module Grape
 
       args.each do |attribute|
         unless @nested_attributes.empty?
+          orig_attribute = attribute.to_sym
           attribute = "#{@nested_attributes.last}__#{attribute}"
+          nested_attribute_names_hash[attribute.to_sym] = orig_attribute
           options[:nested] = true
           nested_exposures_hash[@nested_attributes.last.to_sym] ||= {}
           nested_exposures_hash[@nested_attributes.last.to_sym][attribute.to_sym] = options
@@ -187,10 +189,27 @@ module Grape
     end
 
     class << self
+      attr_accessor :_nested_attribute_names_hash
       attr_accessor :_nested_exposures_hash
+
+      def nested_attribute_names_hash
+        self._nested_attribute_names_hash ||= {}
+      end
 
       def nested_exposures_hash
         self._nested_exposures_hash ||= {}
+      end
+
+      def nested_attribute_names
+        return @nested_attribute_names unless @nested_attribute_names.nil?
+
+        @nested_attribute_names = {}.merge(nested_attribute_names_hash)
+
+        if superclass.respond_to? :nested_attribute_names
+          @nested_attribute_names = superclass.nested_attribute_names.deep_merge(@nested_attribute_names)
+        end
+
+        @nested_attribute_names
       end
 
       def nested_exposures
@@ -408,7 +427,8 @@ module Grape
     protected
 
     def self.name_for(attribute)
-      attribute.to_s.split('__').last.to_sym
+      attribute = attribute.to_sym
+      nested_attribute_names[attribute] || attribute
     end
 
     def self.key_for(attribute)
