@@ -479,7 +479,10 @@ module Grape
     end
 
     def conditions_met?(exposure_options, options)
-      if_conditions = (exposure_options[:if_extras] || []).dup
+      if_conditions = []
+      unless exposure_options[:if_extras].nil?
+        if_conditions.concat(exposure_options[:if_extras]) 
+      end
       if_conditions << exposure_options[:if] unless exposure_options[:if].nil?
 
       if_conditions.each do |if_condition|
@@ -490,7 +493,10 @@ module Grape
         end
       end
 
-      unless_conditions = (exposure_options[:unless_extras] || []).dup
+      unless_conditions = []
+      unless exposure_options[:unless_extras].nil?
+        unless_conditions.concat(exposure_options[:unless_extras])
+      end
       unless_conditions << exposure_options[:unless] unless exposure_options[:unless].nil?
 
       unless_conditions.each do |unless_condition|
