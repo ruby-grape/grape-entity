@@ -139,7 +139,9 @@ module Grape
 
       args.each do |attribute|
         unless @nested_attributes.empty?
+          orig_attribute = attribute.to_sym
           attribute = "#{@nested_attributes.last}__#{attribute}"
+          nested_attribute_names_hash[attribute.to_sym] = orig_attribute
           options[:nested] = true
           nested_exposures_hash[@nested_attributes.last.to_sym] ||= {}
           nested_exposures_hash[@nested_attributes.last.to_sym][attribute.to_sym] = options
@@ -175,7 +177,9 @@ module Grape
     # are symbolized references to methods on the containing object, the values are
     # the options that were passed into expose.
     def self.exposures
-      @exposures ||= {}
+      return @exposures unless @exposures.nil?
+
+      @exposures = {}
 
       if superclass.respond_to? :exposures
         @exposures = superclass.exposures.merge(@exposures)
@@ -185,20 +189,39 @@ module Grape
     end
 
     class << self
+      attr_accessor :_nested_attribute_names_hash
       attr_accessor :_nested_exposures_hash
+
+      def nested_attribute_names_hash
+        self._nested_attribute_names_hash ||= {}
+      end
 
       def nested_exposures_hash
         self._nested_exposures_hash ||= {}
       end
 
-      def nested_exposures
-        value = nested_exposures_hash
+      def nested_attribute_names
+        return @nested_attribute_names unless @nested_attribute_names.nil?
 
-        if superclass.respond_to? :nested_exposures
-          value = superclass.nested_exposures.deep_merge(value)
+        @nested_attribute_names = {}.merge(nested_attribute_names_hash)
+
+        if superclass.respond_to? :nested_attribute_names
+          @nested_attribute_names = superclass.nested_attribute_names.deep_merge(@nested_attribute_names)
         end
 
-        value
+        @nested_attribute_names
+      end
+
+      def nested_exposures
+        return @nested_exposures unless @nested_exposures.nil?
+
+        @nested_exposures = {}.merge(nested_exposures_hash)
+
+        if superclass.respond_to? :nested_exposures
+          @nested_exposures = superclass.nested_exposures.deep_merge(@nested_exposures)
+        end
+
+        @nested_exposures
       end
     end
 
@@ -404,7 +427,8 @@ module Grape
     protected
 
     def self.name_for(attribute)
-      attribute.to_s.split('__').last.to_sym
+      attribute = attribute.to_sym
+      nested_attribute_names[attribute] || attribute
     end
 
     def self.key_for(attribute)
@@ -475,7 +499,10 @@ module Grape
     end
 
     def conditions_met?(exposure_options, options)
-      if_conditions = (exposure_options[:if_extras] || []).dup
+      if_conditions = []
+      unless exposure_options[:if_extras].nil?
+        if_conditions.concat(exposure_options[:if_extras])
+      end
       if_conditions << exposure_options[:if] unless exposure_options[:if].nil?
 
       if_conditions.each do |if_condition|
@@ -486,7 +513,10 @@ module Grape
         end
       end
 
-      unless_conditions = (exposure_options[:unless_extras] || []).dup
+      unless_conditions = []
+      unless exposure_options[:unless_extras].nil?
+        unless_conditions.concat(exposure_options[:unless_extras])
+      end
       unless_conditions << exposure_options[:unless] unless exposure_options[:unless].nil?
 
       unless_conditions.each do |unless_condition|
