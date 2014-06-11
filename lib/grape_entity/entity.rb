@@ -194,13 +194,15 @@ module Grape
       end
 
       def nested_exposures
-        value = nested_exposures_hash
+        return @nested_exposures unless @nested_exposures.nil?
+
+        @nested_exposures = {}.merge(nested_exposures_hash)
 
         if superclass.respond_to? :nested_exposures
-          value = superclass.nested_exposures.deep_merge(value)
+          @nested_exposures = superclass.nested_exposures.deep_merge(@nested_exposures)
         end
 
-        value
+        @nested_exposures
       end
     end
 
