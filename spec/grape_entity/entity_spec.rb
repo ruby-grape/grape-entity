@@ -422,7 +422,7 @@ describe Grape::Entity do
 
       it 'adds the collection: true option if called with a collection' do
         representation = subject.represent(4.times.map { Object.new })
-        representation.each { |r| r.options[:collection].should be_true }
+        representation.each { |r| r.options[:collection].should be true }
       end
 
       it 'returns a serialized hash of a single object if serializable: true' do
@@ -909,7 +909,7 @@ describe Grape::Entity do
           rep = subject.send(:value_for, :friends)
           rep.should be_kind_of Array
           rep.size.should == 2
-          rep.all? { |r| r.is_a?(EntitySpec::UserEntity) }.should be_true
+          rep.all? { |r| r.is_a?(EntitySpec::UserEntity) }.should be true
         end
 
         it 'class' do
@@ -920,7 +920,7 @@ describe Grape::Entity do
           rep = subject.send(:value_for, :friends)
           rep.should be_kind_of Array
           rep.size.should == 2
-          rep.all? { |r| r.is_a?(EntitySpec::UserEntity) }.should be_true
+          rep.all? { |r| r.is_a?(EntitySpec::UserEntity) }.should be true
         end
       end
     end
@@ -972,54 +972,54 @@ describe Grape::Entity do
       it 'only passes through hash :if exposure if all attributes match' do
         exposure_options = { if: { condition1: true, condition2: true } }
 
-        subject.send(:conditions_met?, exposure_options, {}).should be_false
-        subject.send(:conditions_met?, exposure_options, condition1: true).should be_false
-        subject.send(:conditions_met?, exposure_options, condition1: true, condition2: true).should be_true
-        subject.send(:conditions_met?, exposure_options, condition1: false, condition2: true).should be_false
-        subject.send(:conditions_met?, exposure_options, condition1: true, condition2: true, other: true).should be_true
+        subject.send(:conditions_met?, exposure_options, {}).should be false
+        subject.send(:conditions_met?, exposure_options, condition1: true).should be false
+        subject.send(:conditions_met?, exposure_options, condition1: true, condition2: true).should be true
+        subject.send(:conditions_met?, exposure_options, condition1: false, condition2: true).should be false
+        subject.send(:conditions_met?, exposure_options, condition1: true, condition2: true, other: true).should be true
       end
 
       it 'looks for presence/truthiness if a symbol is passed' do
         exposure_options = { if: :condition1 }
 
-        subject.send(:conditions_met?, exposure_options, {}).should be_false
-        subject.send(:conditions_met?, exposure_options,  condition1: true).should be_true
-        subject.send(:conditions_met?, exposure_options,  condition1: false).should be_false
-        subject.send(:conditions_met?, exposure_options,  condition1: nil).should be_false
+        subject.send(:conditions_met?, exposure_options, {}).should be false
+        subject.send(:conditions_met?, exposure_options,  condition1: true).should be true
+        subject.send(:conditions_met?, exposure_options,  condition1: false).should be false
+        subject.send(:conditions_met?, exposure_options,  condition1: nil).should be false
       end
 
       it 'looks for absence/falsiness if a symbol is passed' do
         exposure_options = { unless: :condition1 }
 
-        subject.send(:conditions_met?, exposure_options, {}).should be_true
-        subject.send(:conditions_met?, exposure_options,  condition1: true).should be_false
-        subject.send(:conditions_met?, exposure_options,  condition1: false).should be_true
-        subject.send(:conditions_met?, exposure_options,  condition1: nil).should be_true
+        subject.send(:conditions_met?, exposure_options, {}).should be true
+        subject.send(:conditions_met?, exposure_options,  condition1: true).should be false
+        subject.send(:conditions_met?, exposure_options,  condition1: false).should be true
+        subject.send(:conditions_met?, exposure_options,  condition1: nil).should be true
       end
 
       it 'only passes through proc :if exposure if it returns truthy value' do
         exposure_options = { if: lambda { |_, opts| opts[:true] } }
 
-        subject.send(:conditions_met?, exposure_options, true: false).should be_false
-        subject.send(:conditions_met?, exposure_options, true: true).should be_true
+        subject.send(:conditions_met?, exposure_options, true: false).should be false
+        subject.send(:conditions_met?, exposure_options, true: true).should be true
       end
 
       it 'only passes through hash :unless exposure if any attributes do not match' do
         exposure_options = { unless: { condition1: true, condition2: true } }
 
-        subject.send(:conditions_met?, exposure_options, {}).should be_true
-        subject.send(:conditions_met?, exposure_options, condition1: true).should be_false
-        subject.send(:conditions_met?, exposure_options, condition1: true, condition2: true).should be_false
-        subject.send(:conditions_met?, exposure_options, condition1: false, condition2: true).should be_false
-        subject.send(:conditions_met?, exposure_options, condition1: true, condition2: true, other: true).should be_false
-        subject.send(:conditions_met?, exposure_options, condition1: false, condition2: false).should be_true
+        subject.send(:conditions_met?, exposure_options, {}).should be true
+        subject.send(:conditions_met?, exposure_options, condition1: true).should be false
+        subject.send(:conditions_met?, exposure_options, condition1: true, condition2: true).should be false
+        subject.send(:conditions_met?, exposure_options, condition1: false, condition2: true).should be false
+        subject.send(:conditions_met?, exposure_options, condition1: true, condition2: true, other: true).should be false
+        subject.send(:conditions_met?, exposure_options, condition1: false, condition2: false).should be true
       end
 
       it 'only passes through proc :unless exposure if it returns falsy value' do
         exposure_options = { unless: lambda { |_, options| options[:true] == true } }
 
-        subject.send(:conditions_met?, exposure_options, true: false).should be_true
-        subject.send(:conditions_met?, exposure_options, true: true).should be_false
+        subject.send(:conditions_met?, exposure_options, true: false).should be true
+        subject.send(:conditions_met?, exposure_options, true: true).should be false
       end
     end
 
