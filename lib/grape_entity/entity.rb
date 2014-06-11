@@ -175,7 +175,9 @@ module Grape
     # are symbolized references to methods on the containing object, the values are
     # the options that were passed into expose.
     def self.exposures
-      @exposures ||= {}
+      return @exposures unless @exposures.nil?
+
+      @exposures = {}
 
       if superclass.respond_to? :exposures
         @exposures = superclass.exposures.merge(@exposures)
