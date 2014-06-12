@@ -1,7 +1,6 @@
-Next Release
-============
+0.4.3 (2014-06-12)
+==================
 
-* Your contribution here.
 * [#77](https://github.com/intridea/grape-entity/pull/77): Fix compatibility with Rspec 3 - [@justfalter](https://github.com/justfalter).
 * [#76](https://github.com/intridea/grape-entity/pull/76): Improve performance of entity serialization - [@justfalter](https://github.com/justfalter)
 
