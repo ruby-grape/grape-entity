@@ -391,6 +391,7 @@ module Grape
     #   etc.
     def serializable_hash(runtime_options = {})
       return nil if object.nil?
+      options = {} if options.nil?
       opts = options.merge(runtime_options || {})
       valid_exposures.inject({}) do |output, (attribute, exposure_options)|
         if conditions_met?(exposure_options, opts)
