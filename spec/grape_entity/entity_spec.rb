@@ -436,6 +436,37 @@ describe Grape::Entity do
         representation = subject.represent(2.times.map { Object.new }, serializable: true)
         representation.should == [{ awesome: true }, { awesome: true }]
       end
+
+      it 'returns a serialized hash of a hash' do
+        subject.expose(:awesome)
+        representation = subject.represent({ awesome: true }, serializable: true)
+        representation.should == { awesome: true }
+      end
+    end
+
+    describe '.present_collection' do
+      it 'make the objects accessible' do
+        subject.present_collection true
+        subject.expose :items
+
+        representation = subject.represent(4.times.map { Object.new })
+        representation.should be_kind_of(subject)
+        representation.object.should be_kind_of(Hash)
+        representation.object.should have_key :items
+        representation.object[:items].should be_kind_of Array
+        representation.object[:items].size.should be 4
+      end
+
+      it 'serializes items with my root name' do
+        subject.present_collection true, :my_items
+        subject.expose :my_items
+
+        representation = subject.represent(4.times.map { Object.new }, serializable: true)
+        representation.should be_kind_of(Hash)
+        representation.should have_key :my_items
+        representation[:my_items].should be_kind_of Array
+        representation[:my_items].size.should be 4
+      end
     end
 
     describe '.root' do

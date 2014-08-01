@@ -63,6 +63,13 @@ Define a list of fields that will always be exposed.
 expose :user_name, :ip
 ```
 
+The field lookup takes several steps
+
+* first try `entity-instance.exposure`
+* next try `object.exposure` 
+* next try `object.fetch(exposure)`
+* last raise an Exception
+
 #### Exposing with a Presenter
 
 Don't derive your model classes from `Grape::Entity`, expose them using a presenter.
@@ -119,6 +126,20 @@ root 'users', 'user'
 expose :id, :name, ...
 ```
 
+By default every object of a collection is wrapped into an instance of your `Entity` class.
+You can override this behavior and wrapp the hole collection into one instance of your `Entity`
+class.
+
+As example:
+
+```ruby
+ 
+ present_collection true, :collection_name  # `collection_name` is optional and defaults to `items`
+ expose :collection_name, using: API:Items
+ 
+
+```
+
 #### Runtime Exposure
 
 Use a block or a `Proc` to evaluate exposure at runtime. The supplied block or
@@ -147,6 +168,20 @@ private
 
   def attr_not_on_wrapped_object
     42
+  end
+end
+```
+
+You have always access to the presented instance with `object`
+
+```ruby
+class ExampleEntity < Grape::Entity
+  expose :formatted_value
+  # ...
+private
+
+  def formatted_value
+    "+ X #{object.value}"
   end
 end
 ```
@@ -216,8 +251,7 @@ The above will automatically create a `Status::Entity` class and define properti
 
 ### Using Entities
 
-With Grape, once an entity is defined, it can be used within endpoints, by calling `present`. The `present` method accepts two arguments, the object to be presented and the options associated with it. The options hash must always include `:with`, which defines the entity to expose.
-
+With Grape, once an entity is defined, it can be used within endpoints, by calling `present`. The `present` method accepts two arguments, the `object` to be presented and the `options` associated with it. The options hash must always include `:with`, which defines the entity to expose.
 If the entity includes documentation it can be included in an endpoint's description.
 
 ```ruby

@@ -329,6 +329,62 @@ module Grape
       @root = singular
     end
 
+    # This allows you to present a collection of objects.
+    #
+    # @param present_collection   [true or false] when true all objects will be available as
+    #   items in your presenter instead of wrapping each object in an instance of your presenter.
+    #  When false (default) every object in a collection to present will be wrapped separately
+    #  into an instance of your presenter.
+    # @param collection_name [Symbol] the name of the collection accessor in your entity object.
+    #  Default :items
+    #
+    # @example Entity Definition
+    #
+    #   module API
+    #     module Entities
+    #       class User < Grape::Entity
+    #         expose :id
+    #       end
+    #
+    #       class Users < Grape::Entity
+    #         present_collection true
+    #         expose :items, as: 'users', using: API::Entities::Users
+    #         expose :version, documentation: { type: 'string',
+    #                                           desc: 'actual api version',
+    #                                           required: true }
+    #
+    #         def version
+    #           options[:version]
+    #         end
+    #       end
+    #     end
+    #   end
+    #
+    # @example Usage in the API Layer
+    #
+    #   module API
+    #     class Users < Grape::API
+    #       version 'v2'
+    #
+    #       # this will render { "users" : [ { "id" : "1" }, { "id" : "2" } ], "version" : "v2" }
+    #       get '/users' do
+    #         @users = User.all
+    #         present @users, with: API::Entities::Users
+    #       end
+    #
+    #       # this will render { "user" : { "id" : "1" } }
+    #       get '/users/:id' do
+    #         @user = User.find(params[:id])
+    #         present @user, with: API::Entities::User
+    #       end
+    #     end
+    #   end
+    #
+    def self.present_collection(present_collection = false, collection_name = :items)
+      @present_collection = present_collection
+      @collection_name = collection_name
+    end
+
     # This convenience method allows you to instantiate one or more entities by
     # passing either a singular or collection of objects. Each object will be
     # initialized with the same options. If an array of objects is passed in,
@@ -339,25 +395,32 @@ module Grape
     # @param options [Hash] Options that will be passed through to each entity
     #   representation.
     #
-    # @option options :root [String] override the default root name set for the entity.
+    # @option options :root [String or false] override the default root name set for the entity.
     #   Pass nil or false to represent the object or objects with no root name
     #   even if one is defined for the entity.
+    # @option options :serializable [true or false] when true a serializable Hash will be returned
+    #
     def self.represent(objects, options = {})
-      if objects.respond_to?(:to_ary)
-        inner = objects.to_ary.map { |object| new(object, { collection: true }.merge(options)) }
-        inner = inner.map(&:serializable_hash) if options[:serializable]
+      if objects.respond_to?(:to_ary) && ! @present_collection
+        root_element =  @collection_root
+        inner = objects.to_ary.map { |object| new(object, { collection: true }.merge(options)).presented }
       else
-        inner = new(objects, options)
-        inner = inner.serializable_hash if options[:serializable]
+        objects = { @collection_name => objects } if @present_collection
+        root_element =  @root
+        inner = new(objects, options).presented
       end
 
-      root_element = if options.key?(:root)
-                       options[:root]
-                     else
-                       objects.respond_to?(:to_ary) ? @collection_root : @root
-                     end
+      root_element = options[:root] if options.key?(:root)
 
       root_element ? { root_element => inner } : inner
+    end
+
+    def presented
+      if options[:serializable]
+        serializable_hash
+      else
+        self
+      end
     end
 
     def initialize(object, options = {})
@@ -486,7 +549,13 @@ module Grape
       if respond_to?(name, true)
         send(name)
       else
-        object.send(name)
+        if object.respond_to?(name, true)
+          object.send(name)
+        elsif object.respond_to?(:fetch, true)
+          object.fetch(name)
+        else
+          raise ArgumentError
+        end
       end
     end
 
