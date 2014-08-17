@@ -66,7 +66,7 @@ expose :user_name, :ip
 The field lookup takes several steps
 
 * first try `entity-instance.exposure`
-* next try `object.exposure` 
+* next try `object.exposure`
 * next try `object.fetch(exposure)`
 * last raise an Exception
 
@@ -133,10 +133,10 @@ class.
 As example:
 
 ```ruby
- 
+
  present_collection true, :collection_name  # `collection_name` is optional and defaults to `items`
  expose :collection_name, using: API:Items
- 
+
 
 ```
 
@@ -346,18 +346,13 @@ Also see [Grape Entity Matchers](https://github.com/agileanimal/grape-entity-mat
 
 ## Contributing
 
-1. Fork the project
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Write tests. Make changes. Run `rubocop`.
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new pull request
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-MIT License. See LICENSE for details.
+MIT License. See [LICENSE](LICENSE) for details.
 
 ## Copyright
 
-Copyright (c) 2010-2013 Michael Bleigh, Intridea, Inc., and contributors.
+Copyright (c) 2010-2014 Michael Bleigh, Intridea, Inc., and contributors.
 
