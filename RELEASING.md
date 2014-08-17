@@ -31,7 +31,7 @@ Remove the line with "Your contribution here.", since there will be no more cont
 Commit your changes.
 
 ```
-git add README.md CHANGELOG.md lib/grape-entity/version.rb
+git add CHANGELOG.md lib/grape-entity/version.rb
 git commit -m "Preparing for release, 0.4.0."
 git push origin master
 ```
@@ -58,11 +58,13 @@ Next Release
 * Your contribution here.
 ```
 
+Increment the minor version, modify [lib/grape-entity/version.rb](lib/grape-entity/version.rb).
+
 Comit your changes.
 
 ```
-git add CHANGELOG.md README.md
-git commit -m "Preparing for next release."
+git add CHANGELOG.md lib/grape-entity/version.rb
+git commit -m "Preparing for next release, 0.4.1."
 git push origin master
 ```
 
