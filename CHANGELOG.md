@@ -1,9 +1,8 @@
-Next
-====
+0.4.4 (2014-08-17)
+==================
 
 * [#85](https://github.com/intridea/grape-entity/pull/85): Added `present_collection` to indicate that an `Entity` presents an entire Collection - [@dspaeth-faber](https://github.com/dspaeth-faber).
 * [#85](https://guthub.com/intridea/grape-entity/pull/85): Hashes can now be passed as object to be presented and the `Hash` keys can be referenced by expose - [@dspaeth-faber](https://github.com/dspaeth-faber).
-* Your contribution here.
 
 0.4.3 (2014-06-12)
 ==================
