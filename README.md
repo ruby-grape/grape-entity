@@ -127,7 +127,7 @@ expose :id, :name, ...
 ```
 
 By default every object of a collection is wrapped into an instance of your `Entity` class.
-You can override this behavior and wrapp the hole collection into one instance of your `Entity`
+You can override this behavior and wrap the whole collection into one instance of your `Entity`
 class.
 
 As example:
