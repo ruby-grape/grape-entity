@@ -22,33 +22,33 @@ describe Grape::Entity do
 
       context 'conditions applied to attribute in separate non-nested exposures' do
         before do
-          subject.expose(:conditional, if: { condition: 1 }) {|_| "value1" }
-          subject.expose(:conditional, if: { condition: 2 }) {|_| "value2" }
-          subject.expose(:conditional, if: { condition: 3 }) {|_| "value3" }
+          subject.expose(:conditional, if: { condition: 1 }) { |_| 'value1' }
+          subject.expose(:conditional, if: { condition: 2 }) { |_| 'value2' }
+          subject.expose(:conditional, if: { condition: 3 }) { |_| 'value3' }
 
           subject.with_options if: { condition: 1 } do
-            subject.expose(:conditional_block) {|_| "value1" }
+            subject.expose(:conditional_block) { |_| 'value1' }
           end
           subject.with_options if: { condition: 2 } do
-            subject.expose(:conditional_block) {|_| "value2" }
+            subject.expose(:conditional_block) { |_| 'value2' }
           end
           subject.with_options if: { condition: 3 } do
-            subject.expose(:conditional_block) {|_| "value3" }
+            subject.expose(:conditional_block) { |_| 'value3' }
           end
         end
 
         it 'exposes the attribute with the correct value if the corresponding condition passes' do
           rep = subject.represent({}, { condition: 1 })
-          expect(rep.serializable_hash[:conditional]).to eq "value1"
-          expect(rep.serializable_hash[:conditional_block]).to eq "value1"
+          expect(rep.serializable_hash[:conditional]).to eq 'value1'
+          expect(rep.serializable_hash[:conditional_block]).to eq 'value1'
 
           rep = subject.represent({}, { condition: 2 })
-          expect(rep.serializable_hash[:conditional]).to eq "value2"
-          expect(rep.serializable_hash[:conditional_block]).to eq "value2"
+          expect(rep.serializable_hash[:conditional]).to eq 'value2'
+          expect(rep.serializable_hash[:conditional_block]).to eq 'value2'
 
           rep = subject.represent({}, { condition: 3 })
-          expect(rep.serializable_hash[:conditional]).to eq "value3"
-          expect(rep.serializable_hash[:conditional_block]).to eq "value3"
+          expect(rep.serializable_hash[:conditional]).to eq 'value3'
+          expect(rep.serializable_hash[:conditional_block]).to eq 'value3'
         end
 
         it 'does not expose the attribute if none of the conditions pass' do
@@ -127,11 +127,11 @@ describe Grape::Entity do
               end
             end
 
-            expect(subject.exposures).to eq({
+            expect(subject.exposures).to eq(
               subject.unique_attribute_for(:awesome) => {},
               subject.unique_attribute_for(:nested) => { using: 'Awesome', nested: true },
-              subject.unique_attribute_for(:moar_nested) => { as: 'weee', nested: true },
-            })
+              subject.unique_attribute_for(:moar_nested) => { as: 'weee', nested: true }
+            )
           end
 
           it 'represents the exposure as a hash of its nested exposures' do
@@ -140,22 +140,22 @@ describe Grape::Entity do
               subject.expose(:another_nested) { |_| 'value' }
             end
 
-            expect(subject.represent({}).send(:value_for, subject.unique_attribute_for(:awesome))).to eq({
+            expect(subject.represent({}).send(:value_for, subject.unique_attribute_for(:awesome))).to eq(
               nested: 'value',
               another_nested: 'value'
-            })
+            )
           end
 
           it 'does not represent attributes, declared inside nested exposure, outside of it' do
             subject.expose :awesome do
               subject.expose :nested do
                 subject.expose :moar_nested do
-                  subject.expose(:even_moar_nesteder) {|_| 'value' }
+                  subject.expose(:even_moar_nesteder) { |_| 'value' }
                 end
               end
             end
 
-            expect(subject.represent({}).serializable_hash).to eq({
+            expect(subject.represent({}).serializable_hash).to eq(
               awesome: {
                 nested: {
                   moar_nested: {
@@ -163,7 +163,7 @@ describe Grape::Entity do
                   }
                 }
               }
-            })
+            )
           end
 
           it 'complex nested attributes' do
@@ -188,7 +188,7 @@ describe Grape::Entity do
               expose(:children, using: 'Student') { |_| [{}, {}] }
             end
 
-            expect(ClassRoom.represent({}).serializable_hash).to eq({
+            expect(ClassRoom.represent({}).serializable_hash).to eq(
               parents: [
                 {
                   user: { in_first: 'value' },
@@ -205,7 +205,7 @@ describe Grape::Entity do
                   ]
                 }
               ]
-            })
+            )
           end
 
           it 'is safe if its nested exposures are safe' do
@@ -367,10 +367,10 @@ describe Grape::Entity do
           end
         end
 
-        expect(subject.exposures[subject.unique_attribute_for :awesome_thing]).to eq({
+        expect(subject.exposures[subject.unique_attribute_for :awesome_thing]).to eq(
           if: { awesome: false, less_awesome: true },
           if_extras: [:awesome, match_proc]
-        })
+        )
       end
 
       it 'merges nested :unless option' do
@@ -392,10 +392,10 @@ describe Grape::Entity do
           end
         end
 
-        expect(subject.exposures[subject.unique_attribute_for :awesome_thing]).to eq({
+        expect(subject.exposures[subject.unique_attribute_for :awesome_thing]).to eq(
           unless: { awesome: false, less_awesome: true },
           unless_extras: [:awesome, match_proc]
-        })
+        )
       end
 
       it 'overrides nested :using option' do

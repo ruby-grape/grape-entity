@@ -233,7 +233,7 @@ module Grape
     # corresponding key.
     def self.nested_attributes
       if @nested_attributes
-        @nested_attributes.merge(@superclass_nested_attributes || {}) do |key, existing_val, new_val|
+        @nested_attributes.merge(@superclass_nested_attributes || {}) do |_, existing_val, new_val|
           existing_val | new_val
         end
       elsif superclass.respond_to? :nested_attributes
@@ -533,7 +533,7 @@ module Grape
     end
 
     def self.strip_unique_suffix_from(unique_attribute)
-      unique_attribute.to_s.slice(0..unique_attribute.to_s.index('___')-1)
+      unique_attribute.to_s.slice(0..unique_attribute.to_s.index('___') - 1)
     end
 
     def self.name_for(unique_attribute)
@@ -545,7 +545,7 @@ module Grape
     end
 
     def self.nested_exposures_for(unique_attribute)
-      Hash[ nested_attributes_for(unique_attribute).map {|a| [a, exposure_options_for(a)] } ]
+      Hash[nested_attributes_for(unique_attribute).map { |a| [a, exposure_options_for(a)] }]
     end
 
     def self.nested_attributes_for(unique_attribute)
