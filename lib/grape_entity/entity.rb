@@ -554,7 +554,7 @@ module Grape
         elsif object.respond_to?(:fetch, true)
           object.fetch(name)
         else
-          raise ArgumentError
+          object.send(name)
         end
       end
     end

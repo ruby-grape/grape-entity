@@ -2,6 +2,7 @@ Next Release
 ============
 
 * Your contribution here.
+* [#91](https://github.com/intridea/grape-entity/pull/91): Fix OpenStruct serializing - [@etehtsea](https://github.com/etehtsea).
 
 0.4.4 (2014-08-17)
 ==================

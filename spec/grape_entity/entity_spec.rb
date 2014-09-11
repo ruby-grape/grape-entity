@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'ostruct'
 
 describe Grape::Entity do
 
@@ -441,6 +442,19 @@ describe Grape::Entity do
         subject.expose(:awesome)
         representation = subject.represent({ awesome: true }, serializable: true)
         expect(representation).to eq(awesome: true)
+      end
+
+      it 'returns a serialized hash of an OpenStruct' do
+        subject.expose(:awesome)
+        representation = subject.represent(OpenStruct.new, serializable: true)
+        expect(representation).to eq(awesome: nil)
+      end
+
+      it 'raises error if field not found' do
+        subject.expose(:awesome)
+        expect {
+          subject.represent(Object.new, serializable: true)
+        }.to raise_error(NoMethodError)
       end
     end
 
