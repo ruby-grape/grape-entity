@@ -535,10 +535,14 @@ module Grape
         end
 
       elsif nested_exposures.any?
-        Hash[nested_exposures.map do |nested_attribute, _|
-          [self.class.key_for(nested_attribute), value_for(nested_attribute, options)]
-        end]
+        nested_attributes =
+          nested_exposures.map do |nested_attribute, nested_exposure_options|
+            if conditions_met?(nested_exposure_options, options)
+              [self.class.key_for(nested_attribute), value_for(nested_attribute, options)]
+            end
+          end
 
+        Hash[nested_attributes.compact]
       else
         delegate_attribute(attribute)
       end
