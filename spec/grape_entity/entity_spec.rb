@@ -111,6 +111,15 @@ describe Grape::Entity do
             )
           end
 
+          it 'does not represent nested exposures whose conditions are not met' do
+            subject.expose :awesome do
+              subject.expose(:condition_met, if: lambda { |_, _| true }) { |_| 'value' }
+              subject.expose(:condition_not_met, if: lambda { |_, _| false }) { |_| 'value' }
+            end
+
+            expect(subject.represent({}).send(:value_for, :awesome)).to eq(condition_met: 'value')
+          end
+
           it 'does not represent attributes, declared inside nested exposure, outside of it' do
             subject.expose :awesome do
               subject.expose(:nested) { |_| 'value' }

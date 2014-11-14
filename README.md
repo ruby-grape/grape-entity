@@ -117,6 +117,16 @@ expose :contact_info do
 end
 ```
 
+You can also conditionally expose attributes in nested exposures:
+```ruby
+expose :contact_info do
+  expose :phone
+  expose :address, using: API::Address
+  expose :email, if: lambda { |instance, options| options[:type] == :full }
+end
+```
+
+
 #### Collection Exposure
 
 Use `root(plural, singular = nil)` to expose an object or a collection of objects with a root key.
