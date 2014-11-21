@@ -984,7 +984,7 @@ describe Grape::Entity do
           fresh_class.class_eval do
             expose :not_an_entity, using: NotAnEntity
           end
-          
+
           expect { subject.send(:value_for, :not_an_entity) }.to raise_error ArgumentError
         end
 
