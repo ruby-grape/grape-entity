@@ -9,6 +9,4 @@ Bundler.require :default, :test
 
 require 'pry'
 
-RSpec.configure do |config|
-  config.raise_errors_for_deprecations!
-end
+RSpec.configure(&:raise_errors_for_deprecations!)
