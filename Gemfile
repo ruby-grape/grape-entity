@@ -11,12 +11,6 @@ group :development, :test do
   gem 'growl'
   gem 'json'
   gem 'rspec'
-  gem 'rack-test', "~> 0.6.2", :require => "rack/test"
-  gem 'rubocop', '0.21.0'
-end
-
-platforms :rbx do
-  gem 'rubysl', '~> 2.0'
-  gem 'parser', '~> 2.1'
-  gem 'racc', '~> 1.4'
+  gem 'rack-test', '~> 0.6.2', require: 'rack/test'
+  gem 'rubocop', '0.28.0'
 end

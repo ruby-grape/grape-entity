@@ -127,11 +127,11 @@ module Grape
       options = merge_options(args.last.is_a?(Hash) ? args.pop : {})
 
       if args.size > 1
-        raise ArgumentError, 'You may not use the :as option on multi-attribute exposures.' if options[:as]
-        raise ArgumentError, 'You may not use block-setting on multi-attribute exposures.' if block_given?
+        fail ArgumentError, 'You may not use the :as option on multi-attribute exposures.' if options[:as]
+        fail ArgumentError, 'You may not use block-setting on multi-attribute exposures.' if block_given?
       end
 
-      raise ArgumentError, 'You may not use block-setting when also using format_with' if block_given? && options[:format_with].respond_to?(:call)
+      fail ArgumentError, 'You may not use block-setting when also using format_with' if block_given? && options[:format_with].respond_to?(:call)
 
       options[:proc] = block if block_given? && block.parameters.any?
 
@@ -270,7 +270,7 @@ module Grape
     #   end
     #
     def self.format_with(name, &block)
-      raise ArgumentError, 'You must pass a block for formatters' unless block_given?
+      fail ArgumentError, 'You must pass a block for formatters' unless block_given?
       formatters[name.to_sym] = block
     end
 
@@ -461,9 +461,9 @@ module Grape
           output[self.class.key_for(attribute)] =
             if partial_output.respond_to? :serializable_hash
               partial_output.serializable_hash(runtime_options)
-            elsif partial_output.kind_of?(Array) && !partial_output.map { |o| o.respond_to? :serializable_hash }.include?(false)
-              partial_output.map { |o| o.serializable_hash }
-            elsif partial_output.kind_of?(Hash)
+            elsif partial_output.is_a?(Array) && !partial_output.map { |o| o.respond_to? :serializable_hash }.include?(false)
+              partial_output.map(&:serializable_hash)
+            elsif partial_output.is_a?(Hash)
               partial_output.each do |key, value|
                 partial_output[key] = value.serializable_hash if value.respond_to? :serializable_hash
               end
@@ -566,9 +566,9 @@ module Grape
     def valid_exposure?(attribute, exposure_options)
       nested_exposures = self.class.nested_exposures_for(attribute)
       (nested_exposures.any? && nested_exposures.all? { |a, o| valid_exposure?(a, o) }) || \
-      exposure_options.key?(:proc) || \
-      !exposure_options[:safe] || \
-      object.respond_to?(self.class.name_for(attribute))
+        exposure_options.key?(:proc) || \
+        !exposure_options[:safe] || \
+        object.respond_to?(self.class.name_for(attribute))
     end
 
     def conditions_met?(exposure_options, options)
@@ -642,7 +642,7 @@ module Grape
     # @param options [Hash] Exposure options.
     def self.valid_options(options)
       options.keys.each do |key|
-        raise ArgumentError, "#{key.inspect} is not a valid option." unless OPTIONS.include?(key)
+        fail ArgumentError, "#{key.inspect} is not a valid option." unless OPTIONS.include?(key)
       end
 
       options[:using] = options.delete(:with) if options.key?(:with)
