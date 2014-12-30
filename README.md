@@ -1,6 +1,9 @@
 # Grape::Entity
 
-[![Build Status](https://travis-ci.org/intridea/grape-entity.svg?branch=master)](https://travis-ci.org/intridea/grape-entity)
+[![Gem Version](http://img.shields.io/gem/v/grape-entity.svg)](http://badge.fury.io/rb/grape-entity)
+[![Build Status](http://img.shields.io/travis/intridea/grape-entity.svg)](https://travis-ci.org/intridea/grape-entity)
+[![Dependency Status](https://gemnasium.com/intridea/grape-entity.svg)](https://gemnasium.com/intridea/grape-entity)
+[![Code Climate](https://codeclimate.com/github/intridea/grape-entity.svg)](https://codeclimate.com/github/intridea/grape-entity)
 
 ## Introduction
 
