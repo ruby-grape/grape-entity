@@ -462,7 +462,7 @@ describe Grape::Entity do
         subject.expose(:awesome)
         expect do
           subject.represent(Object.new, serializable: true)
-        end.to raise_error(NoMethodError)
+        end.to raise_error(NoMethodError, /missing attribute `awesome'/)
       end
     end
 

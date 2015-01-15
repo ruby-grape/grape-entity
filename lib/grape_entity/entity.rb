@@ -558,7 +558,11 @@ module Grape
         elsif object.respond_to?(:fetch, true)
           object.fetch(name)
         else
-          object.send(name)
+          begin
+            object.send(name)
+          rescue NoMethodError
+            raise NoMethodError, "#{self.class.name} missing attribute `#{name}' on #{object}"
+          end
         end
       end
     end
