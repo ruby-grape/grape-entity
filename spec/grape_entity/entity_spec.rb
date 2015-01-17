@@ -683,6 +683,13 @@ describe Grape::Entity do
           expect(res).to have_key :name
         end
 
+        it 'does expose attributes marked as safe if model is a hash object' do
+          fresh_class.expose :name, safe: true
+
+          res = fresh_class.new(name: 'myname').serializable_hash
+          expect(res).to have_key :name
+        end
+
         it "does not expose attributes that don't exist on the object, even with criteria" do
           fresh_class.expose :email
           fresh_class.expose :nonexistent_attribute, safe: true, if: lambda { false }
