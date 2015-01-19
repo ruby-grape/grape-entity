@@ -973,6 +973,18 @@ describe Grape::Entity do
           expect(rep.size).to eq 2
           expect(rep.all? { |r| r.is_a?(EntitySpec::UserEntity) }).to be true
         end
+
+        it 'makes sure represent can be called on the using option' do
+
+          class NotAnEntity; end
+
+          fresh_class.class_eval do
+            expose :not_an_entity, using: NotAnEntity
+          end
+
+          expect { subject.send(:value_for, :not_an_entity) }.to raise_error ArgumentError
+        end
+
       end
     end
 

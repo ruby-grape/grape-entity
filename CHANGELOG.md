@@ -2,6 +2,7 @@ Next Release
 ============
 
 * Your contribution here.
+* [#99](https://github.com/intridea/grape-entity/pull/99): raising ArgumentError if exposure_options[:using] does not respond to represent - [@themusicman](https://github.com/themusicman).
 * [#98](https://github.com/intridea/grape-entity/pull/98): Add nested conditionals - [@zbelzer](https://github.com/zbelzer).
 * [#91](https://github.com/intridea/grape-entity/pull/91): Fix OpenStruct serializing - [@etehtsea](https://github.com/etehtsea).
 * [#105](https://github.com/intridea/grape-entity/pull/105): Specify which attribute is missing in which Entity - [@jhollinger](https://github.com/jhollinger).
@@ -63,4 +64,3 @@ Next Release
 ==================
 
 * Initial public release - [@agileanimal](https://github.com/agileanimal).
-

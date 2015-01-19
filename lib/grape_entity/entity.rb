@@ -508,7 +508,12 @@ module Grape
       nested_exposures = self.class.nested_exposures_for(attribute)
 
       if exposure_options[:using]
+
         exposure_options[:using] = exposure_options[:using].constantize if exposure_options[:using].respond_to? :constantize
+
+        unless exposure_options[:using].respond_to? :represent
+          raise ArgumentError, "The value you pass as the using option must respond to represent. It should be a class that inherits from Grape::Entity. [#{exposure_options[:using].inspect}]"
+        end
 
         using_options = options.dup
         using_options.delete(:collection)
