@@ -138,22 +138,19 @@ module Grape
       args.each do |attribute|
         attribute = attribute.to_sym
 
-        if (@nested_attribute_stack ||= []).empty?
-          unique_attribute = "#{attribute}#{generate_unique_suffix}".to_sym
-        else
-          nesting_prefix = "#{strip_unique_suffix_from @nested_attribute_stack.last}__"
-          unique_attribute = "#{nesting_prefix}#{attribute}#{generate_unique_suffix}".to_sym
-          add_nested_attribute @nested_attribute_stack.last, unique_attribute
+        if (@nested_attribute_stack ||= []).any?
+          name = attribute
+          attribute = "#{@nested_attribute_stack.last}__#{attribute}".to_sym
+          add_nested_attribute @nested_attribute_stack.last, attribute
+          add_nested_attribute_map attribute, name
           options[:nested] = true
         end
 
-        add_attribute_map unique_attribute, attribute
-
-        add_exposure unique_attribute, options
+        add_exposure attribute, options
 
         # Nested exposures are given in a block with no parameters.
         if block_given? && block.parameters.empty?
-          @nested_attribute_stack << unique_attribute
+          @nested_attribute_stack << attribute
           block.call
           @nested_attribute_stack.pop
         end
@@ -175,34 +172,31 @@ module Grape
       @block_options.pop
     end
 
-    # Returns a hash of attribute maps that have been declared for this Entity or ancestors.
-    # The keys are symbolized unique attributes in the form "#{nested_attribute_path}___#{unique_suffix}",
-    # the values are symbolized references to methods on the containing object.
-    def self.attribute_maps
-      if @attribute_maps
-        @attribute_maps.merge(@superclass_attribute_maps || {})
-      elsif superclass.respond_to? :attribute_maps
-        superclass.attribute_maps
+    # Returns a hash of nested attribute mappings that have been declared for this Entity or ancestors.
+    # The keys are symbolized nested attribute paths, the values are symbolized attributes.
+    def self.nested_attribute_maps
+      if @nested_attribute_maps
+        @nested_attribute_maps.merge(@superclass_nested_attribute_maps || {})
+      elsif superclass.respond_to? :nested_attribute_maps
+        superclass.nested_attribute_maps
       else
         {}
       end
     end
 
-    # Adds to the hash of attribute maps that have been declared for this Entity.
-    # @param [Symbol] unique_attribute
+    # Adds to the hash of nested attribute mappings that have been declared for this Entity.
     # @param [Symbol] attribute
-    def self.add_attribute_map(unique_attribute, attribute)
-      (@attribute_maps ||= {})[unique_attribute] = attribute
+    # @param [Symbol] name
+    def self.add_nested_attribute_map(attribute, name)
+      (@nested_attribute_maps ||= {})[attribute] = name
 
-      @superclass_attribute_maps ||= superclass.respond_to?(:attribute_maps) ? superclass.attribute_maps : {}
+      @superclass_nested_attribute_maps ||= superclass.respond_to?(:nested_attribute_maps) ? superclass.nested_attribute_maps : {}
 
-      @superclass_attribute_maps.delete_if do |superclass_unique_attribute, _|
-        strip_unique_suffix_from(superclass_unique_attribute) == strip_unique_suffix_from(unique_attribute)
-      end
+      @superclass_nested_attribute_maps.delete attribute
     end
 
     # Returns a hash of exposures that have been declared for this Entity or ancestors.
-    # The keys are symbolized unique attributes in the form "#{nested_attribute_path}___#{unique_suffix}",
+    # The keys are symbolized attributes in the form of nested attribute paths,
     # the values are the options that were passed into expose.
     def self.exposures
       if @exposures
@@ -215,21 +209,19 @@ module Grape
     end
 
     # Adds to the hash of exposures that have been declared for this Entity.
-    # @param [Symbol] unique_attribute
+    # @param [Symbol] attribute
     # @param [Hash] options
-    def self.add_exposure(unique_attribute, options)
-      (@exposures ||= {})[unique_attribute] = options
+    def self.add_exposure(attribute, options)
+      ((@exposures ||= {})[attribute] ||= []) << options
 
       @superclass_exposures ||= superclass.respond_to?(:exposures) ? superclass.exposures : {}
 
-      @superclass_exposures.delete_if do |superclass_unique_attribute, _|
-        strip_unique_suffix_from(superclass_unique_attribute) == strip_unique_suffix_from(unique_attribute)
-      end
+      @superclass_exposures.delete attribute
     end
 
     # Returns a hash of nested attribute hierarchies that have been declared for this Entity or ancestors.
-    # The keys are symbolized unique attributes in the form "#{nested_attribute_path}___#{unique_suffix}",
-    # the values are arrays of symbolized unique attributes in the same form that are nested under the
+    # The keys are symbolized attributes in the form of nested attribute paths,
+    # the values are arrays of symbolized attributes in the same form that are nested under the
     # corresponding key.
     def self.nested_attributes
       if @nested_attributes
@@ -244,33 +236,26 @@ module Grape
     end
 
     # Adds to the hash of nested attributes that have been declared for this Entity.
-    # @param [Symbol] unique_attribute
-    # @param [Symbol] nested_unique_attribute
-    def self.add_nested_attribute(unique_attribute, nested_unique_attribute)
-      ((@nested_attributes ||= {})[unique_attribute] ||= []) << nested_unique_attribute
+    # @param [Symbol] attribute
+    # @param [Symbol] nested_attribute
+    def self.add_nested_attribute(attribute, nested_attribute)
+      ((@nested_attributes ||= {})[attribute] ||= []) << nested_attribute
 
       @superclass_nested_attributes ||= superclass.respond_to?(:nested_attributes) ? superclass.nested_attributes : {}
 
-      superclass_unique_attribute, _ = @superclass_nested_attributes.detect do |superclass_unique_attribute, _|
-        strip_unique_suffix_from(superclass_unique_attribute) == strip_unique_suffix_from(unique_attribute)
-      end
-
-      unless superclass_unique_attribute.nil?
-        @superclass_nested_attributes[unique_attribute] = @superclass_nested_attributes.delete(superclass_unique_attribute)
-      end
-
-      (@superclass_nested_attributes[unique_attribute] || []).delete_if do |superclass_nested_unique_attribute|
-        strip_unique_suffix_from(superclass_nested_unique_attribute) == strip_unique_suffix_from(nested_unique_attribute)
-      end
+      (@superclass_nested_attributes[attribute] || []).delete nested_attribute
     end
 
     # Returns a hash, the keys are symbolized references to fields in the entity,
     # the values are document keys in the entity's documentation key. When calling
     # #docmentation, any exposure without a documentation key will be ignored.
     def self.documentation
-      @documentation ||= exposures.inject({}) do |memo, (attribute, exposure_options)|
-        unless exposure_options[:documentation].nil? || exposure_options[:documentation].empty?
-          memo[key_for(attribute)] = exposure_options[:documentation]
+      @documentation ||= exposures.inject({}) do |memo, (attribute, exposure_option_groups)|
+        exposure_option_groups.each_index do |i|
+          exposure_options = exposure_option_groups[i]
+          unless exposure_options[:documentation].nil? || exposure_options[:documentation].empty?
+            memo[key_for(attribute, i)] = exposure_options[:documentation]
+          end
         end
         memo
       end
@@ -471,8 +456,9 @@ module Grape
     end
 
     def valid_exposures
-      exposures.reject { |_, options| options[:nested] }.select do |unique_attribute, exposure_options|
-        valid_exposure?(unique_attribute, exposure_options)
+      exposures.select do |attribute, exposure_option_groups|
+        exposure_option_groups.none? { |exposure_options| exposure_options[:nested] } \
+        && exposure_option_groups.all? { |exposure_options| valid_exposure?(attribute, exposure_options) }
       end
     end
 
@@ -493,22 +479,25 @@ module Grape
     #   etc.
     def serializable_hash(runtime_options = {})
       return nil if object.nil?
-      opts = options.merge(runtime_options || {})
-      valid_exposures.inject({}) do |output, (unique_attribute, exposure_options)|
-        if conditions_met?(exposure_options, opts)
-          partial_output = value_for(unique_attribute, opts)
-          output[self.class.key_for(unique_attribute)] =
-            if partial_output.respond_to? :serializable_hash
-              partial_output.serializable_hash(runtime_options)
-            elsif partial_output.kind_of?(Array) && !partial_output.map { |o| o.respond_to? :serializable_hash }.include?(false)
-              partial_output.map { |o| o.serializable_hash }
-            elsif partial_output.kind_of?(Hash)
-              partial_output.each do |key, value|
-                partial_output[key] = value.serializable_hash if value.respond_to? :serializable_hash
+      runtime_options = options.merge(runtime_options || {})
+      valid_exposures.inject({}) do |output, (attribute, exposure_option_groups)|
+        exposure_option_groups.each_index do |i|
+          exposure_options = exposure_option_groups[i]
+          if conditions_met?(exposure_options, runtime_options)
+            partial_output = value_for(attribute, i, runtime_options)
+            output[self.class.key_for(attribute, i)] =
+              if partial_output.respond_to? :serializable_hash
+                partial_output.serializable_hash(runtime_options)
+              elsif partial_output.kind_of?(Array) && !partial_output.map { |o| o.respond_to? :serializable_hash }.include?(false)
+                partial_output.map { |o| o.serializable_hash }
+              elsif partial_output.kind_of?(Hash)
+                partial_output.each do |key, value|
+                  partial_output[key] = value.serializable_hash if value.respond_to? :serializable_hash
+                end
+              else
+                partial_output
               end
-            else
-              partial_output
-            end
+          end
         end
         output
       end
@@ -528,78 +517,73 @@ module Grape
 
     protected
 
-    def self.generate_unique_suffix
-      "___#{SecureRandom.uuid.gsub('-', '')}"
+    def self.name_for(attribute)
+      nested_attribute_maps[attribute.to_sym] || attribute.to_sym
     end
 
-    def self.strip_unique_suffix_from(unique_attribute)
-      unique_attribute.to_s.slice(0..unique_attribute.to_s.index('___') - 1)
+    def self.key_for(attribute, exposure_option_group_index)
+      (exposure_option_groups_for(attribute)[exposure_option_group_index][:as] || name_for(attribute)).to_sym
     end
 
-    def self.name_for(unique_attribute)
-      attribute_maps[unique_attribute.to_sym]
+    def self.nested_exposures_for(attribute)
+      Hash[nested_attributes_for(attribute).map { |a| [a, exposure_option_groups_for(a)] }]
     end
 
-    def self.key_for(unique_attribute)
-      (exposures[unique_attribute.to_sym][:as] || attribute_maps[unique_attribute.to_sym]).to_sym
+    def self.nested_attributes_for(attribute)
+      nested_attributes[attribute.to_sym] || {}
     end
 
-    def self.nested_exposures_for(unique_attribute)
-      Hash[nested_attributes_for(unique_attribute).map { |a| [a, exposure_options_for(a)] }]
+    def self.exposure_option_groups_for(attribute)
+      exposures[attribute.to_sym] || {}
     end
 
-    def self.nested_attributes_for(unique_attribute)
-      nested_attributes[unique_attribute.to_sym] || {}
-    end
-
-    def self.exposure_options_for(unique_attribute)
-      exposures[unique_attribute.to_sym] || {}
-    end
-
-    def value_for(unique_attribute, options = {})
-      exposure_options = self.class.exposure_options_for(unique_attribute.to_sym)
-
-      nested_attributes = self.class.nested_attributes_for(unique_attribute)
+    def value_for(attribute, exposure_option_group_index, runtime_options = {})
+      exposure_options = self.class.exposure_option_groups_for(attribute)[exposure_option_group_index]
+      nested_exposures = self.class.nested_exposures_for(attribute)
 
       if exposure_options[:using]
         exposure_options[:using] = exposure_options[:using].constantize if exposure_options[:using].respond_to? :constantize
 
-        using_options = options.dup
+        using_options = runtime_options.dup
         using_options.delete(:collection)
         using_options[:root] = nil
 
         if exposure_options[:proc]
-          exposure_options[:using].represent(instance_exec(object, options, &exposure_options[:proc]), using_options)
+          exposure_options[:using].represent(instance_exec(object, runtime_options, &exposure_options[:proc]), using_options)
         else
-          exposure_options[:using].represent(delegate_attribute(unique_attribute), using_options)
+          exposure_options[:using].represent(delegate_attribute(attribute), using_options)
         end
 
       elsif exposure_options[:proc]
-        instance_exec(object, options, &exposure_options[:proc])
+        instance_exec(object, runtime_options, &exposure_options[:proc])
 
       elsif exposure_options[:format_with]
         format_with = exposure_options[:format_with]
 
         if format_with.is_a?(Symbol) && formatters[format_with]
-          instance_exec(delegate_attribute(unique_attribute), &formatters[format_with])
+          instance_exec(delegate_attribute(attribute), &formatters[format_with])
         elsif format_with.is_a?(Symbol)
-          send(format_with, delegate_attribute(unique_attribute))
+          send(format_with, delegate_attribute(attribute))
         elsif format_with.respond_to? :call
-          instance_exec(delegate_attribute(unique_attribute), &format_with)
+          instance_exec(delegate_attribute(attribute), &format_with)
         end
 
-      elsif nested_attributes.any?
-        Hash[nested_attributes.map do |nested_attribute|
-          [self.class.key_for(nested_attribute), value_for(nested_attribute, options)]
-        end]
+      elsif nested_exposures.any?
+        nested_exposures_hash = {}
+        nested_exposures.each do |nested_attribute, nested_exposure_option_groups|
+          nested_exposure_option_groups.each_index do |i|
+            nested_exposures_hash[self.class.key_for(nested_attribute, i)] = value_for(nested_attribute, i, runtime_options)
+          end
+        end
+        nested_exposures_hash
 
       else
-        delegate_attribute(unique_attribute)
+        delegate_attribute(attribute)
       end
     end
 
-    def delegate_attribute(unique_attribute)
-      name = self.class.name_for(unique_attribute)
+    def delegate_attribute(attribute)
+      name = self.class.name_for(attribute)
       if respond_to?(name, true)
         send(name)
       else
@@ -613,15 +597,15 @@ module Grape
       end
     end
 
-    def valid_exposure?(unique_attribute, exposure_options)
-      nested_exposures = self.class.nested_exposures_for(unique_attribute)
-      (nested_exposures.any? && nested_exposures.all? { |a, o| valid_exposure?(a, o) }) || \
-      exposure_options.key?(:proc) || \
-      !exposure_options[:safe] || \
-      object.respond_to?(self.class.name_for(unique_attribute))
+    def valid_exposure?(attribute, exposure_options)
+      nested_exposures = self.class.nested_exposures_for(attribute)
+      (nested_exposures.any? && nested_exposures.all? { |a, g| g.all? { |o| valid_exposure?(a, o) } }) ||
+      exposure_options.key?(:proc) ||
+      !exposure_options[:safe] ||
+      object.respond_to?(self.class.name_for(attribute))
     end
 
-    def conditions_met?(exposure_options, options)
+    def conditions_met?(exposure_options, runtime_options = {})
       if_conditions = []
       unless exposure_options[:if_extras].nil?
         if_conditions.concat(exposure_options[:if_extras])
@@ -630,9 +614,9 @@ module Grape
 
       if_conditions.each do |if_condition|
         case if_condition
-        when Hash then if_condition.each_pair { |k, v| return false if options[k.to_sym] != v }
-        when Proc then return false unless instance_exec(object, options, &if_condition)
-        when Symbol then return false unless options[if_condition]
+        when Hash then if_condition.each_pair { |k, v| return false if runtime_options[k.to_sym] != v }
+        when Proc then return false unless instance_exec(object, runtime_options, &if_condition)
+        when Symbol then return false unless runtime_options[if_condition]
         end
       end
 
@@ -644,9 +628,9 @@ module Grape
 
       unless_conditions.each do |unless_condition|
         case unless_condition
-        when Hash then unless_condition.each_pair { |k, v| return false if options[k.to_sym] == v }
-        when Proc then return false if instance_exec(object, options, &unless_condition)
-        when Symbol then return false if options[unless_condition]
+        when Hash then unless_condition.each_pair { |k, v| return false if runtime_options[k.to_sym] == v }
+        when Proc then return false if instance_exec(object, runtime_options, &unless_condition)
+        when Symbol then return false if runtime_options[unless_condition]
         end
       end
 
@@ -655,7 +639,7 @@ module Grape
 
     # All supported options.
     OPTIONS = [
-      :as, :if, :elsif, :unless, :using, :with, :proc, :documentation, :format_with, :safe, :if_extras, :unless_extras
+      :as, :if, :unless, :using, :with, :proc, :documentation, :format_with, :safe, :if_extras, :unless_extras
     ].to_set.freeze
 
     # Merges the given options with current block options.
