@@ -1,6 +1,9 @@
 # Grape::Entity
 
-[![Build Status](https://travis-ci.org/intridea/grape-entity.svg?branch=master)](https://travis-ci.org/intridea/grape-entity)
+[![Gem Version](http://img.shields.io/gem/v/grape-entity.svg)](http://badge.fury.io/rb/grape-entity)
+[![Build Status](http://img.shields.io/travis/intridea/grape-entity.svg)](https://travis-ci.org/intridea/grape-entity)
+[![Dependency Status](https://gemnasium.com/intridea/grape-entity.svg)](https://gemnasium.com/intridea/grape-entity)
+[![Code Climate](https://codeclimate.com/github/intridea/grape-entity.svg)](https://codeclimate.com/github/intridea/grape-entity)
 
 ## Introduction
 
@@ -81,7 +84,7 @@ expose :replies, using: API::Status, as: :replies
 Presenter classes can also be specified in string format, which helps with circular dependencies.
 
 ```ruby
-expose :replies, using: `API::Status`, as: :replies
+expose :replies, using: "API::Status", as: :replies
 ```
 
 #### Conditional Exposure
@@ -116,6 +119,16 @@ expose :contact_info do
   expose :address, using: API::Address
 end
 ```
+
+You can also conditionally expose attributes in nested exposures:
+```ruby
+expose :contact_info do
+  expose :phone
+  expose :address, using: API::Address
+  expose :email, if: lambda { |instance, options| options[:type] == :full }
+end
+```
+
 
 #### Collection Exposure
 

@@ -1,7 +1,7 @@
 require 'spec_helper'
+require 'ostruct'
 
 describe Grape::Entity do
-
   let(:fresh_class) { Class.new(Grape::Entity) }
 
   context 'class methods' do
@@ -155,6 +155,15 @@ describe Grape::Entity do
               nested: 'value',
               another_nested: 'value'
             )
+          end
+
+          it 'does not represent nested exposures whose conditions are not met' do
+            subject.expose :awesome do
+              subject.expose(:condition_met, if: lambda { |_, _| true }) { |_| 'value' }
+              subject.expose(:condition_not_met, if: lambda { |_, _| false }) { |_| 'value' }
+            end
+
+            expect(subject.represent({}).send(:value_for, :awesome, 0)).to eq(condition_met: 'value')
           end
 
           it 'does not represent attributes, declared inside nested exposure, outside of it' do
@@ -464,7 +473,7 @@ describe Grape::Entity do
         representation = subject.represent(4.times.map { Object.new })
         expect(representation).to be_kind_of Array
         expect(representation.size).to eq(4)
-        expect(representation.reject { |r| r.kind_of?(subject) }).to be_empty
+        expect(representation.reject { |r| r.is_a?(subject) }).to be_empty
       end
 
       it 'adds the collection: true option if called with a collection' do
@@ -488,6 +497,19 @@ describe Grape::Entity do
         subject.expose(:awesome)
         representation = subject.represent({ awesome: true }, serializable: true)
         expect(representation).to eq(awesome: true)
+      end
+
+      it 'returns a serialized hash of an OpenStruct' do
+        subject.expose(:awesome)
+        representation = subject.represent(OpenStruct.new, serializable: true)
+        expect(representation).to eq(awesome: nil)
+      end
+
+      it 'raises error if field not found' do
+        subject.expose(:awesome)
+        expect do
+          subject.represent(Object.new, serializable: true)
+        end.to raise_error(NoMethodError, /missing attribute `awesome'/)
       end
     end
 
@@ -538,7 +560,7 @@ describe Grape::Entity do
             expect(representation).to have_key 'things'
             expect(representation['things']).to be_kind_of Array
             expect(representation['things'].size).to eq 4
-            expect(representation['things'].reject { |r| r.kind_of?(subject) }).to be_empty
+            expect(representation['things'].reject { |r| r.is_a?(subject) }).to be_empty
           end
         end
 
@@ -547,7 +569,7 @@ describe Grape::Entity do
             representation = subject.represent(4.times.map { Object.new }, root: false)
             expect(representation).to be_kind_of Array
             expect(representation.size).to eq 4
-            expect(representation.reject { |r| r.kind_of?(subject) }).to be_empty
+            expect(representation.reject { |r| r.is_a?(subject) }).to be_empty
           end
           it 'can use a different name' do
             representation = subject.represent(4.times.map { Object.new }, root: 'others')
@@ -555,7 +577,7 @@ describe Grape::Entity do
             expect(representation).to have_key 'others'
             expect(representation['others']).to be_kind_of Array
             expect(representation['others'].size).to eq 4
-            expect(representation['others'].reject { |r| r.kind_of?(subject) }).to be_empty
+            expect(representation['others'].reject { |r| r.is_a?(subject) }).to be_empty
           end
         end
       end
@@ -579,7 +601,7 @@ describe Grape::Entity do
             representation = subject.represent(4.times.map { Object.new })
             expect(representation).to be_kind_of Array
             expect(representation.size).to eq 4
-            expect(representation.reject { |r| r.kind_of?(subject) }).to be_empty
+            expect(representation.reject { |r| r.is_a?(subject) }).to be_empty
           end
         end
       end
@@ -602,7 +624,7 @@ describe Grape::Entity do
             expect(representation).to have_key('things')
             expect(representation['things']).to be_kind_of Array
             expect(representation['things'].size).to eq 4
-            expect(representation['things'].reject { |r| r.kind_of?(subject) }).to be_empty
+            expect(representation['things'].reject { |r| r.is_a?(subject) }).to be_empty
           end
         end
       end
@@ -621,14 +643,12 @@ describe Grape::Entity do
         expect(entity.options).to eq({})
       end
     end
-
   end
 
   context 'instance methods' do
-
     let(:model) { double(attributes) }
 
-    let(:attributes) {
+    let(:attributes) do
       {
         name: 'Bob Bobson',
         email: 'bob@example.com',
@@ -644,7 +664,7 @@ describe Grape::Entity do
           double(name: 'Friend 2', email: 'friend2@example.com', phone: '1-800-FRIEND2', fantasies: [], birthday: Time.gm(2012, 2, 27), friends: [])
         ]
       }
-    }
+    end
 
     subject { fresh_class.new(model) }
 
