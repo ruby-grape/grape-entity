@@ -38,21 +38,21 @@ describe Grape::Entity do
         end
 
         it 'exposes the attribute with the correct value if the corresponding condition passes' do
-          rep = subject.represent({}, { condition: 1 })
+          rep = subject.represent({}, condition: 1)
           expect(rep.serializable_hash[:conditional]).to eq 'value1'
           expect(rep.serializable_hash[:conditional_block]).to eq 'value1'
 
-          rep = subject.represent({}, { condition: 2 })
+          rep = subject.represent({}, condition: 2)
           expect(rep.serializable_hash[:conditional]).to eq 'value2'
           expect(rep.serializable_hash[:conditional_block]).to eq 'value2'
 
-          rep = subject.represent({}, { condition: 3 })
+          rep = subject.represent({}, condition: 3)
           expect(rep.serializable_hash[:conditional]).to eq 'value3'
           expect(rep.serializable_hash[:conditional_block]).to eq 'value3'
         end
 
         it 'does not expose the attribute if none of the conditions pass' do
-          rep = subject.represent({}, { condition: 4 })
+          rep = subject.represent({}, condition: 4)
           expect(rep.serializable_hash[:conditional]).to eq nil
           expect(rep.serializable_hash[:conditional_block]).to eq nil
         end
@@ -388,9 +388,9 @@ describe Grape::Entity do
         end
 
         expect(subject.exposures[:awesome_thing]).to eq([{
-          if: { awesome: false, less_awesome: true },
-          if_extras: [:awesome, match_proc]
-        }])
+                                                          if: { awesome: false, less_awesome: true },
+                                                          if_extras: [:awesome, match_proc]
+                                                        }])
       end
 
       it 'merges nested :unless option' do
@@ -413,9 +413,9 @@ describe Grape::Entity do
         end
 
         expect(subject.exposures[:awesome_thing]).to eq([{
-          unless: { awesome: false, less_awesome: true },
-          unless_extras: [:awesome, match_proc]
-        }])
+                                                          unless: { awesome: false, less_awesome: true },
+                                                          unless_extras: [:awesome, match_proc]
+                                                        }])
       end
 
       it 'overrides nested :using option' do
@@ -656,12 +656,12 @@ describe Grape::Entity do
         birthday: Time.gm(2012, 2, 27),
         fantasies: ['Unicorns', 'Double Rainbows', 'Nessy'],
         friends: [
-          double(name: 'Friend 1', email: 'friend1@example.com', phone: '1-800-FRIEND1', fantasies: [], birthday: Time.gm(2012, 2, 27), friends: []),
-          double(name: 'Friend 2', email: 'friend2@example.com', phone: '1-800-FRIEND2', fantasies: [], birthday: Time.gm(2012, 2, 27), friends: [])
+          double(name: 'Friend 1', email: 'friend1@example.com', phone: '1-800-FRIEND1', birthday: Time.gm(2012, 2, 27), fantasies: [], friends: []),
+          double(name: 'Friend 2', email: 'friend2@example.com', phone: '1-800-FRIEND2', birthday: Time.gm(2012, 2, 27), fantasies: [], friends: [])
         ],
         other_friends: [
-          double(name: 'Friend 1', email: 'friend1@example.com', phone: '1-800-FRIEND1', fantasies: [], birthday: Time.gm(2012, 2, 27), friends: []),
-          double(name: 'Friend 2', email: 'friend2@example.com', phone: '1-800-FRIEND2', fantasies: [], birthday: Time.gm(2012, 2, 27), friends: [])
+          double(name: 'Friend 1', email: 'friend1@example.com', phone: '1-800-FRIEND1', birthday: Time.gm(2012, 2, 27), fantasies: [], friends: []),
+          double(name: 'Friend 2', email: 'friend2@example.com', phone: '1-800-FRIEND2', birthday: Time.gm(2012, 2, 27), fantasies: [], friends: [])
         ]
       }
     end
