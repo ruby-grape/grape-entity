@@ -199,6 +199,31 @@ private
 end
 ```
 
+#### Unexpose
+
+To undefine an exposed field, use the ```.unexpose``` method. Useful for modifying inherited entities.
+
+```ruby
+class UserData < Grape::Entity
+  expose :name
+  expose :address1
+  expose :address2
+  expose :address_state
+  expose :address_city
+  expose :email
+  expose :phone
+end
+
+class MailingAddress < UserData
+  unexpose :email
+  unexpose :phone
+end
+```
+
+
+
+
+
 #### Aliases
 
 Expose under a different name with `:as`.
