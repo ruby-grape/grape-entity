@@ -158,6 +158,10 @@ module Grape
       end
     end
 
+    def self.unexpose(attribute)
+      exposures.delete(attribute)
+    end
+
     # Set options that will be applied to any exposures declared inside the block.
     #
     # @example Multi-exposure if
