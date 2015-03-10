@@ -2,6 +2,7 @@ Next Release
 ============
 
 * Your contribution here.
+* [#110](https://github.com/intridea/grape-entity/pull/110): Fixed safe exposure when using `Hash` models - [@croeck](https://github.com/croeck).
 * [#109](https://github.com/intridea/grape-entity/pull/109): Add unexpose method - [@jonmchan](https://github.com/jonmchan).
 * [#98](https://github.com/intridea/grape-entity/pull/98): Add nested conditionals - [@zbelzer](https://github.com/zbelzer).
 * [#91](https://github.com/intridea/grape-entity/pull/91): Fix OpenStruct serializing - [@etehtsea](https://github.com/etehtsea).
