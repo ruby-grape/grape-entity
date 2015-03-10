@@ -1,13 +1,12 @@
-Next Release
-============
+0.4.5 (2015-03-10)
+==================
 
-* Your contribution here.
-* [#111](https://github.com/intridea/grape-entity/pull/111): Fix: allow usage of attributes with name 'key' if `Hash` objects are used - [@croeck](https://github.com/croeck).
-* [#110](https://github.com/intridea/grape-entity/pull/110): Fixed safe exposure when using `Hash` models - [@croeck](https://github.com/croeck).
-* [#109](https://github.com/intridea/grape-entity/pull/109): Add unexpose method - [@jonmchan](https://github.com/jonmchan).
-* [#98](https://github.com/intridea/grape-entity/pull/98): Add nested conditionals - [@zbelzer](https://github.com/zbelzer).
-* [#91](https://github.com/intridea/grape-entity/pull/91): Fix OpenStruct serializing - [@etehtsea](https://github.com/etehtsea).
+* [#109](https://github.com/intridea/grape-entity/pull/109): Added `unexpose` method - [@jonmchan](https://github.com/jonmchan).
+* [#98](https://github.com/intridea/grape-entity/pull/98): Added nested conditionals - [@zbelzer](https://github.com/zbelzer).
 * [#105](https://github.com/intridea/grape-entity/pull/105): Specify which attribute is missing in which Entity - [@jhollinger](https://github.com/jhollinger).
+* [#111](https://github.com/intridea/grape-entity/pull/111): Fix: allow usage of attributes with name 'key' if `Hash` objects are used - [@croeck](https://github.com/croeck).
+* [#110](https://github.com/intridea/grape-entity/pull/110): Fix: safe exposure when using `Hash` models - [@croeck](https://github.com/croeck).
+* [#91](https://github.com/intridea/grape-entity/pull/91): Fix: OpenStruct serializing - [@etehtsea](https://github.com/etehtsea).
 
 0.4.4 (2014-08-17)
 ==================
@@ -18,7 +17,7 @@ Next Release
 0.4.3 (2014-06-12)
 ==================
 
-* [#77](https://github.com/intridea/grape-entity/pull/77): Fix compatibility with Rspec 3 - [@justfalter](https://github.com/justfalter).
+* [#77](https://github.com/intridea/grape-entity/pull/77): Fix: compatibility with Rspec 3 - [@justfalter](https://github.com/justfalter).
 * [#76](https://github.com/intridea/grape-entity/pull/76): Improve performance of entity serialization - [@justfalter](https://github.com/justfalter)
 
 0.4.2 (2014-04-03)
