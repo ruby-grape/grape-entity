@@ -556,17 +556,17 @@ module Grape
       name = self.class.name_for(attribute)
       if respond_to?(name, true)
         send(name)
+      elsif object.is_a?(Hash)
+        object[name]
+      elsif object.respond_to?(name, true)
+        object.send(name)
+      elsif object.respond_to?(:fetch, true)
+        object.fetch(name)
       else
-        if object.respond_to?(name, true)
+        begin
           object.send(name)
-        elsif object.respond_to?(:fetch, true)
-          object.fetch(name)
-        else
-          begin
-            object.send(name)
-          rescue NoMethodError
-            raise NoMethodError, "#{self.class.name} missing attribute `#{name}' on #{object}"
-          end
+        rescue NoMethodError
+          raise NoMethodError, "#{self.class.name} missing attribute `#{name}' on #{object}"
         end
       end
     end
