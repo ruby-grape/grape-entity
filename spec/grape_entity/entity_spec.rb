@@ -649,9 +649,12 @@ describe Grape::Entity do
         email: 'bob@example.com',
         birthday: Time.gm(2012, 2, 27),
         fantasies: ['Unicorns', 'Double Rainbows', 'Nessy'],
+        characteristics: [
+          { key: 'hair_color', value: 'brown' }
+        ],
         friends: [
-          double(name: 'Friend 1', email: 'friend1@example.com', fantasies: [], birthday: Time.gm(2012, 2, 27), friends: []),
-          double(name: 'Friend 2', email: 'friend2@example.com', fantasies: [], birthday: Time.gm(2012, 2, 27), friends: [])
+          double(name: 'Friend 1', email: 'friend1@example.com', characteristics: [], fantasies: [], birthday: Time.gm(2012, 2, 27), friends: []),
+          double(name: 'Friend 2', email: 'friend2@example.com', characteristics: [], fantasies: [], birthday: Time.gm(2012, 2, 27), friends: [])
         ]
       }
     end
@@ -911,6 +914,25 @@ describe Grape::Entity do
           rep = subject.send(:value_for, :first_friend)
           expect(rep).to be_kind_of EntitySpec::FriendEntity
           expect(rep.serializable_hash).to be_nil
+        end
+
+        it 'passes through exposed entity with key and value attributes' do
+          module EntitySpec
+            class CharacteristicsEntity < Grape::Entity
+              root 'characteristics', 'characteristic'
+              expose :key, :value
+            end
+          end
+
+          fresh_class.class_eval do
+            expose :characteristics, using: EntitySpec::CharacteristicsEntity
+          end
+
+          rep = subject.send(:value_for, :characteristics)
+          expect(rep).to be_kind_of Array
+          expect(rep.reject { |r| r.is_a?(EntitySpec::CharacteristicsEntity) }).to be_empty
+          expect(rep.first.serializable_hash[:key]).to eq 'hair_color'
+          expect(rep.first.serializable_hash[:value]).to eq 'brown'
         end
 
         it 'passes through custom options' do

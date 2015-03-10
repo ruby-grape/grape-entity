@@ -2,6 +2,7 @@ Next Release
 ============
 
 * Your contribution here.
+* [#111](https://github.com/intridea/grape-entity/pull/111): Fix: allow usage of attributes with name 'key' if `Hash` objects are used - [@croeck](https://github.com/croeck).
 * [#110](https://github.com/intridea/grape-entity/pull/110): Fixed safe exposure when using `Hash` models - [@croeck](https://github.com/croeck).
 * [#109](https://github.com/intridea/grape-entity/pull/109): Add unexpose method - [@jonmchan](https://github.com/jonmchan).
 * [#98](https://github.com/intridea/grape-entity/pull/98): Add nested conditionals - [@zbelzer](https://github.com/zbelzer).
