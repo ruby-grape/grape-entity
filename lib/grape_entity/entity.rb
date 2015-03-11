@@ -508,8 +508,9 @@ module Grape
 
     def value_for(attribute, options = {})
       exposure_options = exposures[attribute.to_sym]
-
       nested_exposures = self.class.nested_exposures_for(attribute)
+      orig_path = options[:attr_path]
+      options[:attr_path] = "#{orig_path}/#{self.class.key_for attribute}"
 
       if exposure_options[:using]
         exposure_options[:using] = exposure_options[:using].constantize if exposure_options[:using].respond_to? :constantize
@@ -550,6 +551,9 @@ module Grape
       else
         delegate_attribute(attribute)
       end
+
+    ensure
+      options[:attr_path] = orig_path if defined? orig_path
     end
 
     def delegate_attribute(attribute)
