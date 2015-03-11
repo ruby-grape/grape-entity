@@ -1045,6 +1045,52 @@ describe Grape::Entity do
           expect(rep.all? { |r| r.is_a?(EntitySpec::UserEntity) }).to be true
         end
       end
+
+      context 'tracks path' do
+        before do
+          module EntitySpec
+            class UserEntity < Grape::Entity
+              expose(:name, as: :full_name) { |_, o| o[:attr_path] }
+            end
+          end
+
+          fresh_class.class_eval do
+            expose(:id) { |_, o| o[:attr_path] }
+            expose(:foo, as: :bar) { |_, o| o[:attr_path] }
+            expose :title do
+              expose :full do
+                expose(:prefix, as: :pref) { |_, o| o[:attr_path] }
+                expose(:main) { |_, o| o[:attr_path] }
+              end
+            end
+            expose :friends, using: 'EntitySpec::UserEntity'
+          end
+        end
+
+        it 'for normal attributes' do
+          expect(subject.send(:value_for, :id)).to eq '/id'
+        end
+
+        it 'with attribute key' do
+          expect(subject.send(:value_for, :foo)).to eq '/bar'
+        end
+
+        it 'for nested attributes' do
+          rep = subject.send(:value_for, :title)
+          expect(rep).to be_kind_of Hash
+          expect(rep.size).to eq 1
+          expect(rep.include? :full).to be true
+          expect(rep[:full]).to eq(pref: '/title/full/pref', main: '/title/full/main')
+        end
+
+        it 'for using' do
+          rep = subject.send(:value_for, :friends)
+          expect(rep).to be_kind_of Array
+          expect(rep.size).to eq 2
+          expect(rep.all? { |r| r.is_a?(EntitySpec::UserEntity) }).to be true
+          expect(rep[0].send(:value_for, :name, rep[0].options)).to eq '/friends/full_name'
+        end
+      end
     end
 
     describe '#documentation' do
