@@ -77,7 +77,7 @@ describe Grape::Entity do
 
           it 'references an instance of the entity without any options' do
             subject.expose(:size) { |_| self }
-            expect(subject.represent(Hash.new).send(:value_for, :size)).to be_an_instance_of fresh_class
+            expect(subject.represent({}).send(:value_for, :size)).to be_an_instance_of fresh_class
           end
         end
 
@@ -91,10 +91,10 @@ describe Grape::Entity do
             end
 
             expect(subject.exposures).to eq(
-                                              awesome: {},
-                                              awesome__nested: { nested: true },
-                                              awesome__nested__moar_nested: { as: 'weee', nested: true },
-                                              awesome__another_nested: { using: 'Awesome', nested: true }
+              awesome: {},
+              awesome__nested: { nested: true },
+              awesome__nested__moar_nested: { as: 'weee', nested: true },
+              awesome__another_nested: { using: 'Awesome', nested: true }
             )
           end
 
@@ -105,8 +105,8 @@ describe Grape::Entity do
             end
 
             expect(subject.represent({}).send(:value_for, :awesome)).to eq(
-                                                                             nested: 'value',
-                                                                             another_nested: 'value'
+              nested: 'value',
+              another_nested: 'value'
             )
           end
 
@@ -129,13 +129,13 @@ describe Grape::Entity do
             end
 
             expect(subject.represent({}).serializable_hash).to eq(
-                                                                    awesome: {
-                                                                      nested: 'value',
-                                                                      another_nested: 'value',
-                                                                      second_level_nested: {
-                                                                        deeply_exposed_attr: 'value'
-                                                                      }
-                                                                    }
+              awesome: {
+                nested: 'value',
+                another_nested: 'value',
+                second_level_nested: {
+                  deeply_exposed_attr: 'value'
+                }
+              }
             )
           end
 
@@ -162,22 +162,22 @@ describe Grape::Entity do
             end
 
             expect(ClassRoom.represent({}).serializable_hash).to eq(
-                                                                      parents: [
-                                                                        {
-                                                                          user: { in_first: 'value' },
-                                                                          children: [
-                                                                            { user: { in_first: 'value', user_id: 'value', display_id: 'value' } },
-                                                                            { user: { in_first: 'value', user_id: 'value', display_id: 'value' } }
-                                                                          ]
-                                                                        },
-                                                                        {
-                                                                          user: { in_first: 'value' },
-                                                                          children: [
-                                                                            { user: { in_first: 'value', user_id: 'value', display_id: 'value' } },
-                                                                            { user: { in_first: 'value', user_id: 'value', display_id: 'value' } }
-                                                                          ]
-                                                                        }
-                                                                      ]
+              parents: [
+                {
+                  user: { in_first: 'value' },
+                  children: [
+                    { user: { in_first: 'value', user_id: 'value', display_id: 'value' } },
+                    { user: { in_first: 'value', user_id: 'value', display_id: 'value' } }
+                  ]
+                },
+                {
+                  user: { in_first: 'value' },
+                  children: [
+                    { user: { in_first: 'value', user_id: 'value', display_id: 'value' } },
+                    { user: { in_first: 'value', user_id: 'value', display_id: 'value' } }
+                  ]
+                }
+              ]
             )
           end
 
@@ -259,7 +259,7 @@ describe Grape::Entity do
         end
 
         it 'formats an exposure with a :format_with lambda that returns a value from the entity instance' do
-          object = Hash.new
+          object = {}
 
           subject.expose(:size, format_with: lambda { |_value| self.object.class.to_s })
           expect(subject.represent(object).send(:value_for, :size)).to eq object.class.to_s
@@ -270,7 +270,7 @@ describe Grape::Entity do
             self.object.class.to_s
           end
 
-          object = Hash.new
+          object = {}
 
           subject.expose(:size, format_with: :size_formatter)
           expect(subject.represent(object).send(:value_for, :size)).to eq object.class.to_s
@@ -383,8 +383,8 @@ describe Grape::Entity do
         end
 
         expect(subject.exposures[:awesome_thing]).to eq(
-                                                          if: { awesome: false, less_awesome: true },
-                                                          if_extras: [:awesome, match_proc]
+          if: { awesome: false, less_awesome: true },
+          if_extras: [:awesome, match_proc]
         )
       end
 
@@ -408,8 +408,8 @@ describe Grape::Entity do
         end
 
         expect(subject.exposures[:awesome_thing]).to eq(
-                                                          unless: { awesome: false, less_awesome: true },
-                                                          unless_extras: [:awesome, match_proc]
+          unless: { awesome: false, less_awesome: true },
+          unless_extras: [:awesome, match_proc]
         )
       end
 
@@ -461,7 +461,7 @@ describe Grape::Entity do
       end
 
       it 'returns a single entity if called with a hash' do
-        expect(subject.represent(Hash.new)).to be_kind_of(subject)
+        expect(subject.represent({})).to be_kind_of(subject)
       end
 
       it 'returns multiple entities if called with a collection' do
@@ -505,6 +505,47 @@ describe Grape::Entity do
         expect do
           subject.represent(Object.new, serializable: true)
         end.to raise_error(NoMethodError, /missing attribute `awesome'/)
+      end
+
+      context 'with specified fields' do
+        it 'returns only specified fields with only option' do
+          subject.expose(:id, :name, :phone)
+          representation = subject.represent(OpenStruct.new, only: [:id, :name], serializable: true)
+          expect(representation).to eq(id: nil, name: nil)
+        end
+
+        it 'can specify children attributes' do
+          user_entity = Class.new(Grape::Entity)
+          user_entity.expose(:id, :name, :email)
+
+          subject.expose(:id, :name, :phone)
+          subject.expose(:user, using: user_entity)
+
+          representation = subject.represent(OpenStruct.new(user: {}), only: [:id, :name, { user: [:name, :email] }], serializable: true)
+          expect(representation).to eq(id: nil, name: nil, user: { name: nil, email: nil })
+        end
+
+        context 'specify attribute with exposure condition' do
+          it 'returns only specified fields' do
+            subject.expose(:id, :name)
+            subject.with_options(if: { condition: true }) do
+              subject.expose(:name)
+            end
+
+            representation = subject.represent(OpenStruct.new, condition: true, only: [:id, :name], serializable: true)
+            expect(representation).to eq(id: nil, name: nil)
+          end
+        end
+
+        context 'attribute with alias' do
+          it 'returns only specified fields' do
+            subject.expose(:id)
+            subject.expose(:name, as: :title)
+
+            representation = subject.represent(OpenStruct.new, condition: true, only: [:id, :title], serializable: true)
+            expect(representation).to eq(id: nil, title: nil)
+          end
+        end
       end
     end
 

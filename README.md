@@ -220,6 +220,40 @@ class MailingAddress < UserData
 end
 ```
 
+#### Returning only the fields you want
+
+After exposing the desired attributes, you can choose which one you need when representing some object or collection, see the example:
+
+```ruby
+class UserEntity
+  expose :id
+  expose :name
+  expose :email
+end
+
+class Entity
+  expose :id
+  expose :title
+  expose :user, using: UserEntity
+end
+
+data = Entity.represent(model, only: [:name, { user: [:name, :email] }])
+data.as_json
+```
+
+This will return something like this:
+
+```ruby
+{
+  title: 'grape-entity is awesome!',
+  user: {
+    name: 'John Applet',
+    email: 'john@example.com'
+  }
+}
+```
+
+Instead of returning all the exposed attributes.
 
 
 

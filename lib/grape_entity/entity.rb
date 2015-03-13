@@ -404,6 +404,7 @@ module Grape
     #   even if one is defined for the entity.
     # @option options :serializable [true or false] when true a serializable Hash will be returned
     #
+    # @option options :only [Array] all the fields that should be returned
     def self.represent(objects, options = {})
       if objects.respond_to?(:to_ary) && ! @present_collection
         root_element =  @collection_root
@@ -458,24 +459,50 @@ module Grape
     #   etc.
     def serializable_hash(runtime_options = {})
       return nil if object.nil?
+
       opts = options.merge(runtime_options || {})
+
       valid_exposures.inject({}) do |output, (attribute, exposure_options)|
-        if conditions_met?(exposure_options, opts)
+        if should_return_attribute?(attribute, opts) && conditions_met?(exposure_options, opts)
           partial_output = value_for(attribute, opts)
+
           output[self.class.key_for(attribute)] =
-            if partial_output.respond_to? :serializable_hash
+            if partial_output.respond_to?(:serializable_hash)
               partial_output.serializable_hash(runtime_options)
-            elsif partial_output.is_a?(Array) && !partial_output.map { |o| o.respond_to? :serializable_hash }.include?(false)
+            elsif partial_output.is_a?(Array) && !partial_output.map { |o| o.respond_to?(:serializable_hash) }.include?(false)
               partial_output.map(&:serializable_hash)
             elsif partial_output.is_a?(Hash)
               partial_output.each do |key, value|
-                partial_output[key] = value.serializable_hash if value.respond_to? :serializable_hash
+                partial_output[key] = value.serializable_hash if value.respond_to?(:serializable_hash)
               end
             else
               partial_output
             end
         end
+
         output
+      end
+    end
+
+    def should_return_attribute?(attribute, options)
+      return true unless options[:only]
+      only_fields(options).include?(self.class.key_for(attribute))
+    end
+
+    def only_fields(options)
+      return {} unless options[:only]
+
+      @only_fields ||= options[:only].inject({}) do |allowed_fields, attribute|
+        if attribute.is_a?(Hash)
+          attribute.each do |attr, nested_attrs|
+            allowed_fields[attr] ||= []
+            allowed_fields[attr] += nested_attrs
+          end
+        else
+          allowed_fields[attribute] = true
+        end
+
+        allowed_fields
       end
     end
 
@@ -508,15 +535,12 @@ module Grape
 
     def value_for(attribute, options = {})
       exposure_options = exposures[attribute.to_sym]
-
       nested_exposures = self.class.nested_exposures_for(attribute)
 
       if exposure_options[:using]
         exposure_options[:using] = exposure_options[:using].constantize if exposure_options[:using].respond_to? :constantize
 
-        using_options = options.dup
-        using_options.delete(:collection)
-        using_options[:root] = nil
+        using_options = options_for_using(attribute, options)
 
         if exposure_options[:proc]
           exposure_options[:using].represent(instance_exec(object, options, &exposure_options[:proc]), using_options)
@@ -610,6 +634,14 @@ module Grape
       end
 
       true
+    end
+
+    def options_for_using(attribute, options)
+      using_options = options.dup
+      using_options.delete(:collection)
+      using_options[:root] = nil
+      using_options[:only] = only_fields(using_options)[attribute]
+      using_options
     end
 
     # All supported options.
