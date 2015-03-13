@@ -1,6 +1,7 @@
 0.4.6 (Next)
 ============
 
+* [#114](https://github.com/intridea/grape-entity/pull/114): Added 'only' option that selects which attributes should be returned
 * Your contribution here.
 
 0.4.5 (2015-03-10)
