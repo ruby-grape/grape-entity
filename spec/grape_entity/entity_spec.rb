@@ -506,6 +506,48 @@ describe Grape::Entity do
           subject.represent(Object.new, serializable: true)
         end.to raise_error(NoMethodError, /missing attribute `awesome'/)
       end
+
+      context 'with specified fields' do
+        it 'returns only specified fields with only option' do
+          subject.expose(:id, :name, :phone)
+          representation = subject.represent(OpenStruct.new, only: [:id, :name], serializable: true)
+          expect(representation).to eq(id: nil, name: nil)
+        end
+
+        it 'can specify children attributes' do
+          user_entity = Class.new(Grape::Entity)
+          user_entity.expose(:id, :name, :email)
+
+          subject.expose(:id, :name, :phone)
+          subject.expose(:user, using: user_entity)
+
+          representation = subject.represent(OpenStruct.new(user: {}), only: [:id, :name, { user: [:name, :email] }], serializable: true)
+          expect(representation).to eq(id: nil, name: nil, user: { name: nil, email: nil })
+        end
+
+        context 'specify attribute with exposure condition' do
+          it 'returns only specified fields' do
+            subject.expose(:id, :name)
+            subject.with_options(if: { condition: true }) do
+              subject.expose(:name)
+            end
+
+            representation = subject.represent(OpenStruct.new, condition: true, only: [:id, :name], serializable: true)
+            expect(representation).to eq(id: nil, name: nil)
+          end
+        end
+
+        context 'attribute with alias' do
+          it 'returns only specified fields' do
+            subject.expose(:id)
+            subject.expose(:name, as: :title)
+
+
+            representation = subject.represent(OpenStruct.new, condition: true, only: [:id, :title], serializable: true)
+            expect(representation).to eq(id: nil, title: nil)
+          end
+        end
+      end
     end
 
     describe '.present_collection' do
