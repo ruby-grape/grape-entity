@@ -664,6 +664,30 @@ describe Grape::Entity do
           end
         end
       end
+
+      context 'inheriting from parent entity' do
+        before(:each) do
+          subject.root 'things', 'thing'
+        end
+
+        it 'inherits single root' do
+          child_class = Class.new(subject)
+          representation = child_class.represent(Object.new)
+          expect(representation).to be_kind_of Hash
+          expect(representation).to have_key 'thing'
+          expect(representation['thing']).to be_kind_of(child_class)
+        end
+
+        it 'inherits array root root' do
+          child_class = Class.new(subject)
+          representation = child_class.represent(4.times.map { Object.new })
+          expect(representation).to be_kind_of Hash
+          expect(representation).to have_key('things')
+          expect(representation['things']).to be_kind_of Array
+          expect(representation['things'].size).to eq 4
+          expect(representation['things'].reject { |r| r.is_a?(child_class) }).to be_empty
+        end
+      end
     end
 
     describe '#initialize' do
