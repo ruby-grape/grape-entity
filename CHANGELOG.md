@@ -2,6 +2,7 @@
 ============
 
 * [#114](https://github.com/intridea/grape-entity/pull/114): Added 'only' option that selects which attributes should be returned - [@estevaoam](https://github.com/estevaoam).
+* [#115](https://github.com/intridea/grape-entity/pull/115): Allowing 'root' to be inherited from parent to child entities - [@guidoprincess](https://github.com/guidoprincess).
 * Your contribution here.
 
 0.4.5 (2015-03-10)
