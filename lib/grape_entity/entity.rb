@@ -499,8 +499,8 @@ module Grape
       only_fields(options).include?(self.class.key_for(attribute))
     end
 
-    def only_fields(options)
-      return {} unless options[:only]
+    def only_fields(options, for_attribute = nil)
+      return nil unless options[:only]
 
       @only_fields ||= options[:only].inject({}) do |allowed_fields, attribute|
         if attribute.is_a?(Hash)
@@ -513,6 +513,12 @@ module Grape
         end
 
         allowed_fields
+      end
+
+      if for_attribute && @only_fields[for_attribute].is_a?(Array)
+        @only_fields[for_attribute]
+      elsif for_attribute.nil?
+        @only_fields
       end
     end
 
@@ -650,7 +656,8 @@ module Grape
       using_options = options.dup
       using_options.delete(:collection)
       using_options[:root] = nil
-      using_options[:only] = only_fields(using_options)[attribute]
+      using_options[:only] = only_fields(using_options, attribute)
+
       using_options
     end
 
