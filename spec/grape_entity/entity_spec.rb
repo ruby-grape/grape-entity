@@ -546,6 +546,19 @@ describe Grape::Entity do
             expect(representation).to eq(id: nil, title: nil)
           end
         end
+
+        context 'attribute that is an entity itself' do
+          it 'returns correctly the children entity attributes' do
+            user_entity = Class.new(Grape::Entity)
+            user_entity.expose(:id, :name, :email)
+
+            subject.expose(:id, :name, :phone)
+            subject.expose(:user, using: user_entity)
+
+            representation = subject.represent(OpenStruct.new(user: {}), only: [:id, :name, :user], serializable: true)
+            expect(representation).to eq(id: nil, name: nil, user: { id: nil, name: nil, email: nil })
+          end
+        end
       end
     end
 
