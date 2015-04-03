@@ -28,7 +28,7 @@ module API
       expose :digest do |status, options|
         Digest::MD5.hexdigest status.txt
       end
-      expose :replies, using: API::Status, as: :replies
+      expose :replies, using: API::Status, as: :responses
       expose :last_reply, using: API::Status do |status, options|
         status.replies.last
       end
@@ -78,13 +78,13 @@ The field lookup takes several steps
 Don't derive your model classes from `Grape::Entity`, expose them using a presenter.
 
 ```ruby
-expose :replies, using: API::Status, as: :replies
+expose :replies, using: API::Status, as: :responses
 ```
 
 Presenter classes can also be specified in string format, which helps with circular dependencies.
 
 ```ruby
-expose :replies, using: "API::Status", as: :replies
+expose :replies, using: "API::Status", as: :responses
 ```
 
 #### Conditional Exposure
@@ -263,7 +263,7 @@ Instead of returning all the exposed attributes.
 Expose under a different name with `:as`.
 
 ```ruby
-expose :replies, using: API::Status, as: :replies
+expose :replies, using: API::Status, as: :responses
 ```
 
 #### Format Before Exposing
