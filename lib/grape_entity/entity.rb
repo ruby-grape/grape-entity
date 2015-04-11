@@ -240,10 +240,6 @@ module Grape
         memo
       end
 
-      if superclass.respond_to? :documentation
-        @documentation = superclass.documentation.merge(@documentation)
-      end
-
       @documentation
     end
 
