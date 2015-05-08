@@ -1149,6 +1149,46 @@ describe Grape::Entity do
 
         expect(subject.documentation).to eq(label: doc, email: doc)
       end
+
+      context 'inherited documentation' do
+        it 'returns documentation from ancestor' do
+          doc = { type: 'foo', desc: 'bar' }
+          fresh_class.expose :name, documentation: doc
+          child_class = Class.new(fresh_class)
+          child_class.expose :email, documentation: doc
+
+          expect(fresh_class.documentation).to eq(name: doc)
+          expect(child_class.documentation).to eq(name: doc, email: doc)
+        end
+
+        it 'obeys unexposed attributes in subclass' do
+          doc = { type: 'foo', desc: 'bar' }
+          fresh_class.expose :name, documentation: doc
+          fresh_class.expose :email, documentation: doc
+          child_class = Class.new(fresh_class)
+          child_class.unexpose :email
+
+          expect(fresh_class.documentation).to eq(name: doc, email: doc)
+          expect(child_class.documentation).to eq(name: doc)
+        end
+
+        it 'obeys re-exposed attributes in subclass' do
+          doc = { type: 'foo', desc: 'bar' }
+          fresh_class.expose :name, documentation: doc
+          fresh_class.expose :email, documentation: doc
+
+          child_class = Class.new(fresh_class)
+          child_class.unexpose :email
+
+          nephew_class = Class.new(child_class)
+          new_doc = { type: 'todler', descr: '???' }
+          nephew_class.expose :email, documentation: new_doc
+
+          expect(fresh_class.documentation).to eq(name: doc, email: doc)
+          expect(child_class.documentation).to eq(name: doc)
+          expect(nephew_class.documentation).to eq(name: doc, email: new_doc)
+        end
+      end
     end
 
     describe '#key_for' do
