@@ -124,7 +124,7 @@ module Grape
     # @option options :documentation Define documenation for an exposed
     #   field, typically the value is a hash with two fields, type and desc.
     def self.expose(*args, &block)
-      options = merge_options(args.last.is_a?(Hash) ? args.pop : {})
+      options = merge_with_block_options(args.last.is_a?(Hash) ? args.pop : {})
 
       if args.size > 1
         fail ArgumentError, 'You may not use the :as option on multi-attribute exposures.' if options[:as]
@@ -135,31 +135,31 @@ module Grape
 
       options[:proc] = block if block_given? && block.parameters.any?
 
-      @nested_attributes ||= []
-
       args.each do |attribute|
-        unless @nested_attributes.empty?
-          orig_attribute = attribute.to_sym
-          attribute = "#{@nested_attributes.last}__#{attribute}"
-          nested_attribute_names_hash[attribute.to_sym] = orig_attribute
+        attribute = attribute.to_sym
+
+        if (@nested_attribute_stack ||= []).any?
+          name = attribute
+          attribute = "#{@nested_attribute_stack.last}__#{attribute}".to_sym
+          add_nested_attribute @nested_attribute_stack.last, attribute
+          add_nested_attribute_map attribute, name
           options[:nested] = true
-          nested_exposures_hash[@nested_attributes.last.to_sym] ||= {}
-          nested_exposures_hash[@nested_attributes.last.to_sym][attribute.to_sym] = options
         end
 
-        exposures[attribute.to_sym] = options
+        add_exposure attribute, options
 
         # Nested exposures are given in a block with no parameters.
         if block_given? && block.parameters.empty?
-          @nested_attributes << attribute
+          @nested_attribute_stack << attribute
           block.call
-          @nested_attributes.pop
+          @nested_attribute_stack.pop
         end
       end
     end
 
     def self.unexpose(attribute)
-      exposures.delete(attribute)
+      superclass_exposures.delete attribute
+      @exposures.delete(attribute) if @exposures
     end
 
     # Set options that will be applied to any exposures declared inside the block.
@@ -177,65 +177,90 @@ module Grape
       @block_options.pop
     end
 
-    # Returns a hash of exposures that have been declared for this Entity or ancestors. The keys
-    # are symbolized references to methods on the containing object, the values are
-    # the options that were passed into expose.
-    def self.exposures
-      return @exposures unless @exposures.nil?
-
-      @exposures = {}
-
-      if superclass.respond_to? :exposures
-        @exposures = superclass.exposures.merge(@exposures)
+    # Returns a hash of nested attribute mappings that have been declared for this Entity or ancestors.
+    # The keys are symbolized nested attribute paths, the values are symbolized attributes.
+    def self.nested_attribute_maps
+      if @nested_attribute_maps
+        @nested_attribute_maps.merge(@superclass_nested_attribute_maps || {})
+      elsif superclass.respond_to? :nested_attribute_maps
+        superclass.nested_attribute_maps
+      else
+        {}
       end
-
-      @exposures
     end
 
-    class << self
-      attr_accessor :_nested_attribute_names_hash
-      attr_accessor :_nested_exposures_hash
+    # Adds to the hash of nested attribute mappings that have been declared for this Entity.
+    # @param [Symbol] attribute
+    # @param [Symbol] name
+    def self.add_nested_attribute_map(attribute, name)
+      (@nested_attribute_maps ||= {})[attribute] = name
 
-      def nested_attribute_names_hash
-        self._nested_attribute_names_hash ||= {}
+      @superclass_nested_attribute_maps ||= superclass.respond_to?(:nested_attribute_maps) ? superclass.nested_attribute_maps.clone : {}
+      @superclass_nested_attribute_maps.delete attribute
+    end
+
+    def self.superclass_exposures
+      @superclass_exposures ||= superclass.respond_to?(:exposures) ? superclass.exposures.clone : {}
+    end
+
+    # Returns a hash of exposures that have been declared for this Entity or ancestors.
+    # The keys are symbolized attributes in the form of nested attribute paths,
+    # the values are the options that were passed into expose.
+    def self.exposures
+      @exposures ||= {}
+
+      if superclass_exposures
+        @exposures.merge superclass_exposures
+      elsif superclass.respond_to? :exposures
+        superclass.exposures
+      else
+        @exposures
       end
+    end
 
-      def nested_exposures_hash
-        self._nested_exposures_hash ||= {}
-      end
+    # Adds to the hash of exposures that have been declared for this Entity.
+    # @param [Symbol] attribute
+    # @param [Hash] options
+    def self.add_exposure(attribute, options)
+      ((@exposures ||= {})[attribute] ||= []) << options
+      superclass_exposures.delete attribute
+    end
 
-      def nested_attribute_names
-        return @nested_attribute_names unless @nested_attribute_names.nil?
-
-        @nested_attribute_names = {}.merge(nested_attribute_names_hash)
-
-        if superclass.respond_to? :nested_attribute_names
-          @nested_attribute_names = superclass.nested_attribute_names.deep_merge(@nested_attribute_names)
+    # Returns a hash of nested attribute hierarchies that have been declared for this Entity or ancestors.
+    # The keys are symbolized attributes in the form of nested attribute paths,
+    # the values are arrays of symbolized attributes in the same form that are nested under the
+    # corresponding key.
+    def self.nested_attributes
+      if @nested_attributes
+        @nested_attributes.merge(@superclass_nested_attributes || {}) do |_, existing_val, new_val|
+          existing_val | new_val
         end
-
-        @nested_attribute_names
+      elsif superclass.respond_to? :nested_attributes
+        superclass.nested_attributes.clone
+      else
+        {}
       end
+    end
 
-      def nested_exposures
-        return @nested_exposures unless @nested_exposures.nil?
-
-        @nested_exposures = {}.merge(nested_exposures_hash)
-
-        if superclass.respond_to? :nested_exposures
-          @nested_exposures = superclass.nested_exposures.deep_merge(@nested_exposures)
-        end
-
-        @nested_exposures
-      end
+    # Adds to the hash of nested attributes that have been declared for this Entity.
+    # @param [Symbol] attribute
+    # @param [Symbol] nested_attribute
+    def self.add_nested_attribute(attribute, nested_attribute)
+      ((@nested_attributes ||= {})[attribute] ||= []) << nested_attribute
+      @superclass_nested_attributes ||= superclass.respond_to?(:nested_attributes) ? superclass.nested_attributes.clone : {}
+      (@superclass_nested_attributes[attribute] || []).delete nested_attribute
     end
 
     # Returns a hash, the keys are symbolized references to fields in the entity,
     # the values are document keys in the entity's documentation key. When calling
     # #docmentation, any exposure without a documentation key will be ignored.
     def self.documentation
-      @documentation ||= exposures.inject({}) do |memo, (attribute, exposure_options)|
-        unless exposure_options[:documentation].nil? || exposure_options[:documentation].empty?
-          memo[key_for(attribute)] = exposure_options[:documentation]
+      @documentation ||= exposures.inject({}) do |memo, (attribute, exposure_option_groups)|
+        exposure_option_groups.each_index do |i|
+          exposure_options = exposure_option_groups[i]
+          unless exposure_options[:documentation].nil? || exposure_options[:documentation].empty?
+            memo[key_for(attribute, i)] = exposure_options[:documentation]
+          end
         end
         memo
       end
@@ -443,8 +468,9 @@ module Grape
     end
 
     def valid_exposures
-      exposures.reject { |_, options| options[:nested] }.select do |attribute, exposure_options|
-        valid_exposure?(attribute, exposure_options)
+      exposures.select do |attribute, exposure_option_groups|
+        exposure_option_groups.none? { |exposure_options| exposure_options[:nested] } \
+        && exposure_option_groups.all? { |exposure_options| valid_exposure?(attribute, exposure_options) }
       end
     end
 
@@ -466,33 +492,33 @@ module Grape
     def serializable_hash(runtime_options = {})
       return nil if object.nil?
 
-      opts = options.merge(runtime_options || {})
-
-      valid_exposures.inject({}) do |output, (attribute, exposure_options)|
-        if should_return_attribute?(attribute, opts) && conditions_met?(exposure_options, opts)
-          partial_output = value_for(attribute, opts)
-
-          output[self.class.key_for(attribute)] =
-            if partial_output.respond_to?(:serializable_hash)
-              partial_output.serializable_hash(runtime_options)
-            elsif partial_output.is_a?(Array) && !partial_output.map { |o| o.respond_to?(:serializable_hash) }.include?(false)
-              partial_output.map(&:serializable_hash)
-            elsif partial_output.is_a?(Hash)
-              partial_output.each do |key, value|
-                partial_output[key] = value.serializable_hash if value.respond_to?(:serializable_hash)
+      runtime_options = options.merge(runtime_options || {})
+      valid_exposures.inject({}) do |output, (attribute, exposure_option_groups)|
+        exposure_option_groups.each_index do |i|
+          exposure_options = exposure_option_groups[i]
+          if should_return_attribute?(attribute, runtime_options, i) && conditions_met?(exposure_options, runtime_options)
+            partial_output = value_for(attribute, i, runtime_options)
+            output[self.class.key_for(attribute, i)] =
+              if partial_output.respond_to? :serializable_hash
+                partial_output.serializable_hash(runtime_options)
+              elsif partial_output.is_a?(Array) && !partial_output.map { |o| o.respond_to? :serializable_hash }.include?(false)
+                partial_output.map(&:serializable_hash)
+              elsif partial_output.is_a?(Hash)
+                partial_output.each do |key, value|
+                  partial_output[key] = value.serializable_hash if value.respond_to? :serializable_hash
+                end
+              else
+                partial_output
               end
-            else
-              partial_output
-            end
+          end
         end
-
         output
       end
     end
 
-    def should_return_attribute?(attribute, options)
+    def should_return_attribute?(attribute, options, i)
       return true unless options[:only]
-      only_fields(options).include?(self.class.key_for(attribute))
+      only_fields(options).include?(self.class.key_for(attribute, i))
     end
 
     def only_fields(options, for_attribute = nil)
@@ -533,35 +559,46 @@ module Grape
     protected
 
     def self.name_for(attribute)
-      attribute = attribute.to_sym
-      nested_attribute_names[attribute] || attribute
+      nested_attribute_maps[attribute.to_sym] || attribute.to_sym
     end
 
-    def self.key_for(attribute)
-      exposures[attribute.to_sym][:as] || name_for(attribute)
+    def self.key_for(attribute, exposure_option_group_index)
+      (exposure_option_groups_for(attribute)[exposure_option_group_index][:as] || name_for(attribute)).to_sym
     end
 
     def self.nested_exposures_for(attribute)
-      nested_exposures[attribute] || {}
+      Hash[nested_attributes_for(attribute).map { |a| [a, exposure_option_groups_for(a)] }]
     end
 
-    def value_for(attribute, options = {})
-      exposure_options = exposures[attribute.to_sym]
+    def self.nested_attributes_for(attribute)
+      nested_attributes[attribute.to_sym] || {}
+    end
+
+    def self.exposure_option_groups_for(attribute)
+      exposures[attribute.to_sym] || {}
+    end
+
+    def self.exposure_option_groups_for(attribute)
+      exposures[attribute.to_sym] || [{}]
+    end
+
+    def value_for(attribute, exposure_option_group_index, runtime_options = {})
+      exposure_options = self.class.exposure_option_groups_for(attribute)[exposure_option_group_index]
       nested_exposures = self.class.nested_exposures_for(attribute)
 
       if exposure_options[:using]
         exposure_options[:using] = exposure_options[:using].constantize if exposure_options[:using].respond_to? :constantize
 
-        using_options = options_for_using(attribute, options)
+        using_options = options_for_using(attribute, runtime_options)
 
         if exposure_options[:proc]
-          exposure_options[:using].represent(instance_exec(object, options, &exposure_options[:proc]), using_options)
+          exposure_options[:using].represent(instance_exec(object, runtime_options, &exposure_options[:proc]), using_options)
         else
           exposure_options[:using].represent(delegate_attribute(attribute), using_options)
         end
 
       elsif exposure_options[:proc]
-        instance_exec(object, options, &exposure_options[:proc])
+        instance_exec(object, runtime_options, &exposure_options[:proc])
 
       elsif exposure_options[:format_with]
         format_with = exposure_options[:format_with]
@@ -575,14 +612,15 @@ module Grape
         end
 
       elsif nested_exposures.any?
-        nested_attributes =
-          nested_exposures.map do |nested_attribute, nested_exposure_options|
-            if conditions_met?(nested_exposure_options, options)
-              [self.class.key_for(nested_attribute), value_for(nested_attribute, options)]
+        nested_exposures_hash = {}
+        nested_exposures.each do |nested_attribute, nested_exposure_option_groups|
+          nested_exposure_option_groups.each_index do |i|
+            if conditions_met?(nested_exposure_option_groups[i], runtime_options)
+              nested_exposures_hash[self.class.key_for(nested_attribute, i)] = value_for(nested_attribute, i, runtime_options)
             end
           end
-
-        Hash[nested_attributes.compact]
+        end
+        nested_exposures_hash
       else
         delegate_attribute(attribute)
       end
@@ -609,14 +647,14 @@ module Grape
 
     def valid_exposure?(attribute, exposure_options)
       nested_exposures = self.class.nested_exposures_for(attribute)
-      (nested_exposures.any? && nested_exposures.all? { |a, o| valid_exposure?(a, o) }) || \
-        exposure_options.key?(:proc) || \
-        !exposure_options[:safe] || \
-        object.respond_to?(self.class.name_for(attribute)) || \
+      (nested_exposures.any? && nested_exposures.all? { |a, g| g.all? { |o| valid_exposure?(a, o) } }) ||
+        exposure_options.key?(:proc) ||
+        !exposure_options[:safe] ||
+        object.respond_to?(self.class.name_for(attribute)) ||
         object.is_a?(Hash) && object.key?(self.class.name_for(attribute))
     end
 
-    def conditions_met?(exposure_options, options)
+    def conditions_met?(exposure_options, runtime_options = {})
       if_conditions = []
       unless exposure_options[:if_extras].nil?
         if_conditions.concat(exposure_options[:if_extras])
@@ -625,9 +663,9 @@ module Grape
 
       if_conditions.each do |if_condition|
         case if_condition
-        when Hash then if_condition.each_pair { |k, v| return false if options[k.to_sym] != v }
-        when Proc then return false unless instance_exec(object, options, &if_condition)
-        when Symbol then return false unless options[if_condition]
+        when Hash then if_condition.each_pair { |k, v| return false if runtime_options[k.to_sym] != v }
+        when Proc then return false unless instance_exec(object, runtime_options, &if_condition)
+        when Symbol then return false unless runtime_options[if_condition]
         end
       end
 
@@ -639,9 +677,9 @@ module Grape
 
       unless_conditions.each do |unless_condition|
         case unless_condition
-        when Hash then unless_condition.each_pair { |k, v| return false if options[k.to_sym] == v }
-        when Proc then return false if instance_exec(object, options, &unless_condition)
-        when Symbol then return false if options[unless_condition]
+        when Hash then unless_condition.each_pair { |k, v| return false if runtime_options[k.to_sym] == v }
+        when Proc then return false if instance_exec(object, runtime_options, &unless_condition)
+        when Symbol then return false if runtime_options[unless_condition]
         end
       end
 
@@ -665,7 +703,7 @@ module Grape
     # Merges the given options with current block options.
     #
     # @param options [Hash] Exposure options.
-    def self.merge_options(options)
+    def self.merge_with_block_options(options)
       opts = {}
 
       merge_logic = proc do |key, existing_val, new_val|
