@@ -1,7 +1,6 @@
 0.4.6 (Next)
 ============
 
-* [#126](https://github.com/intridea/grape-entity/pull/126): Fix: implement universally unique attributes to silo exposure logic - [@u2](https://github.com/u2).
 * [#114](https://github.com/intridea/grape-entity/pull/114): Added 'only' option that selects which attributes should be returned - [@estevaoam](https://github.com/estevaoam).
 * [#115](https://github.com/intridea/grape-entity/pull/115): Allowing 'root' to be inherited from parent to child entities - [@guidoprincess](https://github.com/guidoprincess).
 * [#121](https://github.com/intridea/grape-entity/pull/122): Sublcassed Entity#documentation properly handles unexposed params - [@dan-corneanu](https://github.com/dan-corneanu).

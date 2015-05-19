@@ -16,56 +16,7 @@ describe Grape::Entity do
 
         it 'sets the same options for all exposures passed' do
           subject.expose :name, :email, :location, documentation: true
-          subject.exposures.values.each { |v| expect(v).to eq([{ documentation: true }]) }
-        end
-      end
-
-      context 'conditions applied to attribute in separate non-nested exposures' do
-        before do
-          subject.expose(:conditional, if: { condition: 1 }) { |_| 'value1' }
-          subject.expose(:conditional, if: { condition: 2 }) { |_| 'value2' }
-          subject.expose(:conditional, if: { condition: 3 }) { |_| 'value3' }
-
-          subject.with_options if: { condition: 1 } do
-            subject.expose(:conditional_block) { |_| 'value1' }
-          end
-          subject.with_options if: { condition: 2 } do
-            subject.expose(:conditional_block) { |_| 'value2' }
-          end
-          subject.with_options if: { condition: 3 } do
-            subject.expose(:conditional_block) { |_| 'value3' }
-          end
-        end
-
-        it 'exposes the attribute with the correct value if the corresponding condition passes' do
-          rep = subject.represent({}, condition: 1)
-          expect(rep.serializable_hash[:conditional]).to eq 'value1'
-          expect(rep.serializable_hash[:conditional_block]).to eq 'value1'
-
-          rep = subject.represent({}, condition: 2)
-          expect(rep.serializable_hash[:conditional]).to eq 'value2'
-          expect(rep.serializable_hash[:conditional_block]).to eq 'value2'
-
-          rep = subject.represent({}, condition: 3)
-          expect(rep.serializable_hash[:conditional]).to eq 'value3'
-          expect(rep.serializable_hash[:conditional_block]).to eq 'value3'
-        end
-
-        it 'does not expose the attribute if none of the conditions pass' do
-          rep = subject.represent({}, condition: 4)
-          expect(rep.serializable_hash[:conditional]).to eq nil
-          expect(rep.serializable_hash[:conditional_block]).to eq nil
-        end
-
-        it 'exposes the attribute as well as aliases of the attribute' do
-          subject.expose(:name) { |_| 'name' }
-          subject.expose(:name, as: :alias1) { |_| 'alias1' }
-          subject.expose(:name, as: :alias2) { |_| 'alias2' }
-
-          rep = subject.represent({})
-          expect(rep.serializable_hash[:name]).to eq 'name'
-          expect(rep.serializable_hash[:alias1]).to eq 'alias1'
-          expect(rep.serializable_hash[:alias2]).to eq 'alias2'
+          subject.exposures.values.each { |v| expect(v).to eq(documentation: true) }
         end
       end
 
@@ -110,10 +61,10 @@ describe Grape::Entity do
           end
 
           object = EntitySpec::SomeObject1.new
-          value = subject.represent(object).send(:value_for, :bogus, 0)
+          value = subject.represent(object).send(:value_for, :bogus)
           expect(value).to be_instance_of EntitySpec::BogusEntity
 
-          prop1 = value.send(:value_for, :prop1, 0)
+          prop1 = value.send(:value_for, :prop1)
           expect(prop1).to eq 'MODIFIED 2'
         end
 
@@ -121,28 +72,29 @@ describe Grape::Entity do
           it 'sets the :proc option in the exposure options' do
             block = lambda { |_| true }
             subject.expose :name, using: 'Awesome', &block
-            expect(subject.exposures[:name]).to eq([{ proc: block, using: 'Awesome' }])
+            expect(subject.exposures[:name]).to eq(proc: block, using: 'Awesome')
           end
 
           it 'references an instance of the entity without any options' do
             subject.expose(:size) { |_| self }
-
-            expect(subject.represent({}).send(:value_for, :size, 0)).to be_an_instance_of fresh_class
+            expect(subject.represent({}).send(:value_for, :size)).to be_an_instance_of fresh_class
           end
         end
 
         context 'with no parameters passed to the block' do
           it 'adds a nested exposure' do
             subject.expose :awesome do
-              subject.expose :nested, using: 'Awesome' do
+              subject.expose :nested do
                 subject.expose :moar_nested, as: 'weee'
               end
+              subject.expose :another_nested, using: 'Awesome'
             end
 
             expect(subject.exposures).to eq(
-              awesome: [{}],
-              awesome__nested: [{ using: 'Awesome', nested: true }],
-              awesome__nested__moar_nested: [{ as: 'weee', nested: true }]
+              awesome: {},
+              awesome__nested: { nested: true },
+              awesome__nested__moar_nested: { as: 'weee', nested: true },
+              awesome__another_nested: { using: 'Awesome', nested: true }
             )
           end
 
@@ -152,7 +104,7 @@ describe Grape::Entity do
               subject.expose(:another_nested) { |_| 'value' }
             end
 
-            expect(subject.represent({}).send(:value_for, :awesome, 0)).to eq(
+            expect(subject.represent({}).send(:value_for, :awesome)).to eq(
               nested: 'value',
               another_nested: 'value'
             )
@@ -164,24 +116,24 @@ describe Grape::Entity do
               subject.expose(:condition_not_met, if: lambda { |_, _| false }) { |_| 'value' }
             end
 
-            expect(subject.represent({}).send(:value_for, :awesome, 0)).to eq(condition_met: 'value')
+            expect(subject.represent({}).send(:value_for, :awesome)).to eq(condition_met: 'value')
           end
 
           it 'does not represent attributes, declared inside nested exposure, outside of it' do
             subject.expose :awesome do
-              subject.expose :nested do
-                subject.expose :moar_nested do
-                  subject.expose(:even_moar_nesteder) { |_| 'value' }
-                end
+              subject.expose(:nested) { |_| 'value' }
+              subject.expose(:another_nested) { |_| 'value' }
+              subject.expose :second_level_nested do
+                subject.expose(:deeply_exposed_attr) { |_| 'value' }
               end
             end
 
             expect(subject.represent({}).serializable_hash).to eq(
               awesome: {
-                nested: {
-                  moar_nested: {
-                    even_moar_nesteder: 'value'
-                  }
+                nested: 'value',
+                another_nested: 'value',
+                second_level_nested: {
+                  deeply_exposed_attr: 'value'
                 }
               }
             )
@@ -270,8 +222,8 @@ describe Grape::Entity do
             'foo'
           end
 
-          expect(subject.exposures[:name].first).not_to have_key :proc
-          expect(child_class.exposures[:name].first).to have_key :proc
+          expect(subject.exposures[:name]).not_to have_key :proc
+          expect(child_class.exposures[:name]).to have_key :proc
         end
       end
 
@@ -310,7 +262,7 @@ describe Grape::Entity do
           object = {}
 
           subject.expose(:size, format_with: lambda { |_value| self.object.class.to_s })
-          expect(subject.represent(object).send(:value_for, :size, 0)).to eq object.class.to_s
+          expect(subject.represent(object).send(:value_for, :size)).to eq object.class.to_s
         end
 
         it 'formats an exposure with a :format_with symbol that returns a value from the entity instance' do
@@ -321,7 +273,7 @@ describe Grape::Entity do
           object = {}
 
           subject.expose(:size, format_with: :size_formatter)
-          expect(subject.represent(object).send(:value_for, :size, 0)).to eq object.class.to_s
+          expect(subject.represent(object).send(:value_for, :size)).to eq object.class.to_s
         end
       end
     end
@@ -331,7 +283,7 @@ describe Grape::Entity do
         subject.expose :name, :email
         subject.unexpose :email
 
-        expect(subject.exposures).to eq(name: [{}])
+        expect(subject.exposures).to eq(name: {})
       end
 
       context 'inherited exposures' do
@@ -340,8 +292,8 @@ describe Grape::Entity do
           child_class = Class.new(subject)
           child_class.unexpose :email
 
-          expect(child_class.exposures).to eq(name: [{}])
-          expect(subject.exposures).to eq(name: [{}], email: [{}])
+          expect(child_class.exposures).to eq(name: {})
+          expect(subject.exposures).to eq(name: {}, email: {})
         end
 
         # the following 2 behaviors are testing because it is not most intuitive and could be confusing
@@ -351,8 +303,8 @@ describe Grape::Entity do
             child_class = Class.new(subject)
             subject.unexpose :email
 
-            expect(subject.exposures).to eq(name: [{}])
-            expect(child_class.exposures).to eq(name: [{}])
+            expect(subject.exposures).to eq(name: {})
+            expect(child_class.exposures).to eq(name: {})
           end
 
           it 'remove from parent and do not remove from child classes that have locked down their attributes with an .exposures call' do
@@ -361,8 +313,8 @@ describe Grape::Entity do
             child_class.exposures
             subject.unexpose :email
 
-            expect(subject.exposures).to eq(name: [{}])
-            expect(child_class.exposures).to eq(name: [{}], email: [{}])
+            expect(subject.exposures).to eq(name: {})
+            expect(child_class.exposures).to eq(name: {}, email: {})
           end
         end
       end
@@ -386,7 +338,7 @@ describe Grape::Entity do
           end
         end
 
-        expect(subject.exposures[:awesome_thing]).to eq([{ if: { awesome: true }, using: 'Awesome' }])
+        expect(subject.exposures[:awesome_thing]).to eq(if: { awesome: true }, using: 'Awesome')
       end
 
       it 'allows for nested .with_options' do
@@ -398,7 +350,7 @@ describe Grape::Entity do
           end
         end
 
-        expect(subject.exposures[:awesome_thing]).to eq([{ if: { awesome: true }, using: 'Something' }])
+        expect(subject.exposures[:awesome_thing]).to eq(if: { awesome: true }, using: 'Something')
       end
 
       it 'overrides nested :as option' do
@@ -408,7 +360,7 @@ describe Grape::Entity do
           end
         end
 
-        expect(subject.exposures[:awesome_thing]).to eq([{ as: :extra_smooth }])
+        expect(subject.exposures[:awesome_thing]).to eq(as: :extra_smooth)
       end
 
       it 'merges nested :if option' do
@@ -430,10 +382,10 @@ describe Grape::Entity do
           end
         end
 
-        expect(subject.exposures[:awesome_thing]).to eq([{
-                                                          if: { awesome: false, less_awesome: true },
-                                                          if_extras: [:awesome, match_proc]
-                                                        }])
+        expect(subject.exposures[:awesome_thing]).to eq(
+          if: { awesome: false, less_awesome: true },
+          if_extras: [:awesome, match_proc]
+        )
       end
 
       it 'merges nested :unless option' do
@@ -455,10 +407,10 @@ describe Grape::Entity do
           end
         end
 
-        expect(subject.exposures[:awesome_thing]).to eq([{
-                                                          unless: { awesome: false, less_awesome: true },
-                                                          unless_extras: [:awesome, match_proc]
-                                                        }])
+        expect(subject.exposures[:awesome_thing]).to eq(
+          unless: { awesome: false, less_awesome: true },
+          unless_extras: [:awesome, match_proc]
+        )
       end
 
       it 'overrides nested :using option' do
@@ -468,7 +420,7 @@ describe Grape::Entity do
           end
         end
 
-        expect(subject.exposures[:awesome_thing]).to eq([{ using: 'SomethingElse' }])
+        expect(subject.exposures[:awesome_thing]).to eq(using: 'SomethingElse')
       end
 
       it 'aliases :with option to :using option' do
@@ -477,7 +429,7 @@ describe Grape::Entity do
             expose :awesome_thing, with: 'SomethingElse'
           end
         end
-        expect(subject.exposures[:awesome_thing]).to eq([{ using: 'SomethingElse' }])
+        expect(subject.exposures[:awesome_thing]).to eq(using: 'SomethingElse')
       end
 
       it 'overrides nested :proc option' do
@@ -489,7 +441,7 @@ describe Grape::Entity do
           end
         end
 
-        expect(subject.exposures[:awesome_thing]).to eq([{ proc: match_proc }])
+        expect(subject.exposures[:awesome_thing]).to eq(proc: match_proc)
       end
 
       it 'overrides nested :documentation option' do
@@ -499,7 +451,7 @@ describe Grape::Entity do
           end
         end
 
-        expect(subject.exposures[:awesome_thing]).to eq([{ documentation: { desc: 'Other description.' } }])
+        expect(subject.exposures[:awesome_thing]).to eq(documentation: { desc: 'Other description.' })
       end
     end
 
@@ -773,7 +725,6 @@ describe Grape::Entity do
       {
         name: 'Bob Bobson',
         email: 'bob@example.com',
-        phone: '1-800-BBOBSON',
         birthday: Time.gm(2012, 2, 27),
         fantasies: ['Unicorns', 'Double Rainbows', 'Nessy'],
         characteristics: [
@@ -782,10 +733,6 @@ describe Grape::Entity do
         friends: [
           double(name: 'Friend 1', email: 'friend1@example.com', characteristics: [], fantasies: [], birthday: Time.gm(2012, 2, 27), friends: []),
           double(name: 'Friend 2', email: 'friend2@example.com', characteristics: [], fantasies: [], birthday: Time.gm(2012, 2, 27), friends: [])
-        ],
-        other_friends: [
-          double(name: 'Friend 1', email: 'friend1@example.com', phone: '1-800-FRIEND1', birthday: Time.gm(2012, 2, 27), fantasies: [], friends: []),
-          double(name: 'Friend 2', email: 'friend2@example.com', phone: '1-800-FRIEND2', birthday: Time.gm(2012, 2, 27), fantasies: [], friends: [])
         ]
       }
     end
@@ -959,11 +906,11 @@ describe Grape::Entity do
       end
 
       it 'passes through bare expose attributes' do
-        expect(subject.send(:value_for, :name, 0)).to eq attributes[:name]
+        expect(subject.send(:value_for, :name)).to eq attributes[:name]
       end
 
       it 'instantiates a representation if that is called for' do
-        rep = subject.send(:value_for, :friends, 0)
+        rep = subject.send(:value_for, :friends)
         expect(rep.reject { |r| r.is_a?(fresh_class) }).to be_empty
         expect(rep.first.serializable_hash[:name]).to eq 'Friend 1'
         expect(rep.last.serializable_hash[:name]).to eq 'Friend 2'
@@ -979,10 +926,10 @@ describe Grape::Entity do
           end
 
           fresh_class.class_eval do
-            expose :other_friends, using: EntitySpec::FriendEntity
+            expose :friends, using: EntitySpec::FriendEntity
           end
 
-          rep = subject.send(:value_for, :other_friends, 0)
+          rep = subject.send(:value_for, :friends)
           expect(rep).to be_kind_of Array
           expect(rep.reject { |r| r.is_a?(EntitySpec::FriendEntity) }).to be_empty
           expect(rep.first.serializable_hash[:name]).to eq 'Friend 1'
@@ -1003,7 +950,7 @@ describe Grape::Entity do
             end
           end
 
-          rep = subject.send(:value_for, :custom_friends, 0)
+          rep = subject.send(:value_for, :custom_friends)
           expect(rep).to be_kind_of Array
           expect(rep.reject { |r| r.is_a?(EntitySpec::FriendEntity) }).to be_empty
           expect(rep.first.serializable_hash).to eq(name: 'Friend 1', email: 'friend1@example.com')
@@ -1024,7 +971,7 @@ describe Grape::Entity do
             end
           end
 
-          rep = subject.send(:value_for, :first_friend, 0)
+          rep = subject.send(:value_for, :first_friend)
           expect(rep).to be_kind_of EntitySpec::FriendEntity
           expect(rep.serializable_hash).to eq(name: 'Friend 1', email: 'friend1@example.com')
         end
@@ -1042,7 +989,7 @@ describe Grape::Entity do
             end
           end
 
-          rep = subject.send(:value_for, :first_friend, 0)
+          rep = subject.send(:value_for, :first_friend)
           expect(rep).to be_kind_of EntitySpec::FriendEntity
           expect(rep.serializable_hash).to be_nil
         end
@@ -1059,7 +1006,7 @@ describe Grape::Entity do
             expose :characteristics, using: EntitySpec::CharacteristicsEntity
           end
 
-          rep = subject.send(:value_for, :characteristics, 0)
+          rep = subject.send(:value_for, :characteristics)
           expect(rep).to be_kind_of Array
           expect(rep.reject { |r| r.is_a?(EntitySpec::CharacteristicsEntity) }).to be_empty
           expect(rep.first.serializable_hash[:key]).to eq 'hair_color'
@@ -1071,25 +1018,25 @@ describe Grape::Entity do
             class FriendEntity < Grape::Entity
               root 'friends', 'friend'
               expose :name
-              expose :phone, if: { user_type: :admin }
+              expose :email, if: { user_type: :admin }
             end
           end
 
           fresh_class.class_eval do
-            expose :other_friends, using: EntitySpec::FriendEntity
+            expose :friends, using: EntitySpec::FriendEntity
           end
 
-          rep = subject.send(:value_for, :other_friends, 0)
+          rep = subject.send(:value_for, :friends)
           expect(rep).to be_kind_of Array
           expect(rep.reject { |r| r.is_a?(EntitySpec::FriendEntity) }).to be_empty
-          expect(rep.first.serializable_hash[:phone]).to be_nil
-          expect(rep.last.serializable_hash[:phone]).to be_nil
+          expect(rep.first.serializable_hash[:email]).to be_nil
+          expect(rep.last.serializable_hash[:email]).to be_nil
 
-          rep = subject.send(:value_for, :other_friends, 0, user_type: :admin)
+          rep = subject.send(:value_for, :friends,  user_type: :admin)
           expect(rep).to be_kind_of Array
           expect(rep.reject { |r| r.is_a?(EntitySpec::FriendEntity) }).to be_empty
-          expect(rep.first.serializable_hash[:phone]).to eq '1-800-FRIEND1'
-          expect(rep.last.serializable_hash[:phone]).to eq '1-800-FRIEND2'
+          expect(rep.first.serializable_hash[:email]).to eq 'friend1@example.com'
+          expect(rep.last.serializable_hash[:email]).to eq 'friend2@example.com'
         end
 
         it 'ignores the :collection parameter in the source options' do
@@ -1097,32 +1044,32 @@ describe Grape::Entity do
             class FriendEntity < Grape::Entity
               root 'friends', 'friend'
               expose :name
-              expose :phone, if: { collection: true }
+              expose :email, if: { collection: true }
             end
           end
 
           fresh_class.class_eval do
-            expose :other_friends, using: EntitySpec::FriendEntity
+            expose :friends, using: EntitySpec::FriendEntity
           end
 
-          rep = subject.send(:value_for, :other_friends, 0, collection: false)
+          rep = subject.send(:value_for, :friends,  collection: false)
           expect(rep).to be_kind_of Array
           expect(rep.reject { |r| r.is_a?(EntitySpec::FriendEntity) }).to be_empty
-          expect(rep.first.serializable_hash[:phone]).to eq '1-800-FRIEND1'
-          expect(rep.last.serializable_hash[:phone]).to eq '1-800-FRIEND2'
+          expect(rep.first.serializable_hash[:email]).to eq 'friend1@example.com'
+          expect(rep.last.serializable_hash[:email]).to eq 'friend2@example.com'
         end
       end
 
       it 'calls through to the proc if there is one' do
-        expect(subject.send(:value_for, :computed, 0, awesome: 123)).to eq 123
+        expect(subject.send(:value_for, :computed, awesome: 123)).to eq 123
       end
 
       it 'returns a formatted value if format_with is passed' do
-        expect(subject.send(:value_for, :birthday, 0)).to eq '02/27/2012'
+        expect(subject.send(:value_for, :birthday)).to eq '02/27/2012'
       end
 
       it 'returns a formatted value if format_with is passed a lambda' do
-        expect(subject.send(:value_for, :fantasies, 0)).to eq ['Nessy', 'Double Rainbows', 'Unicorns']
+        expect(subject.send(:value_for, :fantasies)).to eq ['Nessy', 'Double Rainbows', 'Unicorns']
       end
 
       it 'tries instance methods on the entity first' do
@@ -1142,8 +1089,8 @@ describe Grape::Entity do
 
         friend = double('Friend', name: 'joe', email: 'joe@example.com')
         rep = EntitySpec::DelegatingEntity.new(friend)
-        expect(rep.send(:value_for, :name, 0)).to eq 'cooler name'
-        expect(rep.send(:value_for, :email, 0)).to eq 'joe@example.com'
+        expect(rep.send(:value_for, :name)).to eq 'cooler name'
+        expect(rep.send(:value_for, :email)).to eq 'joe@example.com'
       end
 
       context 'using' do
@@ -1156,10 +1103,10 @@ describe Grape::Entity do
         end
         it 'string' do
           fresh_class.class_eval do
-            expose :other_friends, using: 'EntitySpec::UserEntity'
+            expose :friends, using: 'EntitySpec::UserEntity'
           end
 
-          rep = subject.send(:value_for, :other_friends, 0)
+          rep = subject.send(:value_for, :friends)
           expect(rep).to be_kind_of Array
           expect(rep.size).to eq 2
           expect(rep.all? { |r| r.is_a?(EntitySpec::UserEntity) }).to be true
@@ -1167,10 +1114,10 @@ describe Grape::Entity do
 
         it 'class' do
           fresh_class.class_eval do
-            expose :other_friends, using: EntitySpec::UserEntity
+            expose :friends, using: EntitySpec::UserEntity
           end
 
-          rep = subject.send(:value_for, :other_friends, 0)
+          rep = subject.send(:value_for, :friends)
           expect(rep).to be_kind_of Array
           expect(rep.size).to eq 2
           expect(rep.all? { |r| r.is_a?(EntitySpec::UserEntity) }).to be true
@@ -1247,23 +1194,17 @@ describe Grape::Entity do
     describe '#key_for' do
       it 'returns the attribute if no :as is set' do
         fresh_class.expose :name
-        expect(subject.class.send(:key_for, :name, 0)).to eq :name
+        expect(subject.class.send(:key_for, :name)).to eq :name
       end
 
       it 'returns a symbolized version of the attribute' do
         fresh_class.expose :name
-
-        expect(subject.class.send(:key_for, :name, 0)).to eq :name
+        expect(subject.class.send(:key_for, 'name')).to eq :name
       end
 
       it 'returns the :as alias if one exists' do
         fresh_class.expose :name, as: :nombre
-        expect(subject.class.send(:key_for, :name, 0)).to eq :nombre
-      end
-
-      it 'returns a symbolized version of the :as alias' do
-        fresh_class.expose :name, as: 'nombre'
-        expect(subject.class.send(:key_for, :name, 0)).to eq :nombre
+        expect(subject.class.send(:key_for, 'name')).to eq :nombre
       end
     end
 
