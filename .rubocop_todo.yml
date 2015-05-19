@@ -7,12 +7,12 @@
 
 # Offense count: 8
 Metrics/AbcSize:
-  Max: 54
+  Max: 51
 
 # Offense count: 1
 # Configuration parameters: CountComments.
 Metrics/ClassLength:
-  Max: 362
+  Max: 337
 
 # Offense count: 5
 Metrics/CyclomaticComplexity:
@@ -21,12 +21,12 @@ Metrics/CyclomaticComplexity:
 # Offense count: 175
 # Configuration parameters: AllowURI, URISchemes.
 Metrics/LineLength:
-  Max: 149
+  Max: 146
 
 # Offense count: 7
 # Configuration parameters: CountComments.
 Metrics/MethodLength:
-  Max: 36
+  Max: 32
 
 # Offense count: 5
 Metrics/PerceivedComplexity:
@@ -54,7 +54,7 @@ Style/FileName:
 Style/Lambda:
   Enabled: false
 
-# Offense count: 2
+# Offense count: 1
 # Configuration parameters: EnforcedStyle, MinBodyLength, SupportedStyles.
 Style/Next:
   Enabled: false
