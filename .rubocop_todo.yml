@@ -36,10 +36,6 @@ Metrics/PerceivedComplexity:
 Style/Documentation:
   Enabled: false
 
-# Offense count: 3
-Style/EachWithObject:
-  Enabled: false
-
 # Offense count: 1
 # Configuration parameters: Exclude.
 Style/FileName:

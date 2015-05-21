@@ -233,14 +233,11 @@ module Grape
     # the values are document keys in the entity's documentation key. When calling
     # #docmentation, any exposure without a documentation key will be ignored.
     def self.documentation
-      @documentation ||= exposures.inject({}) do |memo, (attribute, exposure_options)|
+      @documentation ||= exposures.each_with_object({}) do |(attribute, exposure_options), memo|
         unless exposure_options[:documentation].nil? || exposure_options[:documentation].empty?
           memo[key_for(attribute)] = exposure_options[:documentation]
         end
-        memo
       end
-
-      @documentation
     end
 
     # This allows you to declare a Proc in which exposures can be formatted with.
@@ -468,7 +465,7 @@ module Grape
 
       opts = options.merge(runtime_options || {})
 
-      valid_exposures.inject({}) do |output, (attribute, exposure_options)|
+      valid_exposures.each_with_object({}) do |(attribute, exposure_options), output|
         if should_return_attribute?(attribute, opts) && conditions_met?(exposure_options, opts)
           partial_output = value_for(attribute, opts)
 
@@ -485,8 +482,6 @@ module Grape
               partial_output
             end
         end
-
-        output
       end
     end
 
@@ -498,7 +493,7 @@ module Grape
     def only_fields(options, for_attribute = nil)
       return nil unless options[:only]
 
-      @only_fields ||= options[:only].inject({}) do |allowed_fields, attribute|
+      @only_fields ||= options[:only].each_with_object({}) do |attribute, allowed_fields|
         if attribute.is_a?(Hash)
           attribute.each do |attr, nested_attrs|
             allowed_fields[attr] ||= []
@@ -507,8 +502,6 @@ module Grape
         else
           allowed_fields[attribute] = true
         end
-
-        allowed_fields
       end
 
       if for_attribute && @only_fields[for_attribute].is_a?(Array)
