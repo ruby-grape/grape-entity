@@ -137,6 +137,7 @@ module Grape
 
       @nested_attributes ||= []
 
+      # rubocop:disable Style/Next
       args.each do |attribute|
         unless @nested_attributes.empty?
           orig_attribute = attribute.to_sym
@@ -466,22 +467,22 @@ module Grape
       opts = options.merge(runtime_options || {})
 
       valid_exposures.each_with_object({}) do |(attribute, exposure_options), output|
-        if should_return_attribute?(attribute, opts) && conditions_met?(exposure_options, opts)
-          partial_output = value_for(attribute, opts)
+        next unless should_return_attribute?(attribute, opts) && conditions_met?(exposure_options, opts)
 
-          output[self.class.key_for(attribute)] =
-            if partial_output.respond_to?(:serializable_hash)
-              partial_output.serializable_hash(runtime_options)
-            elsif partial_output.is_a?(Array) && !partial_output.map { |o| o.respond_to?(:serializable_hash) }.include?(false)
-              partial_output.map(&:serializable_hash)
-            elsif partial_output.is_a?(Hash)
-              partial_output.each do |key, value|
-                partial_output[key] = value.serializable_hash if value.respond_to?(:serializable_hash)
-              end
-            else
-              partial_output
+        partial_output = value_for(attribute, opts)
+
+        output[self.class.key_for(attribute)] =
+          if partial_output.respond_to?(:serializable_hash)
+            partial_output.serializable_hash(runtime_options)
+          elsif partial_output.is_a?(Array) && !partial_output.map { |o| o.respond_to?(:serializable_hash) }.include?(false)
+            partial_output.map(&:serializable_hash)
+          elsif partial_output.is_a?(Hash)
+            partial_output.each do |key, value|
+              partial_output[key] = value.serializable_hash if value.respond_to?(:serializable_hash)
             end
-        end
+          else
+            partial_output
+          end
       end
     end
 
