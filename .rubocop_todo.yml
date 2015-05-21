@@ -45,7 +45,3 @@ Style/FileName:
 # Configuration parameters: EnforcedStyle, MinBodyLength, SupportedStyles.
 Style/Next:
   Enabled: false
-
-# Offense count: 2
-Style/RegexpLiteral:
-  MaxSlashes: 0
