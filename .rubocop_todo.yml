@@ -41,10 +41,6 @@ Style/Documentation:
 Style/FileName:
   Enabled: false
 
-# Offense count: 16
-Style/Lambda:
-  Enabled: false
-
 # Offense count: 1
 # Configuration parameters: EnforcedStyle, MinBodyLength, SupportedStyles.
 Style/Next:
