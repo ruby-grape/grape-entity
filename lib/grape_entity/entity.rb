@@ -137,6 +137,7 @@ module Grape
 
       @nested_attributes ||= []
 
+      # rubocop:disable Style/Next
       args.each do |attribute|
         unless @nested_attributes.empty?
           orig_attribute = attribute.to_sym
@@ -233,14 +234,11 @@ module Grape
     # the values are document keys in the entity's documentation key. When calling
     # #docmentation, any exposure without a documentation key will be ignored.
     def self.documentation
-      @documentation ||= exposures.inject({}) do |memo, (attribute, exposure_options)|
+      @documentation ||= exposures.each_with_object({}) do |(attribute, exposure_options), memo|
         unless exposure_options[:documentation].nil? || exposure_options[:documentation].empty?
           memo[key_for(attribute)] = exposure_options[:documentation]
         end
-        memo
       end
-
-      @documentation
     end
 
     # This allows you to declare a Proc in which exposures can be formatted with.
@@ -435,7 +433,8 @@ module Grape
     end
 
     def initialize(object, options = {})
-      @object, @options = object, options
+      @object = object
+      @options = options
     end
 
     def exposures
@@ -468,25 +467,23 @@ module Grape
 
       opts = options.merge(runtime_options || {})
 
-      valid_exposures.inject({}) do |output, (attribute, exposure_options)|
-        if should_return_attribute?(attribute, opts) && conditions_met?(exposure_options, opts)
-          partial_output = value_for(attribute, opts)
+      valid_exposures.each_with_object({}) do |(attribute, exposure_options), output|
+        next unless should_return_attribute?(attribute, opts) && conditions_met?(exposure_options, opts)
 
-          output[self.class.key_for(attribute)] =
-            if partial_output.respond_to?(:serializable_hash)
-              partial_output.serializable_hash(runtime_options)
-            elsif partial_output.is_a?(Array) && !partial_output.map { |o| o.respond_to?(:serializable_hash) }.include?(false)
-              partial_output.map(&:serializable_hash)
-            elsif partial_output.is_a?(Hash)
-              partial_output.each do |key, value|
-                partial_output[key] = value.serializable_hash if value.respond_to?(:serializable_hash)
-              end
-            else
-              partial_output
+        partial_output = value_for(attribute, opts)
+
+        output[self.class.key_for(attribute)] =
+          if partial_output.respond_to?(:serializable_hash)
+            partial_output.serializable_hash(runtime_options)
+          elsif partial_output.is_a?(Array) && !partial_output.map { |o| o.respond_to?(:serializable_hash) }.include?(false)
+            partial_output.map(&:serializable_hash)
+          elsif partial_output.is_a?(Hash)
+            partial_output.each do |key, value|
+              partial_output[key] = value.serializable_hash if value.respond_to?(:serializable_hash)
             end
-        end
-
-        output
+          else
+            partial_output
+          end
       end
     end
 
@@ -498,7 +495,7 @@ module Grape
     def only_fields(options, for_attribute = nil)
       return nil unless options[:only]
 
-      @only_fields ||= options[:only].inject({}) do |allowed_fields, attribute|
+      @only_fields ||= options[:only].each_with_object({}) do |attribute, allowed_fields|
         if attribute.is_a?(Hash)
           attribute.each do |attr, nested_attrs|
             allowed_fields[attr] ||= []
@@ -507,8 +504,6 @@ module Grape
         else
           allowed_fields[attribute] = true
         end
-
-        allowed_fields
       end
 
       if for_attribute && @only_fields[for_attribute].is_a?(Array)
