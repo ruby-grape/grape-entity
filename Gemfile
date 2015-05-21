@@ -12,5 +12,5 @@ group :development, :test do
   gem 'json'
   gem 'rspec'
   gem 'rack-test', '~> 0.6.2', require: 'rack/test'
-  gem 'rubocop', '0.28.0'
+  gem 'rubocop', '0.31.0'
 end

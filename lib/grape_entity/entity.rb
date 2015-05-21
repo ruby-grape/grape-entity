@@ -433,7 +433,8 @@ module Grape
     end
 
     def initialize(object, options = {})
-      @object, @options = object, options
+      @object = object
+      @options = options
     end
 
     def exposures
