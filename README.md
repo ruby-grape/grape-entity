@@ -305,6 +305,30 @@ end
 present s, with: Status, user: current_user
 ```
 
+#### Passing Additional Option To Nested Exposure
+There are sometimes that you want to pass additional option or parameter to nested exposure. Assume that you need to expose an address for a contact info, but it has both two different format: **full** and **simple**. You can pass an additional `full_format` option to specify that if the nested entity should render address in `:full` format.
+
+```ruby
+# api/contact.rb
+expose :contact_info do
+  expose :phone
+  expose :address do |instance, options|
+    # use `#merge` to extend options and then pass the new version of options to the nested entity
+    API::Address.represent instance.address, options.merge(full_format: instance.need_full_format?)
+  end
+  expose :email, if: lambda { |instance, options| options[:type] == :full }
+end
+
+# api/address.rb
+expose :state, if: lambda {|instance, options| !!options[:full_format]}      # the new option could be retrieved in options hash for conditional exposure
+expose :city, if: lambda {|instance, options| !!options[:full_format]}
+expose :stree do |instance, options|
+  # the new option could be retrieved in options hash for runtime exposure
+  !!options[:full_format] ? instance.full_street_name : instance.simple_street_name
+end
+```
+**Notice**: In the above code, you should pay attention to [**Safe Exposure**](#safe-exposure) yourself, for example, `instance.address` might be `nil`, in this situation, it is better to expose it as nil directly.
+
 ### Using the Exposure DSL
 
 Grape ships with a DSL to easily define entities within the context of an existing class:
