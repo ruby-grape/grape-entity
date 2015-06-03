@@ -161,13 +161,13 @@ module Grape
       args.each do |attribute|
         unless @nested_attributes.empty?
           orig_attribute = attribute.to_sym
-          attribute = "#{@nested_attributes.last}__#{attribute}"
-          nested_attribute_names[attribute.to_sym] = orig_attribute
+          attribute = "#{@nested_attributes.last}__#{attribute}".to_sym
+          nested_attribute_names[attribute] = orig_attribute
           options[:nested] = true
-          nested_exposures.deep_merge!(@nested_attributes.last.to_sym  => { attribute.to_sym => options })
+          nested_exposures.deep_merge!(@nested_attributes.last.to_sym  => { attribute => options })
         end
 
-        exposures[attribute.to_sym] = options
+        exposures[attribute] = options
 
         # Nested exposures are given in a block with no parameters.
         if block_given? && block.parameters.empty?
