@@ -296,21 +296,10 @@ describe Grape::Entity do
           expect(subject.exposures).to eq(name: {}, email: {})
         end
 
-        # the following 2 behaviors are testing because it is not most intuitive and could be confusing
-        context 'when  called from the parent class' do
-          it 'remove from parent and all child classes that have not locked down their attributes with an .exposures call' do
+        context 'when called from the parent class' do
+          it 'remove from parent and do not remove from child classes' do
             subject.expose :name, :email
             child_class = Class.new(subject)
-            subject.unexpose :email
-
-            expect(subject.exposures).to eq(name: {})
-            expect(child_class.exposures).to eq(name: {})
-          end
-
-          it 'remove from parent and do not remove from child classes that have locked down their attributes with an .exposures call' do
-            subject.expose :name, :email
-            child_class = Class.new(subject)
-            child_class.exposures
             subject.unexpose :email
 
             expect(subject.exposures).to eq(name: {})
