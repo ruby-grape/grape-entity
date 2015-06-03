@@ -202,7 +202,7 @@ module Grape
     # #docmentation, any exposure without a documentation key will be ignored.
     def self.documentation
       @documentation ||= exposures.each_with_object({}) do |(attribute, exposure_options), memo|
-        unless exposure_options[:documentation].nil? || exposure_options[:documentation].empty?
+        if exposure_options[:documentation].present?
           memo[key_for(attribute)] = exposure_options[:documentation]
         end
       end
