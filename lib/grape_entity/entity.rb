@@ -98,6 +98,26 @@ module Grape
       end
     end
 
+    class << self
+      # Returns exposures that have been declared for this Entity or
+      # ancestors. The keys are symbolized references to methods on the
+      # containing object, the values are the options that were passed into expose.
+      # @return [Hash] of exposures
+      attr_accessor :exposures
+      # Returns all formatters that are registered for this and it's ancestors
+      # @return [Hash] of formatters
+      attr_accessor :formatters
+      attr_accessor :nested_attribute_names
+      attr_accessor :nested_exposures
+    end
+
+    def self.inherited(subclass)
+      subclass.exposures = exposures.try(:dup) || {}
+      subclass.nested_exposures = nested_exposures.try(:dup) || {}
+      subclass.nested_attribute_names = nested_attribute_names.try(:dup) || {}
+      subclass.formatters = formatters.try(:dup) || {}
+    end
+
     # This method is the primary means by which you will declare what attributes
     # should be exposed by the entity.
     #
@@ -141,14 +161,13 @@ module Grape
       args.each do |attribute|
         unless @nested_attributes.empty?
           orig_attribute = attribute.to_sym
-          attribute = "#{@nested_attributes.last}__#{attribute}"
-          nested_attribute_names_hash[attribute.to_sym] = orig_attribute
+          attribute = "#{@nested_attributes.last}__#{attribute}".to_sym
+          nested_attribute_names[attribute] = orig_attribute
           options[:nested] = true
-          nested_exposures_hash[@nested_attributes.last.to_sym] ||= {}
-          nested_exposures_hash[@nested_attributes.last.to_sym][attribute.to_sym] = options
+          nested_exposures.deep_merge!(@nested_attributes.last.to_sym  => { attribute => options })
         end
 
-        exposures[attribute.to_sym] = options
+        exposures[attribute] = options
 
         # Nested exposures are given in a block with no parameters.
         if block_given? && block.parameters.empty?
@@ -178,64 +197,12 @@ module Grape
       @block_options.pop
     end
 
-    # Returns a hash of exposures that have been declared for this Entity or ancestors. The keys
-    # are symbolized references to methods on the containing object, the values are
-    # the options that were passed into expose.
-    def self.exposures
-      return @exposures unless @exposures.nil?
-
-      @exposures = {}
-
-      if superclass.respond_to? :exposures
-        @exposures = superclass.exposures.merge(@exposures)
-      end
-
-      @exposures
-    end
-
-    class << self
-      attr_accessor :_nested_attribute_names_hash
-      attr_accessor :_nested_exposures_hash
-
-      def nested_attribute_names_hash
-        self._nested_attribute_names_hash ||= {}
-      end
-
-      def nested_exposures_hash
-        self._nested_exposures_hash ||= {}
-      end
-
-      def nested_attribute_names
-        return @nested_attribute_names unless @nested_attribute_names.nil?
-
-        @nested_attribute_names = {}.merge(nested_attribute_names_hash)
-
-        if superclass.respond_to? :nested_attribute_names
-          @nested_attribute_names = superclass.nested_attribute_names.deep_merge(@nested_attribute_names)
-        end
-
-        @nested_attribute_names
-      end
-
-      def nested_exposures
-        return @nested_exposures unless @nested_exposures.nil?
-
-        @nested_exposures = {}.merge(nested_exposures_hash)
-
-        if superclass.respond_to? :nested_exposures
-          @nested_exposures = superclass.nested_exposures.deep_merge(@nested_exposures)
-        end
-
-        @nested_exposures
-      end
-    end
-
     # Returns a hash, the keys are symbolized references to fields in the entity,
     # the values are document keys in the entity's documentation key. When calling
     # #docmentation, any exposure without a documentation key will be ignored.
     def self.documentation
       @documentation ||= exposures.each_with_object({}) do |(attribute, exposure_options), memo|
-        unless exposure_options[:documentation].nil? || exposure_options[:documentation].empty?
+        if exposure_options[:documentation].present?
           memo[key_for(attribute)] = exposure_options[:documentation]
         end
       end
@@ -270,17 +237,6 @@ module Grape
     def self.format_with(name, &block)
       fail ArgumentError, 'You must pass a block for formatters' unless block_given?
       formatters[name.to_sym] = block
-    end
-
-    # Returns a hash of all formatters that are registered for this and it's ancestors.
-    def self.formatters
-      @formatters ||= {}
-
-      if superclass.respond_to? :formatters
-        @formatters = superclass.formatters.merge(@formatters)
-      end
-
-      @formatters
     end
 
     # This allows you to set a root element name for your representation.
