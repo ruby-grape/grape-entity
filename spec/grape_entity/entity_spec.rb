@@ -503,7 +503,21 @@ describe Grape::Entity do
           expect(representation).to eq(id: nil, name: nil)
         end
 
-        it 'can specify children attributes' do
+        it 'returns all fields except the ones specified in the except option' do
+          subject.expose(:id, :name, :phone)
+          representation = subject.represent(OpenStruct.new, except: [:phone], serializable: true)
+          expect(representation).to eq(id: nil, name: nil)
+        end
+
+        it 'returns only fields specified in the only option and not specified in the except option' do
+          subject.expose(:id, :name, :phone)
+          representation = subject.represent(OpenStruct.new,
+                                             only: [:name, :phone],
+                                             except: [:phone], serializable: true)
+          expect(representation).to eq(name: nil)
+        end
+
+        it 'can specify children attributes with only' do
           user_entity = Class.new(Grape::Entity)
           user_entity.expose(:id, :name, :email)
 
@@ -514,14 +528,48 @@ describe Grape::Entity do
           expect(representation).to eq(id: nil, name: nil, user: { name: nil, email: nil })
         end
 
+        it 'can specify children attributes with except' do
+          user_entity = Class.new(Grape::Entity)
+          user_entity.expose(:id, :name, :email)
+
+          subject.expose(:id, :name, :phone)
+          subject.expose(:user, using: user_entity)
+
+          representation = subject.represent(OpenStruct.new(user: {}), except: [:phone, { user: [:id] }], serializable: true)
+          expect(representation).to eq(id: nil, name: nil, user: { name: nil, email: nil })
+        end
+
+        it 'can specify children attributes with mixed only and except' do
+          user_entity = Class.new(Grape::Entity)
+          user_entity.expose(:id, :name, :email, :address)
+
+          subject.expose(:id, :name, :phone, :mobile_phone)
+          subject.expose(:user, using: user_entity)
+
+          representation = subject.represent(OpenStruct.new(user: {}),
+                                             only: [:id, :name, :phone, user: [:id, :name, :email]],
+                                             except: [:phone, { user: [:id] }], serializable: true)
+          expect(representation).to eq(id: nil, name: nil, user: { name: nil, email: nil })
+        end
+
         context 'specify attribute with exposure condition' do
           it 'returns only specified fields' do
-            subject.expose(:id, :name)
+            subject.expose(:id)
             subject.with_options(if: { condition: true }) do
               subject.expose(:name)
             end
 
             representation = subject.represent(OpenStruct.new, condition: true, only: [:id, :name], serializable: true)
+            expect(representation).to eq(id: nil, name: nil)
+          end
+
+          it 'does not return fields specified in the except option' do
+            subject.expose(:id, :phone)
+            subject.with_options(if: { condition: true }) do
+              subject.expose(:name, :mobile_phone)
+            end
+
+            representation = subject.represent(OpenStruct.new, condition: true, except: [:phone, :mobile_phone], serializable: true)
             expect(representation).to eq(id: nil, name: nil)
           end
         end
@@ -534,6 +582,15 @@ describe Grape::Entity do
             representation = subject.represent(OpenStruct.new, condition: true, only: [:id, :title], serializable: true)
             expect(representation).to eq(id: nil, title: nil)
           end
+
+          it 'does not return fields specified in the except option' do
+            subject.expose(:id)
+            subject.expose(:name, as: :title)
+            subject.expose(:phone, as: :phone_number)
+
+            representation = subject.represent(OpenStruct.new, condition: true, except: [:phone_number], serializable: true)
+            expect(representation).to eq(id: nil, title: nil)
+          end
         end
 
         context 'attribute that is an entity itself' do
@@ -541,10 +598,15 @@ describe Grape::Entity do
             user_entity = Class.new(Grape::Entity)
             user_entity.expose(:id, :name, :email)
 
+            nephew_entity = Class.new(Grape::Entity)
+            nephew_entity.expose(:id, :name, :email)
+
             subject.expose(:id, :name, :phone)
             subject.expose(:user, using: user_entity)
+            subject.expose(:nephew, using: nephew_entity)
 
-            representation = subject.represent(OpenStruct.new(user: {}), only: [:id, :name, :user], serializable: true)
+            representation = subject.represent(OpenStruct.new(user: {}),
+                                               only: [:id, :name, :user], except: [:nephew], serializable: true)
             expect(representation).to eq(id: nil, name: nil, user: { id: nil, name: nil, email: nil })
           end
         end
