@@ -355,6 +355,7 @@ module Grape
     # @option options :serializable [true or false] when true a serializable Hash will be returned
     #
     # @option options :only [Array] all the fields that should be returned
+    # @option options :except [Array] all the fields that should not be returned
     def self.represent(objects, options = {})
       if objects.respond_to?(:to_ary) && ! @present_collection
         root_element =  root_element(:collection_root)
@@ -444,8 +445,12 @@ module Grape
     end
 
     def should_return_attribute?(attribute, options)
-      return true unless options[:only]
-      only_fields(options).include?(self.class.key_for(attribute))
+      key = self.class.key_for(attribute)
+      only = only_fields(options).nil? ||
+             only_fields(options).include?(key)
+      except = except_fields(options) && except_fields(options).include?(key) &&
+               except_fields(options)[key] == true
+      only && !except
     end
 
     def only_fields(options, for_attribute = nil)
@@ -466,6 +471,27 @@ module Grape
         @only_fields[for_attribute]
       elsif for_attribute.nil?
         @only_fields
+      end
+    end
+
+    def except_fields(options, for_attribute = nil)
+      return nil unless options[:except]
+
+      @except_fields ||= options[:except].each_with_object({}) do |attribute, allowed_fields|
+        if attribute.is_a?(Hash)
+          attribute.each do |attr, nested_attrs|
+            allowed_fields[attr] ||= []
+            allowed_fields[attr] += nested_attrs
+          end
+        else
+          allowed_fields[attribute] = true
+        end
+      end
+
+      if for_attribute && @except_fields[for_attribute].is_a?(Array)
+        @except_fields[for_attribute]
+      elsif for_attribute.nil?
+        @except_fields
       end
     end
 
@@ -604,6 +630,7 @@ module Grape
       using_options.delete(:collection)
       using_options[:root] = nil
       using_options[:only] = only_fields(using_options, attribute)
+      using_options[:except] = except_fields(using_options, attribute)
 
       using_options
     end
