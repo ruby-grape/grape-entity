@@ -222,7 +222,7 @@ end
 
 #### Returning only the fields you want
 
-After exposing the desired attributes, you can choose which one you need when representing some object or collection, see the example:
+After exposing the desired attributes, you can choose which one you need when representing some object or collection by using the only: and except: options. See the example:
 
 ```ruby
 class UserEntity
@@ -237,7 +237,7 @@ class Entity
   expose :user, using: UserEntity
 end
 
-data = Entity.represent(model, only: [:name, { user: [:name, :email] }])
+data = Entity.represent(model, only: [:title, { user: [:name, :email] }])
 data.as_json
 ```
 
@@ -256,7 +256,12 @@ This will return something like this:
 Instead of returning all the exposed attributes.
 
 
+The same result can be achieved with the following exposure:
 
+```ruby
+data = Entity.represent(model, except: [:id, { user: [:id] }])
+data.as_json
+```
 
 #### Aliases
 
