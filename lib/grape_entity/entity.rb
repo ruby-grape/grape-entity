@@ -465,7 +465,7 @@ module Grape
         else
           allowed_fields[attribute] = true
         end
-      end
+      end.symbolize_keys
 
       if for_attribute && @only_fields[for_attribute].is_a?(Array)
         @only_fields[for_attribute]
@@ -486,7 +486,7 @@ module Grape
         else
           allowed_fields[attribute] = true
         end
-      end
+      end.symbolize_keys
 
       if for_attribute && @except_fields[for_attribute].is_a?(Array)
         @except_fields[for_attribute]

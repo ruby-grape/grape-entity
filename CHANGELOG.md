@@ -6,6 +6,7 @@
 * [#121](https://github.com/intridea/grape-entity/pull/122): Sublcassed Entity#documentation properly handles unexposed params - [@dan-corneanu](https://github.com/dan-corneanu).
 * [#134](https://github.com/intridea/grape-entity/pull/134): Subclasses no longer affected in all cases by `unexpose` in parent - [@etehtsea](https://github.com/etehtsea).
 * [#135](https://github.com/intridea/grape-entity/pull/135): Added `except` option - [@dan-corneanu](https://github.com/dan-corneanu).
+* [#136](https://github.com/intridea/grape-entity/pull/136): Allow for strings in `only` and `except` options - [@bswinnerton](https://github.com/bswinnerton).
 * Your contribution here.
 
 0.4.5 (2015-03-10)
