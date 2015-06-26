@@ -517,6 +517,48 @@ describe Grape::Entity do
           expect(representation).to eq(name: nil)
         end
 
+        context 'with strings or symbols passed to only and except' do
+          let(:object) { OpenStruct.new(user: {}) }
+
+          before do
+            user_entity = Class.new(Grape::Entity)
+            user_entity.expose(:id, :name, :email)
+
+            subject.expose(:id, :name, :phone, :address)
+            subject.expose(:user, using: user_entity)
+          end
+
+          it 'can specify "only" option attributes as strings' do
+            representation = subject.represent(object, only: ['id', 'name', { 'user' => ['email'] }], serializable: true)
+            expect(representation).to eq(id: nil, name: nil, user: { email: nil })
+          end
+
+          it 'can specify "except" option attributes as strings' do
+            representation = subject.represent(object, except: ['id', 'name', { 'user' => ['email'] }], serializable: true)
+            expect(representation).to eq(phone: nil, address: nil, user: { id: nil, name: nil })
+          end
+
+          it 'can specify "only" option attributes as symbols' do
+            representation = subject.represent(object, only: [:name, :phone, { user: [:name] }], serializable: true)
+            expect(representation).to eq(name: nil, phone: nil, user: { name: nil })
+          end
+
+          it 'can specify "except" option attributes as symbols' do
+            representation = subject.represent(object, except: [:name, :phone, { user: [:name] }], serializable: true)
+            expect(representation).to eq(id: nil, address: nil, user: { id: nil, email: nil })
+          end
+
+          it 'can specify "only" attributes as strings and symbols' do
+            representation = subject.represent(object, only: [:id, 'address', { user: [:id, 'name'] }], serializable: true)
+            expect(representation).to eq(id: nil, address: nil, user: { id: nil, name: nil })
+          end
+
+          it 'can specify "except" attributes as strings and symbols' do
+            representation = subject.represent(object, except: [:id, 'address', { user: [:id, 'name'] }], serializable: true)
+            expect(representation).to eq(name: nil, phone: nil, user: { email: nil })
+          end
+        end
+
         it 'can specify children attributes with only' do
           user_entity = Class.new(Grape::Entity)
           user_entity.expose(:id, :name, :email)
