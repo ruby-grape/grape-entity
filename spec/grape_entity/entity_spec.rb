@@ -829,6 +829,11 @@ describe Grape::Entity do
         friends: [
           double(name: 'Friend 1', email: 'friend1@example.com', characteristics: [], fantasies: [], birthday: Time.gm(2012, 2, 27), friends: []),
           double(name: 'Friend 2', email: 'friend2@example.com', characteristics: [], fantasies: [], birthday: Time.gm(2012, 2, 27), friends: [])
+        ],
+        extra: { key: 'foo', value: 'bar' },
+        nested: [
+          { name: 'n1', data: { key: 'ex1', value: 'v1' } },
+          { name: 'n2', data: { key: 'ex2', value: 'v2' } }
         ]
       }
     end
@@ -989,6 +994,110 @@ describe Grape::Entity do
           fresh_class.expose :name, :embedded
           presenter = fresh_class.new(EntitySpec::EmbeddedExampleWithHash.new)
           expect(presenter.serializable_hash).to eq(name: 'abc', embedded: { a: nil, b: { abc: 'def' } })
+        end
+      end
+
+      context '#attr_path' do
+        it 'for all kinds of attributes' do
+          module EntitySpec
+            class EmailEntity < Grape::Entity
+              expose(:email, as: :addr) { |_, o| o[:attr_path].join('/') }
+            end
+
+            class UserEntity < Grape::Entity
+              expose(:name, as: :full_name) { |_, o| o[:attr_path].join('/') }
+              expose :email, using: 'EntitySpec::EmailEntity'
+            end
+
+            class ExtraEntity < Grape::Entity
+              expose(:key) { |_, o| o[:attr_path].join('/') }
+              expose(:value) { |_, o| o[:attr_path].join('/') }
+            end
+
+            class NestedEntity < Grape::Entity
+              expose(:name) { |_, o| o[:attr_path].join('/') }
+              expose :data, using: 'EntitySpec::ExtraEntity'
+            end
+          end
+
+          fresh_class.class_eval do
+            expose(:id) { |_, o| o[:attr_path].join('/') }
+            expose(:foo, as: :bar) { |_, o| o[:attr_path].join('/') }
+            expose :title do
+              expose :full do
+                expose(:prefix, as: :pref) { |_, o| o[:attr_path].join('/') }
+                expose(:main) { |_, o| o[:attr_path].join('/') }
+              end
+            end
+            expose :friends, as: :social, using: 'EntitySpec::UserEntity'
+            expose :extra, using: 'EntitySpec::ExtraEntity'
+            expose :nested, using: 'EntitySpec::NestedEntity'
+          end
+
+          expect(subject.serializable_hash).to eq(
+            id: 'id',
+            bar: 'bar',
+            title: { full: { pref: 'title/full/pref', main: 'title/full/main' } },
+            social: [
+              { full_name: 'social/full_name', email: { addr: 'social/email/addr' } },
+              { full_name: 'social/full_name', email: { addr: 'social/email/addr' } }
+            ],
+            extra: { key: 'extra/key', value: 'extra/value' },
+            nested: [
+              { name: 'nested/name', data: { key: 'nested/data/key', value: 'nested/data/value' } },
+              { name: 'nested/name', data: { key: 'nested/data/key', value: 'nested/data/value' } }
+            ]
+          )
+        end
+
+        it 'allows customize path of an attribute' do
+          module EntitySpec
+            class CharacterEntity < Grape::Entity
+              expose(:key) { |_, o| o[:attr_path].join('/') }
+              expose(:value) { |_, o| o[:attr_path].join('/') }
+            end
+          end
+
+          fresh_class.class_eval do
+            expose :characteristics, using: EntitySpec::CharacterEntity
+
+            protected
+
+            def self.path_for(attribute)
+              attribute == :characteristics ? :character : super
+            end
+          end
+
+          expect(subject.serializable_hash).to eq(
+            characteristics: [
+              { key: 'character/key', value: 'character/value' }
+            ]
+          )
+        end
+
+        it 'can drop one nest level by set path_for to nil' do
+          module EntitySpec
+            class NoPathCharacterEntity < Grape::Entity
+              expose(:key) { |_, o| o[:attr_path].join('/') }
+              expose(:value) { |_, o| o[:attr_path].join('/') }
+            end
+          end
+
+          fresh_class.class_eval do
+            expose :characteristics, using: EntitySpec::NoPathCharacterEntity
+
+            protected
+
+            def self.path_for(_attribute)
+              nil
+            end
+          end
+
+          expect(subject.serializable_hash).to eq(
+            characteristics: [
+              { key: 'key', value: 'value' }
+            ]
+          )
         end
       end
     end

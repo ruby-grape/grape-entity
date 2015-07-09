@@ -1,5 +1,6 @@
 0.5.0 (Next)
 ============
+* [#139](https://github.com/intridea/grape-entity/pull/139): Keep a track of attribute nesting path during condition check or runtime exposure - [@calfzhou](https://github.com/calfzhou).
 * Your contribution here.
 
 0.4.6 (2015-07-27)
@@ -83,4 +84,3 @@
 ==================
 
 * Initial public release - [@agileanimal](https://github.com/agileanimal).
-

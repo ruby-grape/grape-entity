@@ -428,22 +428,11 @@ module Grape
       opts = options.merge(runtime_options || {})
 
       root_exposures.each_with_object({}) do |(attribute, exposure_options), output|
-        next unless should_return_attribute?(attribute, opts) && conditions_met?(exposure_options, opts)
-
-        partial_output = value_for(attribute, opts)
-
-        output[self.class.key_for(attribute)] =
-          if partial_output.respond_to?(:serializable_hash)
-            partial_output.serializable_hash(runtime_options)
-          elsif partial_output.is_a?(Array) && partial_output.all? { |o| o.respond_to?(:serializable_hash) }
-            partial_output.map(&:serializable_hash)
-          elsif partial_output.is_a?(Hash)
-            partial_output.each do |key, value|
-              partial_output[key] = value.serializable_hash if value.respond_to?(:serializable_hash)
-            end
-          else
-            partial_output
-          end
+        parent_path = track_attr_path(attribute, opts)
+        if should_return_attribute?(attribute, opts) && conditions_met?(exposure_options, opts)
+          output[self.class.key_for(attribute)] = partial_hash(attribute, opts)
+        end
+        backtrack_attr_path(parent_path, opts)
       end
     end
 
@@ -529,12 +518,32 @@ module Grape
       nested_exposures = self.class.nested_exposures[attribute]
       nested_attributes =
         nested_exposures.map do |nested_attribute, nested_exposure_options|
-          if conditions_met?(nested_exposure_options, options)
-            [self.class.key_for(nested_attribute), value_for(nested_attribute, options)]
+          parent_path = track_attr_path(nested_attribute, options)
+          begin
+            if conditions_met?(nested_exposure_options, options)
+              [self.class.key_for(nested_attribute), value_for(nested_attribute, options)]
+            end
+          ensure
+            backtrack_attr_path(parent_path, options)
           end
         end
 
       Hash[nested_attributes.compact]
+    end
+
+    def self.path_for(attribute)
+      key_for(attribute)
+    end
+
+    def track_attr_path(attribute, options)
+      parent_path = options[:attr_path]
+      current_path = self.class.path_for(attribute)
+      options[:attr_path] = (parent_path || []).dup << current_path unless current_path.nil?
+      parent_path
+    end
+
+    def backtrack_attr_path(parent_path, options)
+      options[:attr_path] = parent_path
     end
 
     def value_for(attribute, options = {})
@@ -570,6 +579,21 @@ module Grape
         nested_value_for(attribute, options)
       else
         delegate_attribute(attribute)
+      end
+    end
+
+    def partial_hash(attribute, options = {})
+      partial_output = value_for(attribute, options)
+      if partial_output.respond_to?(:serializable_hash)
+        partial_output.serializable_hash(options)
+      elsif partial_output.is_a?(Array) && !partial_output.map { |o| o.respond_to?(:serializable_hash) }.include?(false)
+        partial_output.map(&:serializable_hash)
+      elsif partial_output.is_a?(Hash)
+        partial_output.each do |key, value|
+          partial_output[key] = value.serializable_hash if value.respond_to?(:serializable_hash)
+        end
+      else
+        partial_output
       end
     end
 
