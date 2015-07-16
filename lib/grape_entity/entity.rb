@@ -399,8 +399,8 @@ module Grape
     end
 
     def valid_exposures
-      exposures.reject { |_, options| options[:nested] }.select do |attribute, exposure_options|
-        valid_exposure?(attribute, exposure_options)
+      exposures.select do |attribute, exposure_options|
+        !exposure_options[:nested] && valid_exposure?(attribute, exposure_options)
       end
     end
 
@@ -432,7 +432,7 @@ module Grape
         output[self.class.key_for(attribute)] =
           if partial_output.respond_to?(:serializable_hash)
             partial_output.serializable_hash(runtime_options)
-          elsif partial_output.is_a?(Array) && !partial_output.map { |o| o.respond_to?(:serializable_hash) }.include?(false)
+          elsif partial_output.is_a?(Array) && partial_output.all? { |o| o.respond_to?(:serializable_hash) }
             partial_output.map(&:serializable_hash)
           elsif partial_output.is_a?(Hash)
             partial_output.each do |key, value|
@@ -518,13 +518,24 @@ module Grape
       exposures[attribute.to_sym][:as] || name_for(attribute)
     end
 
-    def self.nested_exposures_for(attribute)
-      nested_exposures[attribute] || {}
+    def self.nested_exposures_for?(attribute)
+      nested_exposures.key?(attribute)
+    end
+
+    def nested_value_for(attribute, options)
+      nested_exposures = self.class.nested_exposures[attribute]
+      nested_attributes =
+        nested_exposures.map do |nested_attribute, nested_exposure_options|
+          if conditions_met?(nested_exposure_options, options)
+            [self.class.key_for(nested_attribute), value_for(nested_attribute, options)]
+          end
+        end
+
+      Hash[nested_attributes.compact]
     end
 
     def value_for(attribute, options = {})
       exposure_options = exposures[attribute.to_sym]
-      nested_exposures = self.class.nested_exposures_for(attribute)
 
       if exposure_options[:using]
         exposure_options[:using] = exposure_options[:using].constantize if exposure_options[:using].respond_to? :constantize
@@ -551,15 +562,8 @@ module Grape
           instance_exec(delegate_attribute(attribute), &format_with)
         end
 
-      elsif nested_exposures.any?
-        nested_attributes =
-          nested_exposures.map do |nested_attribute, nested_exposure_options|
-            if conditions_met?(nested_exposure_options, options)
-              [self.class.key_for(nested_attribute), value_for(nested_attribute, options)]
-            end
-          end
-
-        Hash[nested_attributes.compact]
+      elsif self.class.nested_exposures_for?(attribute)
+        nested_value_for(attribute, options)
       else
         delegate_attribute(attribute)
       end
@@ -585,8 +589,7 @@ module Grape
     end
 
     def valid_exposure?(attribute, exposure_options)
-      nested_exposures = self.class.nested_exposures_for(attribute)
-      (nested_exposures.any? && nested_exposures.all? { |a, o| valid_exposure?(a, o) }) || \
+      (self.class.nested_exposures_for?(attribute) && self.class.nested_exposures[attribute].all? { |a, o| valid_exposure?(a, o) }) || \
         exposure_options.key?(:proc) || \
         !exposure_options[:safe] || \
         object.respond_to?(self.class.name_for(attribute)) || \
