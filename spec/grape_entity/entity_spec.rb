@@ -848,6 +848,17 @@ describe Grape::Entity do
           expect { fresh_class.new(model).serializable_hash }.not_to raise_error
         end
 
+        it 'exposes values of private method calls' do
+          some_class = Class.new do
+            define_method :name do
+              true
+            end
+            private :name
+          end
+          fresh_class.expose :name, safe: true
+          expect(fresh_class.new(some_class.new).serializable_hash).to eq(name: true)
+        end
+
         it "does not expose attributes that don't exist on the object" do
           fresh_class.expose :email, :nonexistent_attribute, :name, safe: true
 
