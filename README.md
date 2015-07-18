@@ -23,13 +23,13 @@ module API
       expose :user_type, :user_id, if: lambda { |status, options| status.user.public? }
       expose :contact_info do
         expose :phone
-        expose :address, using: API::Address
+        expose :address, using: API::Entities::Address
       end
       expose :digest do |status, options|
         Digest::MD5.hexdigest status.txt
       end
-      expose :replies, using: API::Status, as: :responses
-      expose :last_reply, using: API::Status do |status, options|
+      expose :replies, using: API::Entities::Status, as: :responses
+      expose :last_reply, using: API::Entities::Status do |status, options|
         status.replies.last
       end
 
@@ -78,13 +78,13 @@ The field lookup takes several steps
 Don't derive your model classes from `Grape::Entity`, expose them using a presenter.
 
 ```ruby
-expose :replies, using: API::Status, as: :responses
+expose :replies, using: API::Entities::Status, as: :responses
 ```
 
 Presenter classes can also be specified in string format, which helps with circular dependencies.
 
 ```ruby
-expose :replies, using: "API::Status", as: :responses
+expose :replies, using: "API::Entities::Status", as: :responses
 ```
 
 #### Conditional Exposure
@@ -116,7 +116,7 @@ Supply a block to define a hash using nested exposures.
 ```ruby
 expose :contact_info do
   expose :phone
-  expose :address, using: API::Address
+  expose :address, using: API::Entities::Address
 end
 ```
 
@@ -124,7 +124,7 @@ You can also conditionally expose attributes in nested exposures:
 ```ruby
 expose :contact_info do
   expose :phone
-  expose :address, using: API::Address
+  expose :address, using: API::Entities::Address
   expose :email, if: lambda { |instance, options| options[:type] == :full }
 end
 ```
@@ -268,7 +268,7 @@ data.as_json
 Expose under a different name with `:as`.
 
 ```ruby
-expose :replies, using: API::Status, as: :responses
+expose :replies, using: API::Entities::Status, as: :responses
 ```
 
 #### Format Before Exposing
@@ -319,7 +319,7 @@ expose :contact_info do
   expose :phone
   expose :address do |instance, options|
     # use `#merge` to extend options and then pass the new version of options to the nested entity
-    API::Address.represent instance.address, options.merge(full_format: instance.need_full_format?)
+    API::Entities::Address.represent instance.address, options.merge(full_format: instance.need_full_format?)
   end
   expose :email, if: lambda { |instance, options| options[:type] == :full }
 end
