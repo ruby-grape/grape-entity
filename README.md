@@ -148,7 +148,7 @@ As example:
 ```ruby
 
  present_collection true, :collection_name  # `collection_name` is optional and defaults to `items`
- expose :collection_name, using: API::Items
+ expose :collection_name, using: API::Entities::Items
 
 
 ```
