@@ -148,7 +148,7 @@ As example:
 ```ruby
 
  present_collection true, :collection_name  # `collection_name` is optional and defaults to `items`
- expose :collection_name, using: API:Items
+ expose :collection_name, using: API::Items
 
 
 ```
@@ -456,4 +456,3 @@ MIT License. See [LICENSE](LICENSE) for details.
 ## Copyright
 
 Copyright (c) 2010-2014 Michael Bleigh, Intridea, Inc., and contributors.
-
