@@ -592,7 +592,7 @@ module Grape
       (self.class.nested_exposures_for?(attribute) && self.class.nested_exposures[attribute].all? { |a, o| valid_exposure?(a, o) }) || \
         exposure_options.key?(:proc) || \
         !exposure_options[:safe] || \
-        object.respond_to?(self.class.name_for(attribute)) || \
+        object.respond_to?(self.class.name_for(attribute), true) || \
         object.is_a?(Hash) && object.key?(self.class.name_for(attribute))
     end
 
