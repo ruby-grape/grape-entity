@@ -190,11 +190,14 @@ describe Grape::Entity do
                 subject.expose :nested
               end
             end
-
-            valid_keys = subject.represent({}).valid_exposures.keys
-
-            expect(valid_keys.include?(:awesome)).to be true
-            expect(valid_keys.include?(:not_awesome)).to be false
+            expect(subject.represent({}, serializable: true)).to eq(
+              awesome: {
+                nested: 'value'
+              },
+              not_awesome: {
+                nested: nil
+              }
+            )
           end
         end
       end
@@ -848,12 +851,23 @@ describe Grape::Entity do
           expect { fresh_class.new(model).serializable_hash }.not_to raise_error
         end
 
-        it "does not expose attributes that don't exist on the object" do
+        it 'exposes values of private method calls' do
+          some_class = Class.new do
+            define_method :name do
+              true
+            end
+            private :name
+          end
+          fresh_class.expose :name, safe: true
+          expect(fresh_class.new(some_class.new).serializable_hash).to eq(name: true)
+        end
+
+        it "does expose attributes that don't exist on the object as nil" do
           fresh_class.expose :email, :nonexistent_attribute, :name, safe: true
 
           res = fresh_class.new(model).serializable_hash
           expect(res).to have_key :email
-          expect(res).not_to have_key :nonexistent_attribute
+          expect(res).to have_key :nonexistent_attribute
           expect(res).to have_key :name
         end
 
@@ -864,15 +878,15 @@ describe Grape::Entity do
           expect(res).to have_key :name
         end
 
-        it "does not expose attributes that don't exist on the object, even with criteria" do
+        it "does expose attributes that don't exist on the object as nil if criteria is true" do
           fresh_class.expose :email
-          fresh_class.expose :nonexistent_attribute, safe: true, if: -> { false }
-          fresh_class.expose :nonexistent_attribute2, safe: true, if: -> { true }
+          fresh_class.expose :nonexistent_attribute, safe: true, if: ->(_obj, _opts) { false }
+          fresh_class.expose :nonexistent_attribute2, safe: true, if: ->(_obj, _opts) { true }
 
           res = fresh_class.new(model).serializable_hash
           expect(res).to have_key :email
           expect(res).not_to have_key :nonexistent_attribute
-          expect(res).not_to have_key :nonexistent_attribute2
+          expect(res).to have_key :nonexistent_attribute2
         end
       end
 

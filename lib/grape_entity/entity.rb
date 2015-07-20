@@ -42,7 +42,7 @@ module Grape
   #     end
   #   end
   class Entity
-    attr_reader :object, :options
+    attr_reader :object, :delegator, :options
 
     # The Entity DSL allows you to mix entity functionality into
     # your existing classes.
@@ -104,6 +104,7 @@ module Grape
       # containing object, the values are the options that were passed into expose.
       # @return [Hash] of exposures
       attr_accessor :exposures
+      attr_accessor :root_exposures
       # Returns all formatters that are registered for this and it's ancestors
       # @return [Hash] of formatters
       attr_accessor :formatters
@@ -113,6 +114,7 @@ module Grape
 
     def self.inherited(subclass)
       subclass.exposures = exposures.try(:dup) || {}
+      subclass.root_exposures = root_exposures.try(:dup) || {}
       subclass.nested_exposures = nested_exposures.try(:dup) || {}
       subclass.nested_attribute_names = nested_attribute_names.try(:dup) || {}
       subclass.formatters = formatters.try(:dup) || {}
@@ -159,7 +161,9 @@ module Grape
 
       # rubocop:disable Style/Next
       args.each do |attribute|
-        unless @nested_attributes.empty?
+        if @nested_attributes.empty?
+          root_exposures[attribute] = options
+        else
           orig_attribute = attribute.to_sym
           attribute = "#{@nested_attributes.last}__#{attribute}".to_sym
           nested_attribute_names[attribute] = orig_attribute
@@ -391,6 +395,7 @@ module Grape
 
     def initialize(object, options = {})
       @object = object
+      @delegator = Delegator.new object
       @options = options
     end
 
@@ -398,10 +403,8 @@ module Grape
       self.class.exposures
     end
 
-    def valid_exposures
-      exposures.select do |attribute, exposure_options|
-        !exposure_options[:nested] && valid_exposure?(attribute, exposure_options)
-      end
+    def root_exposures
+      self.class.root_exposures
     end
 
     def documentation
@@ -424,7 +427,7 @@ module Grape
 
       opts = options.merge(runtime_options || {})
 
-      valid_exposures.each_with_object({}) do |(attribute, exposure_options), output|
+      root_exposures.each_with_object({}) do |(attribute, exposure_options), output|
         next unless should_return_attribute?(attribute, opts) && conditions_met?(exposure_options, opts)
 
         partial_output = value_for(attribute, opts)
@@ -536,6 +539,7 @@ module Grape
 
     def value_for(attribute, options = {})
       exposure_options = exposures[attribute.to_sym]
+      return unless valid_exposure?(attribute, exposure_options)
 
       if exposure_options[:using]
         exposure_options[:using] = exposure_options[:using].constantize if exposure_options[:using].respond_to? :constantize
@@ -573,27 +577,24 @@ module Grape
       name = self.class.name_for(attribute)
       if respond_to?(name, true)
         send(name)
-      elsif object.is_a?(Hash)
-        object[name]
-      elsif object.respond_to?(name, true)
-        object.send(name)
-      elsif object.respond_to?(:fetch, true)
-        object.fetch(name)
       else
-        begin
-          object.send(name)
-        rescue NoMethodError
-          raise NoMethodError, "#{self.class.name} missing attribute `#{name}' on #{object}"
-        end
+        delegator.delegate(name)
       end
     end
 
     def valid_exposure?(attribute, exposure_options)
-      (self.class.nested_exposures_for?(attribute) && self.class.nested_exposures[attribute].all? { |a, o| valid_exposure?(a, o) }) || \
-        exposure_options.key?(:proc) || \
-        !exposure_options[:safe] || \
-        object.respond_to?(self.class.name_for(attribute)) || \
-        object.is_a?(Hash) && object.key?(self.class.name_for(attribute))
+      if self.class.nested_exposures_for?(attribute)
+        self.class.nested_exposures[attribute].all? { |a, o| valid_exposure?(a, o) }
+      elsif exposure_options.key?(:proc)
+        true
+      else
+        name = self.class.name_for(attribute)
+        if exposure_options[:safe]
+          delegator.delegatable?(name)
+        else
+          delegator.delegatable?(name) || fail(NoMethodError, "#{self.class.name} missing attribute `#{name}' on #{object}")
+        end
+      end
     end
 
     def conditions_met?(exposure_options, options)
