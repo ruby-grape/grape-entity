@@ -1,5 +1,5 @@
-0.4.6 (Next)
-============
+0.4.6 (2015-07-27)
+==================
 
 * [#114](https://github.com/intridea/grape-entity/pull/114): Added 'only' option that selects which attributes should be returned - [@estevaoam](https://github.com/estevaoam).
 * [#115](https://github.com/intridea/grape-entity/pull/115): Allowing 'root' to be inherited from parent to child entities - [@guidoprincess](https://github.com/guidoprincess).
@@ -7,11 +7,10 @@
 * [#134](https://github.com/intridea/grape-entity/pull/134): Subclasses no longer affected in all cases by `unexpose` in parent - [@etehtsea](https://github.com/etehtsea).
 * [#135](https://github.com/intridea/grape-entity/pull/135): Added `except` option - [@dan-corneanu](https://github.com/dan-corneanu).
 * [#136](https://github.com/intridea/grape-entity/pull/136): Allow for strings in `only` and `except` options - [@bswinnerton](https://github.com/bswinnerton).
-* [#147](https://github.com/intridea/grape-entity/pull/147): Expose `safe` attributes as `nil` if they cannot be evaluated: [#140](https://github.com/intridea/grape-entity/issues/140).
-* [#147](https://github.com/intridea/grape-entity/pull/147): Fix: private method values were not exposed with `safe` option: [#142](https://github.com/intridea/grape-entity/pull/142).
-* [#147](https://github.com/intridea/grape-entity/pull/147): Remove catching of `NoMethodError` because it can occur deep inside in a method call so this exception does not mean that attribute not exist.
-* [#147](https://github.com/intridea/grape-entity/pull/147): `valid_exposures` is removed.
-* Your contribution here.
+* [#147](https://github.com/intridea/grape-entity/pull/147): Expose `safe` attributes as `nil` if they cannot be evaluated: [#140](https://github.com/intridea/grape-entity/issues/140) - [@marshall-lee](http://github.com/marshall-lee).
+* [#147](https://github.com/intridea/grape-entity/pull/147): Fix: private method values were not exposed with `safe` option: [#142](https://github.com/intridea/grape-entity/pull/142) - [@marshall-lee](http://github.com/marshall-lee).
+* [#147](https://github.com/intridea/grape-entity/pull/147): Remove catching of `NoMethodError` because it can occur deep inside in a method call so this exception does not mean that attribute not exist - [@marshall-lee](http://github.com/marshall-lee).
+* [#147](https://github.com/intridea/grape-entity/pull/147): `valid_exposures` is removed - [@marshall-lee](http://github.com/marshall-lee).
 
 0.4.5 (2015-03-10)
 ==================
