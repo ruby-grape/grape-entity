@@ -334,6 +334,32 @@ end
 ```
 **Notice**: In the above code, you should pay attention to [**Safe Exposure**](#safe-exposure) yourself, for example, `instance.address` might be `nil`, in this situation, it is better to expose it as nil directly.
 
+#### Attribute Path Tracking
+
+Sometimes, especially when there are nested attributes, you might want to know which attribute it
+is being exposed. For example, some APIs allow user provide a parameter to control which fields
+will be included in (or excluded from) the response.
+
+Grape entity can track the path of each attribute, then you could access it during condition check
+or runtime exposure, via `options[:attr_path]`.
+
+Attribute path is an array. The last item of this array is the name (alias) of current attribute.
+And if the attribute is nested, the former items are names (aliases) of its ancestor attributes.
+
+Here is an example shows what the attribute path will be.
+
+```ruby
+class Status < Grape::Entity
+  expose :user  # path is [:user]
+  expose :foo, as: :bar  # path is [:bar]
+  expose :a do
+    expose :b, as: :xx do
+      expose :c  # path is [:a, :xx, :c]
+    end
+  end
+end
+```
+
 ### Using the Exposure DSL
 
 Grape ships with a DSL to easily define entities within the context of an existing class:
