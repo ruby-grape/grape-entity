@@ -311,7 +311,7 @@ present s, with: Status, user: current_user
 ```
 
 #### Passing Additional Option To Nested Exposure
-There are sometimes that you want to pass additional option or parameter to nested exposure. Assume that you need to expose an address for a contact info, but it has both two different format: **full** and **simple**. You can pass an additional `full_format` option to specify that if the nested entity should render address in `:full` format.
+Sometimes you want to pass additional options or parameters to nested a exposure. For example, let's say that you need to expose an address for a contact info and it has two different formats: **full** and **simple**. You can pass an additional `full_format` option to specify which format to render.
 
 ```ruby
 # api/contact.rb
@@ -332,21 +332,21 @@ expose :stree do |instance, options|
   !!options[:full_format] ? instance.full_street_name : instance.simple_street_name
 end
 ```
-**Notice**: In the above code, you should pay attention to [**Safe Exposure**](#safe-exposure) yourself, for example, `instance.address` might be `nil`, in this situation, it is better to expose it as nil directly.
+**Notice**: In the above code, you should pay attention to [**Safe Exposure**](#safe-exposure) yourself. For example, `instance.address` might be `nil`  and it is better to expose it as nil directly.
 
 #### Attribute Path Tracking
 
-Sometimes, especially when there are nested attributes, you might want to know which attribute it
-is being exposed. For example, some APIs allow user provide a parameter to control which fields
+Sometimes, especially when there are nested attributes, you might want to know which attribute
+is being exposed. For example, some APIs allow users to provide a parameter to control which fields
 will be included in (or excluded from) the response.
 
-Grape entity can track the path of each attribute, then you could access it during condition check
-or runtime exposure, via `options[:attr_path]`.
+GrapeEntity can track the path of each attribute, which you can access during conditions checking
+or runtime exposure via `options[:attr_path]`.
 
-Attribute path is an array. The last item of this array is the name (alias) of current attribute.
-And if the attribute is nested, the former items are names (aliases) of its ancestor attributes.
+The attribute path is an array. The last item of this array is the name (alias) of current attribute.
+If the attribute is nested, the former items are names (aliases) of its ancestor attributes.
 
-Here is an example shows what the attribute path will be.
+Example:
 
 ```ruby
 class Status < Grape::Entity
