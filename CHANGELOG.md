@@ -1,6 +1,17 @@
 0.5.0 (Next)
 ============
 * [#139](https://github.com/intridea/grape-entity/pull/139): Keep a track of attribute nesting path during condition check or runtime exposure - [@calfzhou](https://github.com/calfzhou).
+* [#151](https://github.com/intridea/grape-entity/pull/151): `.exposures` is removed and substituted with `.root_exposures` array - [@marshall-lee](https://github.com/marshall-lee).
+* [#151](https://github.com/intridea/grape-entity/pull/151): `.nested_exposures` is removed too - [@marshall-lee](https://github.com/marshall-lee).
+* [#151](https://github.com/intridea/grape-entity/pull/151): `#should_return_attribute?`, `#only_fields` and `#except_fields` are moved to other classes - [@marshall-lee](https://github.com/marshall-lee).
+* [#151](https://github.com/intridea/grape-entity/pull/151): Fix: double exposures with conditions does not rewrite previously defined now: [#56](https://github.com/intridea/grape-entity/issues/56) - [@marshall-lee](https://github.com/marshall-lee).
+* [#151](https://github.com/intridea/grape-entity/pull/151): Fix: nested exposures were flattened in `.documentation`: [#112](https://github.com/intridea/grape-entity/issues/112) - [@marshall-lee](https://github.com/marshall-lee).
+* [#151](https://github.com/intridea/grape-entity/pull/151): Fix: `@only_fields` and `@except_fields` memoization: [#149](https://github.com/intridea/grape-entity/issues/149) - [@marshall-lee](https://github.com/marshall-lee).
+* [#151](https://github.com/intridea/grape-entity/pull/151): Fix: `:unless` condition with `Hash` argument logic: [#150](https://github.com/intridea/grape-entity/issues/150) - [@marshall-lee](https://github.com/marshall-lee).
+* [#151](https://github.com/intridea/grape-entity/pull/151): Nested `unexpose` now raises an exception: [#152](https://github.com/intridea/grape-entity/issues/152) - [@marshall-lee](https://github.com/marshall-lee).
+* [#151](https://github.com/intridea/grape-entity/pull/151): Fix: `@documentation` memoization: [#153](https://github.com/intridea/grape-entity/issues/153) - [@marshall-lee](https://github.com/marshall-lee).
+* [#151](https://github.com/intridea/grape-entity/pull/151): Fix: serializing of deeply nested presenter exposures: [#155](https://github.com/intridea/grape-entity/issues/155) - [@marshall-lee](https://github.com/marshall-lee).
+* [#151](https://github.com/intridea/grape-entity/pull/151): Fix: deep projections (`:only`, `:except`) were unaware of nesting: [#156](https://github.com/intridea/grape-entity/issues/156) - [@marshall-lee](https://github.com/marshall-lee).
 * Your contribution here.
 
 0.4.6 (2015-07-27)

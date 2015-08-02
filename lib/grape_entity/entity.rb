@@ -99,24 +99,14 @@ module Grape
     end
 
     class << self
-      # Returns exposures that have been declared for this Entity or
-      # ancestors. The keys are symbolized references to methods on the
-      # containing object, the values are the options that were passed into expose.
-      # @return [Hash] of exposures
-      attr_accessor :exposures
-      attr_accessor :root_exposures
+      attr_accessor :root_exposure
       # Returns all formatters that are registered for this and it's ancestors
       # @return [Hash] of formatters
       attr_accessor :formatters
-      attr_accessor :nested_attribute_names
-      attr_accessor :nested_exposures
     end
 
     def self.inherited(subclass)
-      subclass.exposures = exposures.try(:dup) || {}
-      subclass.root_exposures = root_exposures.try(:dup) || {}
-      subclass.nested_exposures = nested_exposures.try(:dup) || {}
-      subclass.nested_attribute_names = nested_attribute_names.try(:dup) || {}
+      subclass.root_exposure = root_exposure.try(:dup) || build_root_exposure
       subclass.formatters = formatters.try(:dup) || {}
     end
 
@@ -155,35 +145,68 @@ module Grape
 
       fail ArgumentError, 'You may not use block-setting when also using format_with' if block_given? && options[:format_with].respond_to?(:call)
 
-      options[:proc] = block if block_given? && block.parameters.any?
+      if block_given?
+        if block.parameters.any?
+          options[:proc] = block
+        else
+          options[:nesting] = true
+        end
+      end
 
-      @nested_attributes ||= []
+      @documentation = nil
+      @nesting_stack ||= []
 
       # rubocop:disable Style/Next
       args.each do |attribute|
-        if @nested_attributes.empty?
-          root_exposures[attribute] = options
+        exposure = Exposure.new(attribute, options)
+
+        if @nesting_stack.empty?
+          root_exposures << exposure
         else
-          orig_attribute = attribute.to_sym
-          attribute = "#{@nested_attributes.last}__#{attribute}".to_sym
-          nested_attribute_names[attribute] = orig_attribute
-          options[:nested] = true
-          nested_exposures.deep_merge!(@nested_attributes.last.to_sym  => { attribute => options })
+          @nesting_stack.last.nested_exposures << exposure
         end
 
-        exposures[attribute] = options
-
         # Nested exposures are given in a block with no parameters.
-        if block_given? && block.parameters.empty?
-          @nested_attributes << attribute
+        if exposure.nesting?
+          @nesting_stack << exposure
           block.call
-          @nested_attributes.pop
+          @nesting_stack.pop
         end
       end
     end
 
-    def self.unexpose(attribute)
-      exposures.delete(attribute)
+    def self.build_root_exposure
+      Exposure.new(nil, nesting: true)
+    end
+
+    # Returns exposures that have been declared for this Entity on the top level.
+    # @return [Array] of exposures
+    def self.root_exposures
+      root_exposure.nested_exposures
+    end
+
+    def self.find_exposure(attribute)
+      root_exposures.find_by(attribute)
+    end
+
+    def self.unexpose(*attributes)
+      cannot_unexpose! unless can_unexpose?
+      @documentation = nil
+      root_exposures.delete_by(*attributes)
+    end
+
+    def self.unexpose_all
+      cannot_unexpose! unless can_unexpose?
+      @documentation = nil
+      root_exposures.clear
+    end
+
+    def self.can_unexpose?
+      (@nesting_stack ||= []).empty?
+    end
+
+    def self.cannot_unexpose!
+      fail "You cannot call 'unexpose` inside of nesting exposure!"
     end
 
     # Set options that will be applied to any exposures declared inside the block.
@@ -205,9 +228,9 @@ module Grape
     # the values are document keys in the entity's documentation key. When calling
     # #docmentation, any exposure without a documentation key will be ignored.
     def self.documentation
-      @documentation ||= exposures.each_with_object({}) do |(attribute, exposure_options), memo|
-        if exposure_options[:documentation].present?
-          memo[key_for(attribute)] = exposure_options[:documentation]
+      @documentation ||= root_exposures.each_with_object({}) do |exposure, memo|
+        if exposure.documentation.present?
+          memo[exposure.key] = exposure.documentation
         end
       end
     end
@@ -363,7 +386,7 @@ module Grape
     def self.represent(objects, options = {})
       if objects.respond_to?(:to_ary) && ! @present_collection
         root_element =  root_element(:collection_root)
-        inner = objects.to_ary.map { |object| new(object, { collection: true }.merge(options)).presented }
+        inner = objects.to_ary.map { |object| new(object, options.reverse_merge(collection: true)).presented }
       else
         objects = { @collection_name => objects } if @present_collection
         root_element = root_element(:root)
@@ -396,15 +419,19 @@ module Grape
     def initialize(object, options = {})
       @object = object
       @delegator = Delegator.new object
-      @options = options
-    end
-
-    def exposures
-      self.class.exposures
+      @options = if options.is_a? Options
+                   options
+                 else
+                   Options.new options
+                 end
     end
 
     def root_exposures
       self.class.root_exposures
+    end
+
+    def root_exposure
+      self.class.root_exposure
     end
 
     def documentation
@@ -427,63 +454,26 @@ module Grape
 
       opts = options.merge(runtime_options || {})
 
-      root_exposures.each_with_object({}) do |(attribute, exposure_options), output|
-        parent_path = track_attr_path(attribute, opts)
-        if should_return_attribute?(attribute, opts) && conditions_met?(exposure_options, opts)
-          output[self.class.key_for(attribute)] = partial_hash(attribute, opts)
-        end
-        backtrack_attr_path(parent_path, opts)
-      end
+      root_exposure.serializable_value(self, opts)
     end
 
-    def should_return_attribute?(attribute, options)
-      key = self.class.key_for(attribute)
-      only = only_fields(options).nil? ||
-             only_fields(options).include?(key)
-      except = except_fields(options) && except_fields(options).include?(key) &&
-               except_fields(options)[key] == true
-      only && !except
+    def exec_with_object(options, &block)
+      instance_exec(object, options, &block)
     end
 
-    def only_fields(options, for_attribute = nil)
-      return nil unless options[:only]
-
-      @only_fields ||= options[:only].each_with_object({}) do |attribute, allowed_fields|
-        if attribute.is_a?(Hash)
-          attribute.each do |attr, nested_attrs|
-            allowed_fields[attr] ||= []
-            allowed_fields[attr] += nested_attrs
-          end
-        else
-          allowed_fields[attribute] = true
-        end
-      end.symbolize_keys
-
-      if for_attribute && @only_fields[for_attribute].is_a?(Array)
-        @only_fields[for_attribute]
-      elsif for_attribute.nil?
-        @only_fields
-      end
+    def exec_with_attribute(attribute, &block)
+      instance_exec(delegate_attribute(attribute), &block)
     end
 
-    def except_fields(options, for_attribute = nil)
-      return nil unless options[:except]
+    def value_for(key, options = Options.new)
+      root_exposure.valid_value_for(key, self, options)
+    end
 
-      @except_fields ||= options[:except].each_with_object({}) do |attribute, allowed_fields|
-        if attribute.is_a?(Hash)
-          attribute.each do |attr, nested_attrs|
-            allowed_fields[attr] ||= []
-            allowed_fields[attr] += nested_attrs
-          end
-        else
-          allowed_fields[attribute] = true
-        end
-      end.symbolize_keys
-
-      if for_attribute && @except_fields[for_attribute].is_a?(Array)
-        @except_fields[for_attribute]
-      elsif for_attribute.nil?
-        @except_fields
+    def delegate_attribute(attribute)
+      if respond_to?(attribute, true)
+        send(attribute)
+      else
+        delegator.delegate(attribute)
       end
     end
 
@@ -499,173 +489,9 @@ module Grape
       serializable_hash(options).to_xml(options)
     end
 
-    protected
-
-    def self.name_for(attribute)
-      attribute = attribute.to_sym
-      nested_attribute_names[attribute] || attribute
-    end
-
-    def self.key_for(attribute)
-      exposures[attribute.to_sym][:as] || name_for(attribute)
-    end
-
-    def self.nested_exposures_for?(attribute)
-      nested_exposures.key?(attribute)
-    end
-
-    def nested_value_for(attribute, options)
-      nested_exposures = self.class.nested_exposures[attribute]
-      nested_attributes =
-        nested_exposures.map do |nested_attribute, nested_exposure_options|
-          parent_path = track_attr_path(nested_attribute, options)
-          begin
-            if conditions_met?(nested_exposure_options, options)
-              [self.class.key_for(nested_attribute), value_for(nested_attribute, options)]
-            end
-          ensure
-            backtrack_attr_path(parent_path, options)
-          end
-        end
-
-      Hash[nested_attributes.compact]
-    end
-
-    def self.path_for(attribute)
-      key_for(attribute)
-    end
-
-    def track_attr_path(attribute, options)
-      parent_path = options[:attr_path]
-      current_path = self.class.path_for(attribute)
-      options[:attr_path] = (parent_path || []).dup << current_path unless current_path.nil?
-      parent_path
-    end
-
-    def backtrack_attr_path(parent_path, options)
-      options[:attr_path] = parent_path
-    end
-
-    def value_for(attribute, options = {})
-      exposure_options = exposures[attribute.to_sym]
-      return unless valid_exposure?(attribute, exposure_options)
-
-      if exposure_options[:using]
-        exposure_options[:using] = exposure_options[:using].constantize if exposure_options[:using].respond_to? :constantize
-
-        using_options = options_for_using(attribute, options)
-
-        if exposure_options[:proc]
-          exposure_options[:using].represent(instance_exec(object, options, &exposure_options[:proc]), using_options)
-        else
-          exposure_options[:using].represent(delegate_attribute(attribute), using_options)
-        end
-
-      elsif exposure_options[:proc]
-        instance_exec(object, options, &exposure_options[:proc])
-
-      elsif exposure_options[:format_with]
-        format_with = exposure_options[:format_with]
-
-        if format_with.is_a?(Symbol) && formatters[format_with]
-          instance_exec(delegate_attribute(attribute), &formatters[format_with])
-        elsif format_with.is_a?(Symbol)
-          send(format_with, delegate_attribute(attribute))
-        elsif format_with.respond_to? :call
-          instance_exec(delegate_attribute(attribute), &format_with)
-        end
-
-      elsif self.class.nested_exposures_for?(attribute)
-        nested_value_for(attribute, options)
-      else
-        delegate_attribute(attribute)
-      end
-    end
-
-    def partial_hash(attribute, options = {})
-      partial_output = value_for(attribute, options)
-      if partial_output.respond_to?(:serializable_hash)
-        partial_output.serializable_hash(options)
-      elsif partial_output.is_a?(Array) && !partial_output.map { |o| o.respond_to?(:serializable_hash) }.include?(false)
-        partial_output.map(&:serializable_hash)
-      elsif partial_output.is_a?(Hash)
-        partial_output.each do |key, value|
-          partial_output[key] = value.serializable_hash if value.respond_to?(:serializable_hash)
-        end
-      else
-        partial_output
-      end
-    end
-
-    def delegate_attribute(attribute)
-      name = self.class.name_for(attribute)
-      if respond_to?(name, true)
-        send(name)
-      else
-        delegator.delegate(name)
-      end
-    end
-
-    def valid_exposure?(attribute, exposure_options)
-      if self.class.nested_exposures_for?(attribute)
-        self.class.nested_exposures[attribute].all? { |a, o| valid_exposure?(a, o) }
-      elsif exposure_options.key?(:proc)
-        true
-      else
-        name = self.class.name_for(attribute)
-        if exposure_options[:safe]
-          delegator.delegatable?(name)
-        else
-          delegator.delegatable?(name) || fail(NoMethodError, "#{self.class.name} missing attribute `#{name}' on #{object}")
-        end
-      end
-    end
-
-    def conditions_met?(exposure_options, options)
-      if_conditions = []
-      unless exposure_options[:if_extras].nil?
-        if_conditions.concat(exposure_options[:if_extras])
-      end
-      if_conditions << exposure_options[:if] unless exposure_options[:if].nil?
-
-      if_conditions.each do |if_condition|
-        case if_condition
-        when Hash then if_condition.each_pair { |k, v| return false if options[k.to_sym] != v }
-        when Proc then return false unless instance_exec(object, options, &if_condition)
-        when Symbol then return false unless options[if_condition]
-        end
-      end
-
-      unless_conditions = []
-      unless exposure_options[:unless_extras].nil?
-        unless_conditions.concat(exposure_options[:unless_extras])
-      end
-      unless_conditions << exposure_options[:unless] unless exposure_options[:unless].nil?
-
-      unless_conditions.each do |unless_condition|
-        case unless_condition
-        when Hash then unless_condition.each_pair { |k, v| return false if options[k.to_sym] == v }
-        when Proc then return false if instance_exec(object, options, &unless_condition)
-        when Symbol then return false if options[unless_condition]
-        end
-      end
-
-      true
-    end
-
-    def options_for_using(attribute, options)
-      using_options = options.dup
-      using_options.delete(:collection)
-      using_options[:root] = nil
-      using_options[:only] = only_fields(using_options, attribute)
-      using_options[:except] = except_fields(using_options, attribute)
-
-      using_options
-    end
-
     # All supported options.
     OPTIONS = [
-      :as, :if, :unless, :using, :with, :proc, :documentation, :format_with, :safe, :if_extras, :unless_extras
+      :rewrite, :as, :if, :unless, :using, :with, :proc, :documentation, :format_with, :safe, :attr_path, :if_extras, :unless_extras
     ].to_set.freeze
 
     # Merges the given options with current block options.
