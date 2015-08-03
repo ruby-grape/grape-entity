@@ -1467,6 +1467,10 @@ describe Grape::Entity do
         rep = EntitySpec::DelegatingEntity.new(friend)
         expect(rep.value_for(:name)).to eq 'cooler name'
         expect(rep.value_for(:email)).to eq 'joe@example.com'
+
+        another_friend = double('Friend', email: 'joe@example.com')
+        rep = EntitySpec::DelegatingEntity.new(another_friend)
+        expect(rep.value_for(:name)).to eq 'cooler name'
       end
 
       context 'using' do
