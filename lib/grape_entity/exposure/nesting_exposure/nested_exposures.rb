@@ -28,15 +28,25 @@ module Grape
             @exposures.clear
           end
 
-          delegate :each,
-                   :to_ary, :to_a,
-                   :[],
-                   :==,
-                   :size,
-                   :count,
-                   :length,
-                   :empty?,
-                   to: :@exposures
+          [
+            :each,
+            :to_ary, :to_a,
+            :all?,
+            :select,
+            :each_with_object,
+            :[],
+            :==,
+            :size,
+            :count,
+            :length,
+            :empty?
+          ].each do |name|
+            class_eval <<-RUBY, __FILE__, __LINE__
+              def #{name}(*args, &block)
+                @exposures.#{name}(*args, &block)
+              end
+            RUBY
+          end
 
           # Determine if we have any nesting exposures with the same name.
           def deep_complex_nesting?
