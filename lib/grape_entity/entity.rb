@@ -103,11 +103,16 @@ module Grape
       # Returns all formatters that are registered for this and it's ancestors
       # @return [Hash] of formatters
       attr_accessor :formatters
+      attr_accessor :inherited_entities
     end
+
+    @inherited_entities = []
 
     def self.inherited(subclass)
       subclass.root_exposure = root_exposure.try(:dup) || build_root_exposure
       subclass.formatters = formatters.try(:dup) || {}
+      inherited_entities << subclass
+      subclass.inherited_entities = []
     end
 
     # This method is the primary means by which you will declare what attributes
@@ -172,6 +177,10 @@ module Grape
           block.call
           @nesting_stack.pop
         end
+      end
+
+      inherited_entities.each do |entity|
+        entity.expose(*args, &block)
       end
     end
 
@@ -264,6 +273,10 @@ module Grape
     def self.format_with(name, &block)
       fail ArgumentError, 'You must pass a block for formatters' unless block_given?
       formatters[name.to_sym] = block
+
+      inherited_entities.each do |entity|
+        entity.format_with(name, &block)
+      end
     end
 
     # This allows you to set a root element name for your representation.

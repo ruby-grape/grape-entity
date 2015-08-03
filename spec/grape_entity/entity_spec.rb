@@ -272,6 +272,47 @@ describe Grape::Entity do
           expect(subject.represent({ name: 'bar' }, serializable: true)).to eq(email: nil, name: 'bar')
           expect(child_class.represent({ name: 'bar' }, serializable: true)).to eq(email: nil, name: 'foo')
         end
+
+        describe 'parent class reopening' do
+          it 'is supported' do
+            subject.expose :name
+            child_class = Class.new(subject)
+            subject.expose :email
+
+            object = OpenStruct.new(name: 'bar', email: 'foo@bar')
+            expected = { name: 'bar', email: 'foo@bar' }
+
+            expect(subject.represent(object, serializable: true)).to eq(expected)
+            expect(child_class.represent(object, serializable: true)).to eq(expected)
+          end
+
+          it 'puts exposures in the right order' do
+            subject.expose :x
+            child_class = Class.new(subject) do
+              expose :z
+            end
+            subject.expose :y
+            object = {
+              x: 1,
+              y: 2,
+              z: 3
+            }
+            expect(child_class.represent(object, serializable: true).keys).to eq([:x, :y, :z])
+          end
+
+          it 'just prepends parent class exposures to the inherited class' do
+            subject.expose :x
+            child_class = Class.new(subject) do
+              expose :y, proc: -> (_obj, _opts) { 'specific' }
+            end
+            subject.expose :y
+            object = {
+              x: 1,
+              y: 2
+            }
+            expect(child_class.represent(object, serializable: true)).to eq(x: 1, y: 'specific')
+          end
+        end
       end
 
       context 'register formatters' do
@@ -286,6 +327,13 @@ describe Grape::Entity do
         it 'inherits formatters from ancestors' do
           subject.format_with :timestamp, &date_formatter
           child_class = Class.new(subject)
+
+          expect(child_class.formatters).to eq subject.formatters
+        end
+
+        it 'inherits formatters from ancestors with reopening' do
+          child_class = Class.new(subject)
+          subject.format_with :timestamp, &date_formatter
 
           expect(child_class.formatters).to eq subject.formatters
         end
