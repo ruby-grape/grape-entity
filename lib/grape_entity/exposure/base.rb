@@ -46,7 +46,7 @@ module Grape
         end
 
         def valid?(entity)
-          is_delegatable = entity.delegator.delegatable?(@attribute)
+          is_delegatable = entity.delegator.delegatable?(@attribute) || entity.respond_to?(@attribute, true)
           if @is_safe
             is_delegatable
           else
