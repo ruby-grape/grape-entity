@@ -589,10 +589,11 @@ module Grape
         true
       else
         name = self.class.name_for(attribute)
+        is_delegatable = delegator.delegatable?(name) || respond_to?(name, true)
         if exposure_options[:safe]
-          delegator.delegatable?(name)
+          is_delegatable
         else
-          delegator.delegatable?(name) || fail(NoMethodError, "#{self.class.name} missing attribute `#{name}' on #{object}")
+          is_delegatable || fail(NoMethodError, "#{self.class.name} missing attribute `#{name}' on #{object}")
         end
       end
     end

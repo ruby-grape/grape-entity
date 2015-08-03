@@ -1,3 +1,7 @@
+0.4.7 (2015-08-03)
+==================
+* [#164](https://github.com/intridea/grape-entity/pull/164): Regression: entity instance methods were exposed with `NoMethodError`: [#163](https://github.com/intridea/grape-entity/issues/163) - [@marshall-lee](http://github.com/marshall-lee).
+
 0.4.6 (2015-07-27)
 ==================
 
