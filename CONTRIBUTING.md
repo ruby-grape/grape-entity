@@ -1,16 +1,16 @@
 Contributing to Grape-Entity
 ============================
 
-Grape-Entity is work of [many of contributors](https://github.com/intridea/grape-entity/graphs/contributors). You're encouraged to submit [pull requests](https://github.com/intridea/grape-entity/pulls), [propose features and discuss issues](https://github.com/intridea/grape-entity/issues). When in doubt, ask a question in the [Grape Google Group](http://groups.google.com/group/ruby-grape).
+Grape-Entity is work of [many of contributors](https://github.com/ruby-grape/grape-entity/graphs/contributors). You're encouraged to submit [pull requests](https://github.com/ruby-grape/grape-entity/pulls), [propose features and discuss issues](https://github.com/ruby-grape/grape-entity/issues). When in doubt, ask a question in the [Grape Google Group](http://groups.google.com/group/ruby-grape).
 
 #### Fork the Project
 
-Fork the [project on Github](https://github.com/intridea/grape-entity) and check out your copy.
+Fork the [project on Github](https://github.com/ruby-grape/grape-entity) and check out your copy.
 
 ```
 git clone https://github.com/contributor/grape-entity.git
 cd grape-entity
-git remote add upstream https://github.com/intridea/grape-entity.git
+git remote add upstream https://github.com/ruby-grape/grape-entity.git
 ```
 
 #### Create a Topic Branch
@@ -95,7 +95,7 @@ git push origin my-feature-branch -f
 Update the [CHANGELOG](CHANGELOG.md) with the pull request number. A typical entry looks as follows.
 
 ```
-* [#123](https://github.com/intridea/grape-entity/pull/123): Reticulated splines - [@contributor](https://github.com/contributor).
+* [#123](https://github.com/ruby-grape/grape-entity/pull/123): Reticulated splines - [@contributor](https://github.com/contributor).
 ```
 
 Amend your previous commit and force push the changes.
