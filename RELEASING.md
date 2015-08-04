@@ -12,7 +12,7 @@ bundle install
 rake
 ```
 
-Check that the last build succeeded in [Travis CI](https://travis-ci.org/intridea/grape-entity) for all supported platforms.
+Check that the last build succeeded in [Travis CI](https://travis-ci.org/ruby-grape/grape-entity) for all supported platforms.
 
 Increment the version, modify [lib/grape-entity/version.rb](lib/grape-entity/version.rb).
 

@@ -1,13 +1,13 @@
 # Grape::Entity
 
 [![Gem Version](http://img.shields.io/gem/v/grape-entity.svg)](http://badge.fury.io/rb/grape-entity)
-[![Build Status](http://img.shields.io/travis/intridea/grape-entity.svg)](https://travis-ci.org/intridea/grape-entity)
-[![Dependency Status](https://gemnasium.com/intridea/grape-entity.svg)](https://gemnasium.com/intridea/grape-entity)
-[![Code Climate](https://codeclimate.com/github/intridea/grape-entity.svg)](https://codeclimate.com/github/intridea/grape-entity)
+[![Build Status](http://img.shields.io/travis/ruby-grape/grape-entity.svg)](https://travis-ci.org/ruby-grape/grape-entity)
+[![Dependency Status](https://gemnasium.com/ruby-grape/grape-entity.svg)](https://gemnasium.com/ruby-grape/grape-entity)
+[![Code Climate](https://codeclimate.com/github/ruby-grape/grape-entity.svg)](https://codeclimate.com/github/ruby-grape/grape-entity)
 
 ## Introduction
 
-This gem adds Entity support to API frameworks, such as [Grape](https://github.com/intridea/grape). Grape's Entity is an API focused facade that sits on top of an object model.
+This gem adds Entity support to API frameworks, such as [Grape](https://github.com/ruby-grape/grape). Grape's Entity is an API focused facade that sits on top of an object model.
 
 ### Example
 
