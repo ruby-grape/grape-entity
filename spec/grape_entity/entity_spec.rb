@@ -323,6 +323,58 @@ describe Grape::Entity do
           expect(subject.represent(object).value_for(:size)).to eq object.class.to_s
         end
       end
+
+      context 'duplicate exposure names with conditional' do
+        it 'should return the correct result' do
+          class PhotoEntity < Grape::Entity
+            expose :photo_file
+          end
+
+          class SoundEntity < Grape::Entity
+            expose :sound_file
+          end
+
+          class MediaEntity < Grape::Entity
+            expose :media, using: SoundEntity, if: lambda { |object, _| object.sound? }
+            expose :media, using: PhotoEntity, if: lambda { |object, _| object.photo? }
+          end
+
+          class Photo
+            def photo_file
+              'photo_file'
+            end
+          end
+
+          class Sound
+            def sound_file
+              'sound_file'
+            end
+          end
+
+          class Media
+            attr_accessor :media
+
+            def initialize(media)
+              self.media = media
+            end
+
+            def photo?
+              media.is_a? Photo
+            end
+
+            def sound?
+              media.is_a? Sound
+            end
+          end
+
+          media_photo = Media.new(Photo.new)
+          media_sound = Media.new(Sound.new)
+
+          expect(MediaEntity.represent(media_photo, serializable: true)).to eql(media: {  photo_file: 'photo_file' })
+
+          expect(MediaEntity.represent(media_sound, serializable: true)).to eql(media: { sound_file: 'sound_file' })
+        end
+      end
     end
 
     describe '.unexpose' do
