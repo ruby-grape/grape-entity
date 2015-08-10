@@ -99,15 +99,26 @@ module Grape
     end
 
     class << self
-      attr_accessor :root_exposure
+      def root_exposure
+        @root_exposure ||= Exposure.new(nil, nesting: true)
+      end
+
+      attr_writer :root_exposure
+
       # Returns all formatters that are registered for this and it's ancestors
       # @return [Hash] of formatters
-      attr_accessor :formatters
+      def formatters
+        @formatters ||= {}
+      end
+
+      attr_writer :formatters
     end
 
+    @formatters = {}
+
     def self.inherited(subclass)
-      subclass.root_exposure = root_exposure.try(:dup) || build_root_exposure
-      subclass.formatters = formatters.try(:dup) || {}
+      subclass.root_exposure = root_exposure.dup
+      subclass.formatters = formatters.dup
     end
 
     # This method is the primary means by which you will declare what attributes
@@ -173,10 +184,6 @@ module Grape
           @nesting_stack.pop
         end
       end
-    end
-
-    def self.build_root_exposure
-      Exposure.new(nil, nesting: true)
     end
 
     # Returns exposures that have been declared for this Entity on the top level.

@@ -322,6 +322,26 @@ describe Grape::Entity do
           subject.expose(:size, format_with: :size_formatter)
           expect(subject.represent(object).value_for(:size)).to eq object.class.to_s
         end
+
+        it 'works global on Grape::Entity' do
+          Grape::Entity.format_with :size_formatter do |_date|
+            self.object.class.to_s
+          end
+          object = {}
+
+          subject.expose(:size, format_with: :size_formatter)
+          expect(subject.represent(object).value_for(:size)).to eq object.class.to_s
+        end
+      end
+
+      it 'works global on Grape::Entity' do
+        Grape::Entity.expose :a
+        object = { a: 11, b: 22 }
+        expect(Grape::Entity.represent(object).value_for(:a)).to eq 11
+        subject.expose :b
+        expect(subject.represent(object).value_for(:a)).to eq 11
+        expect(subject.represent(object).value_for(:b)).to eq 22
+        Grape::Entity.unexpose :a
       end
     end
 
@@ -369,6 +389,13 @@ describe Grape::Entity do
             end
           end
         end.to raise_error(/You cannot call 'unexpose`/)
+      end
+
+      it 'works global on Grape::Entity' do
+        Grape::Entity.expose :x
+        expect(Grape::Entity.root_exposures[0].attribute).to eq(:x)
+        Grape::Entity.unexpose :x
+        expect(Grape::Entity.root_exposures).to eq([])
       end
     end
 

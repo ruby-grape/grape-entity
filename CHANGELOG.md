@@ -14,6 +14,10 @@
 * [#151](https://github.com/ruby-grape/grape-entity/pull/151): Fix: deep projections (`:only`, `:except`) were unaware of nesting: [#156](https://github.com/ruby-grape/grape-entity/issues/156) - [@marshall-lee](https://github.com/marshall-lee).
 * Your contribution here.
 
+0.4.8 (2015-08-10)
+==================
+* [#167](https://github.com/ruby-grape/grape-entity/pull/167): Regression: global settings (exposures, formatters) on `Grape::Entity` should work: [#166](https://github.com/ruby-grape/grape-entity/issues/166) - [@marshall-lee](http://github.com/marshall-lee).
+
 0.4.7 (2015-08-03)
 ==================
 * [#164](https://github.com/ruby-grape/grape-entity/pull/164): Regression: entity instance methods were exposed with `NoMethodError`: [#163](https://github.com/ruby-grape/grape-entity/issues/163) - [@marshall-lee](http://github.com/marshall-lee).
