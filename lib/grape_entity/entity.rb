@@ -112,12 +112,18 @@ module Grape
       attr_accessor :nested_exposures
     end
 
+    @exposures = {}
+    @root_exposures = {}
+    @nested_exposures = {}
+    @nested_attribute_names = {}
+    @formatters = {}
+
     def self.inherited(subclass)
-      subclass.exposures = exposures.try(:dup) || {}
-      subclass.root_exposures = root_exposures.try(:dup) || {}
-      subclass.nested_exposures = nested_exposures.try(:dup) || {}
-      subclass.nested_attribute_names = nested_attribute_names.try(:dup) || {}
-      subclass.formatters = formatters.try(:dup) || {}
+      subclass.exposures = exposures.dup
+      subclass.root_exposures = root_exposures.dup
+      subclass.nested_exposures = nested_exposures.dup
+      subclass.nested_attribute_names = nested_attribute_names.dup
+      subclass.formatters = formatters.dup
     end
 
     # This method is the primary means by which you will declare what attributes
@@ -183,7 +189,10 @@ module Grape
     end
 
     def self.unexpose(attribute)
+      root_exposures.delete(attribute)
       exposures.delete(attribute)
+      nested_exposures.delete(attribute)
+      nested_attribute_names.delete(attribute)
     end
 
     # Set options that will be applied to any exposures declared inside the block.
