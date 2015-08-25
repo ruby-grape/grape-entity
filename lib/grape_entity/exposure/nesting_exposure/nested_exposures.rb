@@ -20,7 +20,7 @@ module Grape
 
           def delete_by(*attributes)
             reset_memoization!
-            @exposures.reject! { |e| e.attribute.in? attributes }
+            @exposures.reject! { |e| attributes.include? e.attribute }
           end
 
           def clear
@@ -52,7 +52,7 @@ module Grape
           def deep_complex_nesting?
             if @deep_complex_nesting.nil?
               all_nesting = select(&:nesting?)
-              @deep_complex_nesting = all_nesting.group_by(&:key).any? { |_key, exposures| exposures.many? }
+              @deep_complex_nesting = all_nesting.group_by(&:key).any? { |_key, exposures| exposures.length > 1 }
             else
               @deep_complex_nesting
             end
