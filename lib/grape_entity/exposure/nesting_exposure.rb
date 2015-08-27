@@ -63,7 +63,10 @@ module Grape
         end
 
         # if we have any nesting exposures with the same name.
-        delegate :deep_complex_nesting?, to: :nested_exposures
+        # delegate :deep_complex_nesting?, to: :nested_exposures
+        def deep_complex_nesting?
+          nested_exposures.deep_complex_nesting?
+        end
 
         private
 
