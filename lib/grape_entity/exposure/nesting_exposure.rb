@@ -57,7 +57,15 @@ module Grape
           normalized_exposures(entity, new_options).each_with_object({}) do |exposure, output|
             exposure.with_attr_path(entity, new_options) do
               result = exposure.serializable_value(entity, new_options)
-              output[exposure.key] = result
+
+              exposure_key = exposure.key.to_s
+              actual_key = if exposure_key.start_with?('__')
+                             entity.delegate_attribute(exposure_key[2..-1].to_sym)
+                           else
+                             exposure.key
+                           end
+
+              output[actual_key] = result
             end
           end
         end

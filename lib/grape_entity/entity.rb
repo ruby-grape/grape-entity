@@ -498,7 +498,7 @@ module Grape
 
     # All supported options.
     OPTIONS = [
-      :rewrite, :as, :if, :unless, :using, :with, :proc, :documentation, :format_with, :safe, :attr_path, :if_extras, :unless_extras
+      :rewrite, :as, :if, :unless, :using, :with, :proc, :documentation, :format_with, :safe, :attr_path, :if_extras, :unless_extras, :combine
     ].to_set.freeze
 
     # Merges the given options with current block options.

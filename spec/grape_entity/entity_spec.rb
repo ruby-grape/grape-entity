@@ -842,6 +842,34 @@ describe Grape::Entity do
             expect(representation).to eq(id: nil, name: nil, user: { id: nil, name: nil, email: nil })
           end
         end
+
+        context 'dynamic attribute' do
+          it 'determines the attribute value during representation' do
+            element_entity = Class.new(Grape::Entity)
+            element_entity.expose(:__date) do
+              element_entity.expose :fname, as: :first_name
+              element_entity.expose :last_name
+            end
+
+            collection_entity = Class.new(Grape::Entity)
+            collection_entity.present_collection(true)
+            collection_entity.expose(:items, using: element_entity, combine: :merge)
+
+            values = [
+              OpenStruct.new(date: '2015-09-01', fname: 'First', last_name: 'L.'),
+              OpenStruct.new(date: '2015-08-01', fname: 'F.', last_name: 'Last')
+            ]
+
+            serialized = collection_entity.represent(values).serializable_hash
+
+            expect(
+              serialized[:items]
+            ).to eq({
+                      '2015-09-01' => { first_name: 'First', last_name: 'L.' },
+                      '2015-08-01' => { first_name: 'F.', last_name: 'Last' }
+                    })
+          end
+        end
       end
     end
 
