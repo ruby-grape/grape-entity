@@ -336,7 +336,7 @@ module Grape
     #
     #       class Users < Grape::Entity
     #         present_collection true
-    #         expose :items, as: 'users', using: API::Entities::Users
+    #         expose :items, as: 'users', using: API::Entities::User
     #         expose :version, documentation: { type: 'string',
     #                                           desc: 'actual api version',
     #                                           required: true }
