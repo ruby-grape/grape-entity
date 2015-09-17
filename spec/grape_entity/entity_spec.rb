@@ -1063,6 +1063,20 @@ describe Grape::Entity do
           expect(res).to have_key :name
         end
 
+        context "when used with format_with" do
+          it "does expose attributes that don't exist on the object as nil" do
+            fresh_class.format_with :date_formatter do |date|
+              date.iso8601
+            end
+
+            model = {}
+
+            fresh_class.expose(:timestamp, format_with: :date_formatter, safe: true)
+            res = fresh_class.new(model).serializable_hash
+            expect(res).to have_key :timestamp
+          end
+        end
+
         it 'does expose attributes marked as safe if model is a hash object' do
           fresh_class.expose :name, safe: true
 
