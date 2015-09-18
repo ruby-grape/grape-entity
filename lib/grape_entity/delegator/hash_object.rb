@@ -5,6 +5,10 @@ module Grape
         def delegate(attribute)
           object[attribute]
         end
+
+        def delegatable?(attribute)
+          object.key? attribute
+        end
       end
     end
   end
