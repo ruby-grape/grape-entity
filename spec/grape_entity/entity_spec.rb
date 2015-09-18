@@ -1054,13 +1054,20 @@ describe Grape::Entity do
           expect(fresh_class.new(some_class.new).serializable_hash).to eq(name: true)
         end
 
-        it "does expose attributes that don't exist on the object as nil" do
+        it "does expose attributes that don't exist on the object" do
           fresh_class.expose :email, :nonexistent_attribute, :name, safe: true
 
           res = fresh_class.new(model).serializable_hash
           expect(res).to have_key :email
           expect(res).to have_key :nonexistent_attribute
           expect(res).to have_key :name
+        end
+
+        it "does expose attributes that don't exist on the object as nil" do
+          fresh_class.expose :email, :nonexistent_attribute, :name, safe: true
+
+          res = fresh_class.new(model).serializable_hash
+          expect(res[:nonexistent_attribute]).to eq(nil)
         end
 
         it 'does expose attributes marked as safe if model is a hash object' do

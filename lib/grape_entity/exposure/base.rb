@@ -75,7 +75,7 @@ module Grape
         end
 
         def valid_value(entity, options)
-          valid?(entity) && value(entity, options)
+          value(entity, options) if valid?(entity)
         end
 
         def should_return_key?(options)
