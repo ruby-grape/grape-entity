@@ -414,7 +414,7 @@ class Status
 end
 ```
 
-If you organize your entities this way, Grape will automatically detect the `Entity` class and use it to present your models. In this example, if you added `present User.new` to your endpoint, Grape would automatically detect that there is a `Status::Entity` class and use that as the representative entity. This can still be overridden by using the `:with` option or an explicit `represents` call.
+If you organize your entities this way, Grape will automatically detect the `Entity` class and use it to present your models. In this example, if you added `present Status.new` to your endpoint, Grape would automatically detect that there is a `Status::Entity` class and use that as the representative entity. This can still be overridden by using the `:with` option or an explicit `represents` call.
 
 ### Caveats
 
