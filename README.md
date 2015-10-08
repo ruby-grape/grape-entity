@@ -327,7 +327,7 @@ end
 # api/address.rb
 expose :state, if: lambda {|instance, options| !!options[:full_format]}      # the new option could be retrieved in options hash for conditional exposure
 expose :city, if: lambda {|instance, options| !!options[:full_format]}
-expose :stree do |instance, options|
+expose :street do |instance, options|
   # the new option could be retrieved in options hash for runtime exposure
   !!options[:full_format] ? instance.full_street_name : instance.simple_street_name
 end
