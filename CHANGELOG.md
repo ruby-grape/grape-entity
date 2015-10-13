@@ -18,6 +18,8 @@
 * [#151](https://github.com/ruby-grape/grape-entity/pull/151): Fix: `@documentation` memoization: [#153](https://github.com/ruby-grape/grape-entity/issues/153) - [@marshall-lee](https://github.com/marshall-lee).
 * [#151](https://github.com/ruby-grape/grape-entity/pull/151): Fix: serializing of deeply nested presenter exposures: [#155](https://github.com/ruby-grape/grape-entity/issues/155) - [@marshall-lee](https://github.com/marshall-lee).
 * [#151](https://github.com/ruby-grape/grape-entity/pull/151): Fix: deep projections (`:only`, `:except`) were unaware of nesting: [#156](https://github.com/ruby-grape/grape-entity/issues/156) - [@marshall-lee](https://github.com/marshall-lee).
+* [#182](https://github.com/ruby-grape/grape-entity/pull/182): Fix: preserving options for `:only` and `:except` when merging new options into existing object: [#181](https://github.com/ruby-grape/grape-entity/issues/181) - [@Linell](https://github.com/Linell).
+* Your contribution here.
 
 0.4.8 (2015-08-10)
 ==================

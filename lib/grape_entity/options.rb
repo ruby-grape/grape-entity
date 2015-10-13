@@ -28,6 +28,13 @@ module Grape
                    else
                      @opts_hash.merge(new_opts)
                    end
+
+          only = opts_hash[:only]
+          merged[:only] = only unless only.nil? || only.empty?
+
+          except = opts_hash[:except]
+          merged[:except] = except unless only.nil? || only.empty?
+
           Options.new(merged)
         end
       end
