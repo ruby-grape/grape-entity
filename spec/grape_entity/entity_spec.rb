@@ -1054,7 +1054,7 @@ describe Grape::Entity do
           expect(fresh_class.new(some_class.new).serializable_hash).to eq(name: true)
         end
 
-        it "does expose attributes that don't exist on the object as nil" do
+        it "does expose attributes that don't exist on the object" do
           fresh_class.expose :email, :nonexistent_attribute, :name, safe: true
 
           res = fresh_class.new(model).serializable_hash
@@ -1063,7 +1063,14 @@ describe Grape::Entity do
           expect(res).to have_key :name
         end
 
-        context "when used with format_with" do
+        it "does expose attributes that don't exist on the object as nil" do
+          fresh_class.expose :email, :nonexistent_attribute, :name, safe: true
+
+          res = fresh_class.new(model).serializable_hash
+          expect(res[:nonexistent_attribute]).to eq(nil)
+        end
+
+        context 'when used with a formatter' do
           it "does expose attributes that don't exist on the object as nil" do
             fresh_class.format_with :date_formatter do |date|
               date.iso8601

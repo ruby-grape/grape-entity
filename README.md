@@ -327,7 +327,7 @@ end
 # api/address.rb
 expose :state, if: lambda {|instance, options| !!options[:full_format]}      # the new option could be retrieved in options hash for conditional exposure
 expose :city, if: lambda {|instance, options| !!options[:full_format]}
-expose :stree do |instance, options|
+expose :street do |instance, options|
   # the new option could be retrieved in options hash for runtime exposure
   !!options[:full_format] ? instance.full_street_name : instance.simple_street_name
 end
@@ -414,7 +414,7 @@ class Status
 end
 ```
 
-If you organize your entities this way, Grape will automatically detect the `Entity` class and use it to present your models. In this example, if you added `present User.new` to your endpoint, Grape would automatically detect that there is a `Status::Entity` class and use that as the representative entity. This can still be overridden by using the `:with` option or an explicit `represents` call.
+If you organize your entities this way, Grape will automatically detect the `Entity` class and use it to present your models. In this example, if you added `present Status.new` to your endpoint, Grape would automatically detect that there is a `Status::Entity` class and use that as the representative entity. This can still be overridden by using the `:with` option or an explicit `represents` call.
 
 ### Caveats
 

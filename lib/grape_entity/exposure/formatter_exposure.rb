@@ -17,6 +17,8 @@ module Grape
         end
 
         def value(entity, _options)
+          return nil if @is_safe && entity.delegate_attribute(attribute).nil?
+
           formatters = entity.class.formatters
           if formatters[@format_with]
             entity.exec_with_attribute(attribute, &formatters[@format_with])
