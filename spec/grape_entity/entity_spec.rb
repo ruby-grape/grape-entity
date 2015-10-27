@@ -274,6 +274,21 @@ describe Grape::Entity do
         end
       end
 
+      context 'declare meta' do
+        it 'sets meta data' do
+          subject.meta description: 'My favourite entity'
+
+          expect(subject.meta).to include(description: 'My favourite entity')
+        end
+
+        it 'inherits meta from ancestors' do
+          subject.meta final: true
+          child_class = Class.new(subject)
+
+          expect(child_class.meta).to eq subject.meta
+        end
+      end
+
       context 'register formatters' do
         let(:date_formatter) { ->(date) { date.strftime('%m/%d/%Y') } }
 
