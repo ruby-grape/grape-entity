@@ -15,6 +15,7 @@ This gem adds Entity support to API frameworks, such as [Grape](https://github.c
 module API
   module Entities
     class Status < Grape::Entity
+      meta description: "My Status"
       format_with(:iso_timestamp) { |dt| dt.iso8601 }
 
       expose :user_name
@@ -57,6 +58,16 @@ Entities are a reusable means for converting Ruby objects to API responses. Enti
 ### Defining Entities
 
 Entities inherit from Grape::Entity, and define a simple DSL. Exposures can use runtime options to determine which fields should be visible, these options are available to `:if`, `:unless`, and `:proc`.
+
+#### Metadata
+
+Entities may store custom metadata for documentation purposes.
+
+```ruby
+class MyEntity < Grape::Entity
+  meta custom: "data", other: "value"
+end
+```
 
 #### Basic Exposure
 
