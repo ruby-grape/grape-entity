@@ -1,5 +1,6 @@
-0.5.0 (Next)
-============
+0.5.0 (2015-12-07)
+==================
+
 * [#139](https://github.com/ruby-grape/grape-entity/pull/139): Keep a track of attribute nesting path during condition check or runtime exposure - [@calfzhou](https://github.com/calfzhou).
 * [#151](https://github.com/ruby-grape/grape-entity/pull/151): `.exposures` is removed and substituted with `.root_exposures` array - [@marshall-lee](https://github.com/marshall-lee).
 * [#151](https://github.com/ruby-grape/grape-entity/pull/151): `.nested_exposures` is removed too - [@marshall-lee](https://github.com/marshall-lee).
@@ -12,14 +13,15 @@
 * [#151](https://github.com/ruby-grape/grape-entity/pull/151): Fix: `@documentation` memoization: [#153](https://github.com/ruby-grape/grape-entity/issues/153) - [@marshall-lee](https://github.com/marshall-lee).
 * [#151](https://github.com/ruby-grape/grape-entity/pull/151): Fix: serializing of deeply nested presenter exposures: [#155](https://github.com/ruby-grape/grape-entity/issues/155) - [@marshall-lee](https://github.com/marshall-lee).
 * [#151](https://github.com/ruby-grape/grape-entity/pull/151): Fix: deep projections (`:only`, `:except`) were unaware of nesting: [#156](https://github.com/ruby-grape/grape-entity/issues/156) - [@marshall-lee](https://github.com/marshall-lee).
-* Your contribution here.
 
 0.4.8 (2015-08-10)
 ==================
+
 * [#167](https://github.com/ruby-grape/grape-entity/pull/167): Regression: global settings (exposures, formatters) on `Grape::Entity` should work: [#166](https://github.com/ruby-grape/grape-entity/issues/166) - [@marshall-lee](http://github.com/marshall-lee).
 
 0.4.7 (2015-08-03)
 ==================
+
 * [#164](https://github.com/ruby-grape/grape-entity/pull/164): Regression: entity instance methods were exposed with `NoMethodError`: [#163](https://github.com/ruby-grape/grape-entity/issues/163) - [@marshall-lee](http://github.com/marshall-lee).
 
 0.4.6 (2015-07-27)
