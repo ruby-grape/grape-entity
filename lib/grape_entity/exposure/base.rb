@@ -64,7 +64,11 @@ module Grape
           if partial_output.respond_to?(:serializable_hash)
             partial_output.serializable_hash(options)
           elsif partial_output.is_a?(Array) && partial_output.all? { |o| o.respond_to?(:serializable_hash) }
-            partial_output.map(&:serializable_hash)
+            if @options[:combine] == :merge
+              partial_output.reduce({}) { |memo, output| memo.merge(output.serializable_hash) }
+            else
+              partial_output.map(&:serializable_hash)
+            end
           elsif partial_output.is_a?(Hash)
             partial_output.each do |key, value|
               partial_output[key] = value.serializable_hash if value.respond_to?(:serializable_hash)
