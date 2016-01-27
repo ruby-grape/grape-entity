@@ -21,6 +21,7 @@ module Grape
           def delete_by(*attributes)
             reset_memoization!
             @exposures.reject! { |e| attributes.include? e.attribute }
+            @exposures
           end
 
           def clear
