@@ -3,6 +3,8 @@
 
 * Your contribution here.
 
+* [#204](https://github.com/ruby-grape/grape-entity/pull/204): Added ability to merge fields into hashes/root (`:merge` option for `.expose`): [#138](https://github.com/ruby-grape/grape-entity/issues/138) - [@avyy](https://github.com/avyy).
+
 0.5.0 (2015-12-07)
 ==================
 

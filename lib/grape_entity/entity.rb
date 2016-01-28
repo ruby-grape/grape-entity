@@ -146,6 +146,7 @@ module Grape
     #   block to the expose call to achieve the same effect.
     # @option options :documentation Define documenation for an exposed
     #   field, typically the value is a hash with two fields, type and desc.
+    # @option options :merge This option allows you to merge an exposed field to the root
     def self.expose(*args, &block)
       options = merge_options(args.last.is_a?(Hash) ? args.pop : {})
 
@@ -498,7 +499,7 @@ module Grape
 
     # All supported options.
     OPTIONS = [
-      :rewrite, :as, :if, :unless, :using, :with, :proc, :documentation, :format_with, :safe, :attr_path, :if_extras, :unless_extras
+      :rewrite, :as, :if, :unless, :using, :with, :proc, :documentation, :format_with, :safe, :attr_path, :if_extras, :unless_extras, :merge
     ].to_set.freeze
 
     # Merges the given options with current block options.
