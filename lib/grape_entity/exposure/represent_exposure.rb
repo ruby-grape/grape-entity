@@ -5,6 +5,7 @@ module Grape
         attr_reader :using_class_name, :subexposure
 
         def setup(using_class_name, subexposure)
+          @using_class = nil
           @using_class_name = using_class_name
           @subexposure = subexposure
         end
