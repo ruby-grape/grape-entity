@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Grape::Entity::Exposure::NestingExposure::NestedExposures do
-  subject { described_class.new([]) }
+  subject(:nested_exposures) { described_class.new([]) }
 
   describe '#deep_complex_nesting?' do
     it 'is reset when additional exposure is added' do
@@ -29,6 +29,28 @@ describe Grape::Entity::Exposure::NestingExposure::NestedExposures do
       expect(subject.instance_variable_get(:@deep_complex_nesting)).to_not be_nil
       subject.clear
       expect(subject.instance_variable_get(:@deep_complex_nesting)).to be_nil
+    end
+  end
+
+  describe '.delete_by' do
+    subject { nested_exposures.delete_by(*attributes) }
+
+    let(:attributes) { [:id] }
+
+    before do
+      nested_exposures << Grape::Entity::Exposure.new(:id, {})
+    end
+
+    it 'deletes matching exposure' do
+      is_expected.to eq []
+    end
+
+    context "when given attribute doesn't exists" do
+      let(:attributes) { [:foo] }
+
+      it 'deletes matching exposure' do
+        is_expected.to eq(nested_exposures)
+      end
     end
   end
 end
