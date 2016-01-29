@@ -30,11 +30,12 @@ module Grape
 
         def value(entity, options)
           new_options = nesting_options_for(options)
+          output = OutputBuilder.new
 
-          normalized_exposures(entity, new_options).each_with_object({}) do |exposure, output|
+          normalized_exposures(entity, new_options).each_with_object(output) do |exposure, out|
             exposure.with_attr_path(entity, new_options) do
               result = exposure.value(entity, new_options)
-              output[exposure.key] = result
+              out.add(exposure, result)
             end
           end
         end
@@ -53,11 +54,12 @@ module Grape
 
         def serializable_value(entity, options)
           new_options = nesting_options_for(options)
+          output = OutputBuilder.new
 
-          normalized_exposures(entity, new_options).each_with_object({}) do |exposure, output|
+          normalized_exposures(entity, new_options).each_with_object(output) do |exposure, out|
             exposure.with_attr_path(entity, new_options) do
               result = exposure.serializable_value(entity, new_options)
-              output[exposure.key] = result
+              out.add(exposure, result)
             end
           end
         end
@@ -126,3 +128,4 @@ module Grape
 end
 
 require 'grape_entity/exposure/nesting_exposure/nested_exposures'
+require 'grape_entity/exposure/nesting_exposure/output_builder'

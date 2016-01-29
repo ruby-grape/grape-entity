@@ -21,9 +21,10 @@ module API
       expose :text, documentation: { type: "String", desc: "Status update text." }
       expose :ip, if: { type: :full }
       expose :user_type, :user_id, if: lambda { |status, options| status.user.public? }
+      expose :location, merge: true
       expose :contact_info do
         expose :phone
-        expose :address, using: API::Entities::Address
+        expose :address, merge: true, using: API::Entities::Address
       end
       expose :digest do |status, options|
         Digest::MD5.hexdigest status.txt
@@ -151,6 +152,40 @@ As example:
  expose :collection_name, using: API::Entities::Items
 
 
+```
+
+#### Merge Fields
+
+Use `:merge` option to merge fields into the hash or into the root:
+
+```ruby
+expose :contact_info do
+  expose :phone
+  expose :address, merge: true, using: API::Entities::Address
+end
+
+expose :status, merge: true
+```
+
+This will return something like:
+
+```ruby
+{ contact_info: { phone: "88002000700", city: 'City 17', address_line: 'Block C' }, text: 'HL3', likes: 19 }
+```
+
+It also works with collections:
+
+```ruby
+expose :profiles do
+  expose :users, merge: true, using: API::Entities::User
+  expose :admins, merge: true, using: API::Entities::Admin
+end
+```
+
+Provide lambda to solve collisions:
+
+```ruby
+expose :status, merge: ->(key, old_val, new_val) { old_val + new_val if old_val && new_val }
 ```
 
 #### Runtime Exposure

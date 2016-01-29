@@ -35,6 +35,23 @@ describe Grape::Entity do
         end
       end
 
+      context 'with a :merge option' do
+        let(:nested_hash) do
+          { something: { like_nested_hash: true }, special: { like_nested_hash: '12' } }
+        end
+
+        it 'merges an exposure to the root' do
+          subject.expose(:something, merge: true)
+          expect(subject.represent(nested_hash).serializable_hash).to eq(nested_hash[:something])
+        end
+
+        it 'allows to solve collisions providing a lambda to a :merge option' do
+          subject.expose(:something, merge: true)
+          subject.expose(:special, merge: ->(_, v1, v2) { v1 && v2 ? 'brand new val' : v2 })
+          expect(subject.represent(nested_hash).serializable_hash).to eq(like_nested_hash: 'brand new val')
+        end
+      end
+
       context 'with a block' do
         it 'errors out if called with multiple attributes' do
           expect { subject.expose(:name, :email) { true } }.to raise_error ArgumentError
@@ -241,6 +258,30 @@ describe Grape::Entity do
               not_awesome: {
                 nested: nil
               }
+            )
+          end
+          it 'merges attriutes if :merge option is passed' do
+            user_entity = Class.new(Grape::Entity)
+            admin_entity = Class.new(Grape::Entity)
+            user_entity.expose(:id, :name)
+            admin_entity.expose(:id, :name)
+
+            subject.expose(:profiles) do
+              subject.expose(:users, merge: true, using: user_entity)
+              subject.expose(:admins, merge: true, using: admin_entity)
+            end
+
+            subject.expose :awesome do
+              subject.expose(:nested, merge: true) { |_| { just_a_key: 'value' } }
+              subject.expose(:another_nested, merge: true) { |_| { just_another_key: 'value' } }
+            end
+
+            additional_hash = { users: [{ id: 1, name: 'John' }, { id: 2, name: 'Jay' }],
+                                admins: [{ id: 3, name: 'Jack' }, { id: 4, name: 'James' }]
+                              }
+            expect(subject.represent(additional_hash).serializable_hash).to eq(
+              profiles: additional_hash[:users] + additional_hash[:admins],
+              awesome: { just_a_key: 'value', just_another_key: 'value' }
             )
           end
         end
@@ -863,7 +904,7 @@ describe Grape::Entity do
         subject.expose :my_items
 
         representation = subject.represent(4.times.map { Object.new }, serializable: true)
-        expect(representation).to be_kind_of(Hash)
+        expect(representation).to be_kind_of(Grape::Entity::Exposure::NestingExposure::OutputBuilder)
         expect(representation).to have_key :my_items
         expect(representation[:my_items]).to be_kind_of Array
         expect(representation[:my_items].size).to be 4
