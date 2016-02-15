@@ -1,4 +1,4 @@
-require 'multi_json'
+require 'json'
 require 'set'
 
 module Grape
@@ -489,7 +489,7 @@ module Grape
 
     def to_json(options = {})
       options = options.to_h if options && options.respond_to?(:to_h)
-      MultiJson.dump(serializable_hash(options))
+      JSON.dump(serializable_hash(options))
     end
 
     def to_xml(options = {})
