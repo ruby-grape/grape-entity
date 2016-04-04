@@ -1,10 +1,9 @@
-0.5.1 (Next)
-============
+0.5.1 (2016-4-4)
+================
 
 * [#202](https://github.com/ruby-grape/grape-entity/pull/202): Fix: Reset `@using_class` memoization on `.setup` - [@rngtng](https://github.com/rngtng).
 * [#203](https://github.com/ruby-grape/grape-entity/pull/203): `Grape::Entity::Exposure::NestingExposure::NestedExposures.delete_if` always returns exposures - [@rngtng](https://github.com/rngtng).
 * [#204](https://github.com/ruby-grape/grape-entity/pull/204), [#138](https://github.com/ruby-grape/grape-entity/issues/138): Added ability to merge fields into hashes/root (`:merge` option for `.expose`) - [@avyy](https://github.com/avyy).
-* Your contribution here.
 
 0.5.0 (2015-12-07)
 ==================
