@@ -12,6 +12,7 @@ group :development do
 end
 
 group :development, :test do
+  gem 'rake'
   gem 'json'
   gem 'rspec'
   gem 'rack-test', '~> 0.6.2', require: 'rack/test'
