@@ -7,6 +7,4 @@ require 'bundler'
 
 Bundler.require :default, :test
 
-require 'pry'
-
 RSpec.configure(&:raise_errors_for_deprecations!)
