@@ -1548,6 +1548,18 @@ describe Grape::Entity do
         expect(rep.value_for(:name)).to eq 'cooler name'
       end
 
+      it 'does not delegate to Kernel methods' do
+        module EntitySpec
+          class DelegatingEntity < Grape::Entity
+            expose :system
+          end
+        end
+
+        foo = double 'Foo', system: 'System'
+        rep = EntitySpec::DelegatingEntity.new foo
+        expect(rep.value_for(:system)).to eq 'System'
+      end
+
       context 'using' do
         before do
           module EntitySpec
