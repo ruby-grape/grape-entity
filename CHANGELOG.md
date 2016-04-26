@@ -1,7 +1,7 @@
 0.5.2 (Next)
 ============
 
-* [#215](https://github.com/ruby-grape/grape-entity/pull/217): `#delegate_attribute` should not delegate to methods included with `Kernel`. - [@maltoe](https://github.com/maltoe)
+* [#215](https://github.com/ruby-grape/grape-entity/pull/217): Fix: `#delegate_attribute` no longer delegates to methods included with `Kernel` - [@maltoe](https://github.com/maltoe).
 * Your contribution here.
 
 0.5.1 (2016-4-4)
