@@ -63,7 +63,7 @@ module Grape
           partial_output = valid_value(entity, options)
 
           if partial_output.respond_to?(:serializable_hash)
-            partial_output.serializable_hash(options)
+            partial_output.serializable_hash
           elsif partial_output.is_a?(Array) && partial_output.all? { |o| o.respond_to?(:serializable_hash) }
             partial_output.map(&:serializable_hash)
           elsif partial_output.is_a?(Hash)
