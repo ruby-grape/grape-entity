@@ -19,20 +19,24 @@ describe Grape::Entity::Hash do
       end
     end
 
-    entity = { post: '123456', 
-               city: 'city', 
-               street: 'street', 
+    entity = { post: '123456',
+               city: 'city',
+               street: 'street',
                house: 'house',
-               something_else: 'something_else' } 
+               something_else: 'something_else' }
 
-    expect(Address.represent(entity).serializable_hash).to eq entity.slice(:city, :street, :house)
-    expect(Address.represent(entity, full: true).serializable_hash).to eq entity.slice(:post, :city, :street, :house)
+    expect(Address.represent(entity).serializable_hash).to eq \
+      entity.slice(:city, :street, :house)
+    expect(Address.represent(entity, full: true).serializable_hash).to eq \
+      entity.slice(:post, :city, :street, :house)
 
     company = { full_name: 'full_name',
                 name: 'name',
                 address: entity.clone }
 
-    expect(Company.represent(company).serializable_hash).to eq company.slice(:name).merge(address: entity.slice(:city, :street, :house))
-    expect(Company.represent(company, full: true).serializable_hash).to eq company.slice(:full_name, :name).merge(address: entity.slice(:city, :street, :house))
-  end  
+    expect(Company.represent(company).serializable_hash).to eq \
+      company.slice(:name).merge(address: entity.slice(:city, :street, :house))
+    expect(Company.represent(company, full: true).serializable_hash).to eq \
+      company.slice(:full_name, :name).merge(address: entity.slice(:city, :street, :house))
+  end
 end
