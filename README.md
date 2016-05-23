@@ -318,6 +318,16 @@ with_options(format_with: :iso_timestamp) do
 end
 ```
 
+```ruby
+# Helper module for instance
+Grape::Entity.format_with :utc do |date|
+  date.utc if date
+end
+
+# Entity
+expose :updated_at, format_with: :utc
+```
+
 #### Documentation
 
 Expose documentation with the field. Gets bubbled up when used with Grape and various API documentation systems.
