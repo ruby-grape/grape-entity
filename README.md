@@ -311,10 +311,41 @@ expose :replies, using: API::Entities::Status, as: :responses
 Apply a formatter before exposing a value.
 
 ```ruby
-format_with(:iso_timestamp) { |dt| dt.iso8601 }
-with_options(format_with: :iso_timestamp) do
-  expose :created_at
-  expose :updated_at
+module Entities
+  class MyModel < Grape::Entity
+    format_with(:iso_timestamp) do |date| 
+      date.iso8601
+    end
+
+    with_options(format_with: :iso_timestamp) do
+      expose :created_at
+      expose :updated_at
+    end    
+  end
+end
+```
+
+Defining a reusable formatter between multiples entities:
+
+```ruby
+module ApiHelpers
+  extend Grape::API::Helpers
+
+  Grape::Entity.format_with :utc do |date|
+    date.utc if date
+  end
+end
+```
+
+```ruby
+module Entities
+  class MyModel < Grape::Entity
+    expose :updated_at, format_with: :utc
+  end
+
+  class AnotherModel < Grape::Entity
+    expose :created_at, format_with: :utc
+  end
 end
 ```
 
