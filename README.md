@@ -234,6 +234,26 @@ private
 end
 ```
 
+You can also add a method to the `Grape::Entity` class and reuse it in any entity:
+
+```ruby
+module Grape
+  class Entity
+    def foo(param)
+      # do something with param
+    end
+  end
+end
+
+module Entities
+  class ExampleEntity < Grape::Entity
+    expose :bar do |instance, _options|
+      foo(instance)
+    end
+  end
+end
+```
+
 #### Unexpose
 
 To undefine an exposed field, use the ```.unexpose``` method. Useful for modifying inherited entities.
