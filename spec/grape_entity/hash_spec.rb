@@ -22,7 +22,7 @@ describe Grape::Entity do
     company = {
       full_name: 'full_name',
       name: 'name',
-      address: { 
+      address: {
         post: '123456',
         city: 'city',
         street: 'street',
