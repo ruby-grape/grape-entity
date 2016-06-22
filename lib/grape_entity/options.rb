@@ -15,6 +15,10 @@ module Grape
         @opts_hash[key]
       end
 
+      def fetch(*args)
+        @opts_hash.fetch(*args)
+      end
+
       def key?(key)
         @opts_hash.key? key
       end
