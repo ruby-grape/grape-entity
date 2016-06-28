@@ -478,7 +478,7 @@ module Grape
     end
 
     def delegate_attribute(attribute)
-      if respond_to?(attribute, true) && method(attribute).owner == self.class
+      if respond_to?(attribute, true) && self.class.kind_of_entity?(method(attribute).owner)
         send(attribute)
       else
         delegator.delegate(attribute)
@@ -541,6 +541,13 @@ module Grape
 
       options[:using] = options.delete(:with) if options.key?(:with)
       options
+    end
+
+    private
+
+    def self.kind_of_entity?(_class)
+      @ancestors ||= self.ancestors - Grape::Entity.ancestors
+      @ancestors.include?(_class)
     end
   end
 end
