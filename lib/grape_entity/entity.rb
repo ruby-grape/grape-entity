@@ -478,7 +478,7 @@ module Grape
     end
 
     def delegate_attribute(attribute)
-      if respond_to?(attribute, true) && method(attribute).owner == self.class
+      if respond_to?(attribute, true) && Grape::Entity > method(attribute).owner
         send(attribute)
       else
         delegator.delegate(attribute)
