@@ -1523,12 +1523,13 @@ describe Grape::Entity do
         expect(subject.value_for(:fantasies)).to eq ['Nessy', 'Double Rainbows', 'Unicorns']
       end
 
-      it 'tries instance methods on the entity first' do
+      context 'delegate_attribute' do
         module EntitySpec
           class DelegatingEntity < Grape::Entity
             root 'friends', 'friend'
             expose :name
             expose :email
+            expose :system
 
             private
 
@@ -1538,46 +1539,32 @@ describe Grape::Entity do
           end
         end
 
-        friend = double('Friend', name: 'joe', email: 'joe@example.com')
-        rep = EntitySpec::DelegatingEntity.new(friend)
-        expect(rep.value_for(:name)).to eq 'cooler name'
-        expect(rep.value_for(:email)).to eq 'joe@example.com'
+        it 'tries instance methods on the entity first' do
+          friend = double('Friend', name: 'joe', email: 'joe@example.com')
+          rep = EntitySpec::DelegatingEntity.new(friend)
+          expect(rep.value_for(:name)).to eq 'cooler name'
+          expect(rep.value_for(:email)).to eq 'joe@example.com'
 
-        another_friend = double('Friend', email: 'joe@example.com')
-        rep = EntitySpec::DelegatingEntity.new(another_friend)
-        expect(rep.value_for(:name)).to eq 'cooler name'
-      end
+          another_friend = double('Friend', email: 'joe@example.com')
+          rep = EntitySpec::DelegatingEntity.new(another_friend)
+          expect(rep.value_for(:name)).to eq 'cooler name'
+        end
 
-      context 'delegate_attribute' do
-        it 'does not delegate to Kernel methods' do
-          module EntitySpec
-            class DelegatingEntity < Grape::Entity
-              expose :system
-            end
-          end
-
+        it 'Kernel methods does not delegate' do
           foo = double 'Foo', system: 'System'
           rep = EntitySpec::DelegatingEntity.new foo
           expect(rep.value_for(:system)).to eq 'System'
         end
 
-        it 'delegate work with derived entity' do
-          module EntitySpec
-            class DelegatingEntity < Grape::Entity
-              expose :attr_not_on_wrapped_object
-            private
-              def attr_not_on_wrapped_object
-                42
-              end
-            end
-
-            class DerivedEntity < DelegatingEntity
-            end
+        module EntitySpec
+          class DerivedEntity < DelegatingEntity
           end
+        end
 
-          foo = double 'Foo'
+        it 'derived entity get methods from base entity' do
+          foo = double 'Foo', name: 'joe'
           rep = EntitySpec::DerivedEntity.new foo
-          expect(rep.value_for(:attr_not_on_wrapped_object)).to eq 42
+          expect(rep.value_for(:name)).to eq 'cooler name'
         end
       end
 
