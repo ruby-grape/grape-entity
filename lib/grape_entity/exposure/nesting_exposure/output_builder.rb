@@ -25,6 +25,11 @@ module Grape
             end
           end
 
+          def kind_of?(klass)
+            klass == output.class || super
+          end
+          alias_method :is_a?, :kind_of?
+
           def __getobj__
             output
           end
