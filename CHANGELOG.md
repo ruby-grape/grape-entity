@@ -3,8 +3,8 @@
 
 * [#215](https://github.com/ruby-grape/grape-entity/pull/217): Fix: `#delegate_attribute` no longer delegates to methods included with `Kernel` - [@maltoe](https://github.com/maltoe).
 * [#219](https://github.com/ruby-grape/grape-entity/pull/219): Fix: double pass options in serializable_hash - [@sbatykov](https://github.com/sbatykov).
-* [#226](https://github.com/ruby-grape/grape-entity/pull/226): Add fetch method to fetch from opts_hash - [@alanjcfs](https://github.com/alanjcfs).
-* [#232](https://github.com/ruby-grape/grape-entity/pull/232): Add `#kind_of?` and `#is_a?` to `OutputBuilder` to get an exact class of an `output` object. [#213](https://github.com/ruby-grape/grape-entity/issues/213) - [@avyy](https://github.com/avyy).
+* [#226](https://github.com/ruby-grape/grape-entity/pull/226): Added fetch method to fetch from opts_hash - [@alanjcfs](https://github.com/alanjcfs).
+* [#232](https://github.com/ruby-grape/grape-entity/pull/232), [#213](https://github.com/ruby-grape/grape-entity/issues/213): Added `#kind_of?` and `#is_a?` to `OutputBuilder` to get an exact class of an `output` object - [@avyy](https://github.com/avyy).
 * Your contribution here.
 
 0.5.1 (2016-4-4)
