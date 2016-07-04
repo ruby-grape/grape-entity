@@ -905,6 +905,7 @@ describe Grape::Entity do
 
         representation = subject.represent(4.times.map { Object.new }, serializable: true)
         expect(representation).to be_kind_of(Grape::Entity::Exposure::NestingExposure::OutputBuilder)
+        expect(representation).to be_kind_of(Hash)
         expect(representation).to have_key :my_items
         expect(representation[:my_items]).to be_kind_of Array
         expect(representation[:my_items].size).to be 4
