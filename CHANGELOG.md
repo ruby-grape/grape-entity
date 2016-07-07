@@ -5,6 +5,7 @@
 * [#219](https://github.com/ruby-grape/grape-entity/pull/219): Fix: double pass options in serializable_hash - [@sbatykov](https://github.com/sbatykov).
 * [#226](https://github.com/ruby-grape/grape-entity/pull/226): Added fetch method to fetch from opts_hash - [@alanjcfs](https://github.com/alanjcfs).
 * [#232](https://github.com/ruby-grape/grape-entity/pull/232), [#213](https://github.com/ruby-grape/grape-entity/issues/213): Added `#kind_of?` and `#is_a?` to `OutputBuilder` to get an exact class of an `output` object - [@avyy](https://github.com/avyy).
+* [#234](https://github.com/ruby-grape/grape-entity/pull/234), [#233](https://github.com/ruby-grape/grape-entity/issues/233): Added ruby version checking in `Gemfile` to install needed gems versions for supporting old rubies too - [@avyy](https://github.com/avyy).
 * Your contribution here.
 
 0.5.1 (2016-4-4)

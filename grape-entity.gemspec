@@ -14,10 +14,8 @@ Gem::Specification.new do |s|
 
   s.rubyforge_project = 'grape-entity'
 
-  s.add_runtime_dependency 'activesupport', '< 5'
   s.add_runtime_dependency 'multi_json', '>= 1.3.2'
 
-  s.add_development_dependency 'rake'
   s.add_development_dependency 'maruku'
   s.add_development_dependency 'yard'
   s.add_development_dependency 'rspec', '~> 2.9'

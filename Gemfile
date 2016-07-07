@@ -2,6 +2,22 @@ source 'http://rubygems.org'
 
 gemspec
 
+current_ruby_version = Gem::Version.new(RUBY_VERSION)
+
+if Gem::Requirement.new('>= 2.2.2').satisfied_by? current_ruby_version
+  gem 'activesupport', '~> 5.0'
+  gem 'rack', '~> 2.0', group: [:development, :test]
+else
+  gem 'activesupport', '~> 4.0'
+  gem 'rack', '< 2', group: [:development, :test]
+end
+
+if Gem::Requirement.new('~> 2.0').satisfied_by? current_ruby_version
+  gem 'json', '~> 2.0', group: [:development, :test]
+else
+  gem 'json', '< 2', group: [:development, :test]
+end
+
 group :development do
   gem 'pry'
   gem 'guard'
@@ -13,9 +29,7 @@ end
 
 group :development, :test do
   gem 'rake'
-  gem 'json', '~> 1.8.3'
   gem 'rspec'
-  gem 'rack', '~> 1.6.4'
   gem 'rack-test', '~> 0.6.2', require: 'rack/test'
   gem 'rubocop', '0.31.0'
 end
