@@ -212,7 +212,7 @@ on the object the entity wraps.
 class ExampleEntity < Grape::Entity
   expose :attr_not_on_wrapped_object
   # ...
-private
+  private
 
   def attr_not_on_wrapped_object
     42
@@ -226,7 +226,7 @@ You have always access to the presented instance with `object`
 class ExampleEntity < Grape::Entity
   expose :formatted_value
   # ...
-private
+  private
 
   def formatted_value
     "+ X #{object.value}"
