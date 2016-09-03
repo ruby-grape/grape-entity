@@ -12,11 +12,7 @@ else
   gem 'rack', '< 2', group: [:development, :test]
 end
 
-if Gem::Requirement.new('~> 2.0').satisfied_by? current_ruby_version
-  gem 'json', '~> 2.0', group: [:development, :test]
-else
-  gem 'json', '< 2', group: [:development, :test]
-end
+gem 'json', '< 2', group: [:development, :test]
 
 group :development do
   gem 'pry'
@@ -32,4 +28,8 @@ group :development, :test do
   gem 'rspec'
   gem 'rack-test', '~> 0.6.2', require: 'rack/test'
   gem 'rubocop', '0.31.0'
+end
+
+group :test do
+  gem 'ruby-grape-danger', '~> 0.1.0', require: false
 end

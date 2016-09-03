@@ -6,6 +6,7 @@
 * [#226](https://github.com/ruby-grape/grape-entity/pull/226): Added fetch method to fetch from opts_hash - [@alanjcfs](https://github.com/alanjcfs).
 * [#232](https://github.com/ruby-grape/grape-entity/pull/232), [#213](https://github.com/ruby-grape/grape-entity/issues/213): Added `#kind_of?` and `#is_a?` to `OutputBuilder` to get an exact class of an `output` object - [@avyy](https://github.com/avyy).
 * [#234](https://github.com/ruby-grape/grape-entity/pull/234), [#233](https://github.com/ruby-grape/grape-entity/issues/233): Added ruby version checking in `Gemfile` to install needed gems versions for supporting old rubies too - [@avyy](https://github.com/avyy).
+* [#237](https://github.com/ruby-grape/grape-entity/pull/237): Added Danger, PR linter - [@dblock](https://github.com/dblock).
 * Your contribution here.
 
 0.5.1 (2016-4-4)
@@ -34,12 +35,12 @@
 0.4.8 (2015-08-10)
 ==================
 
-* [#167](https://github.com/ruby-grape/grape-entity/pull/167): Regression: global settings (exposures, formatters) on `Grape::Entity` should work: [#166](https://github.com/ruby-grape/grape-entity/issues/166) - [@marshall-lee](http://github.com/marshall-lee).
+* [#167](https://github.com/ruby-grape/grape-entity/pull/167), [#166](https://github.com/ruby-grape/grape-entity/issues/166): Regression with global settings (exposures, formatters) on `Grape::Entity` - [@marshall-lee](https://github.com/marshall-lee).
 
 0.4.7 (2015-08-03)
 ==================
 
-* [#164](https://github.com/ruby-grape/grape-entity/pull/164): Regression: entity instance methods were exposed with `NoMethodError`: [#163](https://github.com/ruby-grape/grape-entity/issues/163) - [@marshall-lee](http://github.com/marshall-lee).
+* [#164](https://github.com/ruby-grape/grape-entity/pull/164): Regression: entity instance methods were exposed with `NoMethodError`: [#163](https://github.com/ruby-grape/grape-entity/issues/163) - [@marshall-lee](https://github.com/marshall-lee).
 
 0.4.6 (2015-07-27)
 ==================
@@ -50,10 +51,10 @@
 * [#134](https://github.com/ruby-grape/grape-entity/pull/134): Subclasses no longer affected in all cases by `unexpose` in parent - [@etehtsea](https://github.com/etehtsea).
 * [#135](https://github.com/ruby-grape/grape-entity/pull/135): Added `except` option - [@dan-corneanu](https://github.com/dan-corneanu).
 * [#136](https://github.com/ruby-grape/grape-entity/pull/136): Allow for strings in `only` and `except` options - [@bswinnerton](https://github.com/bswinnerton).
-* [#147](https://github.com/ruby-grape/grape-entity/pull/147): Expose `safe` attributes as `nil` if they cannot be evaluated: [#140](https://github.com/ruby-grape/grape-entity/issues/140) - [@marshall-lee](http://github.com/marshall-lee).
-* [#147](https://github.com/ruby-grape/grape-entity/pull/147): Fix: private method values were not exposed with `safe` option: [#142](https://github.com/ruby-grape/grape-entity/pull/142) - [@marshall-lee](http://github.com/marshall-lee).
-* [#147](https://github.com/ruby-grape/grape-entity/pull/147): Remove catching of `NoMethodError` because it can occur deep inside in a method call so this exception does not mean that attribute not exist - [@marshall-lee](http://github.com/marshall-lee).
-* [#147](https://github.com/ruby-grape/grape-entity/pull/147): `valid_exposures` is removed - [@marshall-lee](http://github.com/marshall-lee).
+* [#147](https://github.com/ruby-grape/grape-entity/pull/147), [#140](https://github.com/ruby-grape/grape-entity/issues/140): Expose `safe` attributes as `nil` if they cannot be evaluated - [@marshall-lee](https://github.com/marshall-lee).
+* [#147](https://github.com/ruby-grape/grape-entity/pull/147), [#142](https://github.com/ruby-grape/grape-entity/pull/142): Fix: private method values were not exposed with `safe` option - [@marshall-lee](https://github.com/marshall-lee).
+* [#147](https://github.com/ruby-grape/grape-entity/pull/147): Remove catching of `NoMethodError` because it can occur deep inside in a method call so this exception does not mean that attribute not exist - [@marshall-lee](https://github.com/marshall-lee).
+* [#147](https://github.com/ruby-grape/grape-entity/pull/147): The `valid_exposures` method was removed - [@marshall-lee](https://github.com/marshall-lee).
 
 0.4.5 (2015-03-10)
 ==================
@@ -69,13 +70,13 @@
 ==================
 
 * [#85](https://github.com/ruby-grape/grape-entity/pull/85): Added `present_collection` to indicate that an `Entity` presents an entire Collection - [@dspaeth-faber](https://github.com/dspaeth-faber).
-* [#85](https://guthub.com/ruby-grape/grape-entity/pull/85): Hashes can now be passed as object to be presented and the `Hash` keys can be referenced by expose - [@dspaeth-faber](https://github.com/dspaeth-faber).
+* [#85](https://github.com/ruby-grape/grape-entity/pull/85): Hashes can now be passed as object to be presented and the `Hash` keys can be referenced by expose - [@dspaeth-faber](https://github.com/dspaeth-faber).
 
 0.4.3 (2014-06-12)
 ==================
 
 * [#77](https://github.com/ruby-grape/grape-entity/pull/77): Fix: compatibility with Rspec 3 - [@justfalter](https://github.com/justfalter).
-* [#76](https://github.com/ruby-grape/grape-entity/pull/76): Improve performance of entity serialization - [@justfalter](https://github.com/justfalter)
+* [#76](https://github.com/ruby-grape/grape-entity/pull/76): Improve performance of entity serialization - [@justfalter](https://github.com/justfalter).
 
 0.4.2 (2014-04-03)
 ==================
