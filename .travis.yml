@@ -3,20 +3,24 @@ sudo: false
 language: ruby
 
 cache: bundler
+
 bundler_args: --without development
 
 rvm:
-  - ruby-head
+  - 2.3.1
   - 2.3.0
   - 2.2
   - 2.1
   - 2.0.0
-  - 1.9.3
-  - jruby-19mode
+  - ruby-head
   - jruby-head
   - rbx-2
 
 matrix:
+  include:
+    - rvm: 2.3.1
+      script:
+        - bundle exec danger
   allow_failures:
     - rvm: ruby-head
     - rvm: jruby-head
