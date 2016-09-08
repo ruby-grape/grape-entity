@@ -478,11 +478,16 @@ module Grape
     end
 
     def delegate_attribute(attribute)
-      if respond_to?(attribute, true) && method(attribute).owner == self.class
+      if respond_to?(attribute, true) && entity_method?(attribute)
         send(attribute)
       else
         delegator.delegate(attribute)
       end
+    end
+
+    def entity_method?(attribute)
+      method_owner = method(attribute).owner
+      self.class == method_owner || self.class.ancestors[0..self.class.ancestors.find_index(Grape::Entity) - 1].include?(method_owner)
     end
 
     alias_method :as_json, :serializable_hash

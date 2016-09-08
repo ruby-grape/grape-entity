@@ -1561,6 +1561,26 @@ describe Grape::Entity do
         expect(rep.value_for(:system)).to eq 'System'
       end
 
+      it 'allows methods to be inherited' do
+        module EntitySpec
+          class ParentEntity < Grape::Entity
+            expose :parent
+
+            private
+
+            def parent
+              'I am the parent'
+            end
+          end
+
+          class ChildEntity < ParentEntity; end
+        end
+
+        foo = double('Foo', value: 'test')
+        rep = EntitySpec::ChildEntity.new foo
+        expect(rep.value_for(:parent)).to eq 'I am the parent'
+      end
+
       context 'using' do
         before do
           module EntitySpec
