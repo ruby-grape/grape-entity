@@ -7,7 +7,6 @@
 * [#232](https://github.com/ruby-grape/grape-entity/pull/232), [#213](https://github.com/ruby-grape/grape-entity/issues/213): Added `#kind_of?` and `#is_a?` to `OutputBuilder` to get an exact class of an `output` object - [@avyy](https://github.com/avyy).
 * [#234](https://github.com/ruby-grape/grape-entity/pull/234), [#233](https://github.com/ruby-grape/grape-entity/issues/233): Added ruby version checking in `Gemfile` to install needed gems versions for supporting old rubies too - [@avyy](https://github.com/avyy).
 * [#237](https://github.com/ruby-grape/grape-entity/pull/237): Added Danger, PR linter - [@dblock](https://github.com/dblock).
-* [#226](https://github.com/ruby-grape/grape-entity/pull/226): Add fetch method to fetch from opts_hash - [@alanjcfs](https://github.com/alanjcfs).
 * [#231](https://github.com/ruby-grape/grape-entity/pull/231), [#215](https://github.com/ruby-grape/grape-entity/issues/215): Fix: allow `delegate_attribute` for derived entity - [@sbatykov](https://github.com/sbatykov).
 * Your contribution here.
 
