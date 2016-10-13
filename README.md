@@ -547,4 +547,4 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## Copyright
 
-Copyright (c) 2010-2014 Michael Bleigh, Intridea, Inc., and contributors.
+Copyright (c) 2010-2016 Michael Bleigh, Intridea, Inc., and contributors.
