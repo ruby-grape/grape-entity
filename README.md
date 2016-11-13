@@ -444,7 +444,7 @@ The above will automatically create a `Status::Entity` class and define properti
 
 ### Using Entities
 
-With Grape, once an entity is defined, it can be used within endpoints, by calling `present`. The `present` method accepts two arguments, the `object` to be presented and the `options` associated with it. The options hash must always include `:with`, which defines the entity to expose.
+With Grape, once an entity is defined, it can be used within endpoints, by calling `present`. The `present` method accepts two arguments, the `object` to be presented and the `options` associated with it. The options hash must always include `:with`, which defines the entity to expose (unless namespaced entity classes are used, see [next section](#entity-organization)).
 If the entity includes documentation it can be included in an endpoint's description.
 
 ```ruby
