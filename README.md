@@ -313,7 +313,7 @@ Apply a formatter before exposing a value.
 ```ruby
 module Entities
   class MyModel < Grape::Entity
-    format_with(:iso_timestamp) do |date| 
+    format_with(:iso_timestamp) do |date|
       date.iso8601
     end
 
@@ -547,4 +547,4 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## Copyright
 
-Copyright (c) 2010-2014 Michael Bleigh, Intridea, Inc., and contributors.
+Copyright (c) 2010-2016 Michael Bleigh, Intridea, Inc., ruby-grape and Contributors.
