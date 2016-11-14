@@ -392,9 +392,17 @@ module Grape
     # @option options :only [Array] all the fields that should be returned
     # @option options :except [Array] all the fields that should not be returned
     def self.represent(objects, options = {})
-      if objects.respond_to?(:to_ary) && ! @present_collection
-        root_element =  root_element(:collection_root)
-        inner = objects.to_ary.map { |object| new(object, options.reverse_merge(collection: true)).presented }
+      collection_method_name = if objects.respond_to?(:to_ary)
+        :to_ary
+      elsif ! objects.nil? && ! objects.is_a?(Hash) && objects.respond_to?(:to_a)
+        :to_a
+      end
+
+      if collection_method_name && ! @present_collection
+        root_element = root_element(:collection_root)
+        inner = objects.send(collection_method_name).map do |object|
+          new(object, options.reverse_merge(collection: true)).presented
+        end
       else
         objects = { @collection_name => objects } if @present_collection
         root_element = root_element(:root)
