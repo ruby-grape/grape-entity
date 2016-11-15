@@ -17,6 +17,7 @@ module Grape
               # If we have an array which should not be merged - save it with a key as a hash
               # If we have hash which should be merged - save it without a key (merge)
               if exposure.for_merge
+                return unless result
                 @output_hash.merge! result, &merge_strategy(exposure.for_merge)
               else
                 @output_hash[exposure.key] = result
