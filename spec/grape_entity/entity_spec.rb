@@ -50,6 +50,18 @@ describe Grape::Entity do
           subject.expose(:special, merge: ->(_, v1, v2) { v1 && v2 ? 'brand new val' : v2 })
           expect(subject.represent(nested_hash).serializable_hash).to eq(like_nested_hash: 'brand new val')
         end
+
+        context 'and nested object is nil' do
+          let(:nested_hash) do
+            { something: nil, special: { like_nested_hash: '12' } }
+          end
+
+          it 'adds nothing to output' do
+            subject.expose(:something, merge: true)
+            subject.expose(:special)
+            expect(subject.represent(nested_hash).serializable_hash).to eq(special: { like_nested_hash: '12' })
+          end
+        end
       end
 
       context 'with a block' do
