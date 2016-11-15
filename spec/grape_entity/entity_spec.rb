@@ -289,8 +289,7 @@ describe Grape::Entity do
             end
 
             additional_hash = { users: [{ id: 1, name: 'John' }, { id: 2, name: 'Jay' }],
-                                admins: [{ id: 3, name: 'Jack' }, { id: 4, name: 'James' }]
-                              }
+                                admins: [{ id: 3, name: 'Jack' }, { id: 4, name: 'James' }] }
             expect(subject.represent(additional_hash).serializable_hash).to eq(
               profiles: additional_hash[:users] + additional_hash[:admins],
               awesome: { just_a_key: 'value', just_another_key: 'value' }
@@ -354,20 +353,20 @@ describe Grape::Entity do
 
           subject.expose :birthday, format_with: :timestamp
 
-          model  = { birthday: Time.gm(2012, 2, 27) }
+          model = { birthday: Time.gm(2012, 2, 27) }
           expect(subject.new(double(model)).as_json[:birthday]).to eq '02/27/2012'
         end
 
         it 'formats an exposure with a :format_with lambda that returns a value from the entity instance' do
           object = {}
 
-          subject.expose(:size, format_with: ->(_value) { self.object.class.to_s })
+          subject.expose(:size, format_with: ->(_value) { object.class.to_s })
           expect(subject.represent(object).value_for(:size)).to eq object.class.to_s
         end
 
         it 'formats an exposure with a :format_with symbol that returns a value from the entity instance' do
           subject.format_with :size_formatter do |_date|
-            self.object.class.to_s
+            object.class.to_s
           end
 
           object = {}
@@ -378,7 +377,7 @@ describe Grape::Entity do
 
         it 'works global on Grape::Entity' do
           Grape::Entity.format_with :size_formatter do |_date|
-            self.object.class.to_s
+            object.class.to_s
           end
           object = {}
 
@@ -609,14 +608,14 @@ describe Grape::Entity do
       end
 
       it 'returns multiple entities if called with a collection' do
-        representation = subject.represent(4.times.map { Object.new })
+        representation = subject.represent(Array.new(4) { Object.new })
         expect(representation).to be_kind_of Array
         expect(representation.size).to eq(4)
         expect(representation.reject { |r| r.is_a?(subject) }).to be_empty
       end
 
       it 'adds the collection: true option if called with a collection' do
-        representation = subject.represent(4.times.map { Object.new })
+        representation = subject.represent(Array.new(4) { Object.new })
         representation.each { |r| expect(r.options[:collection]).to be true }
       end
 
@@ -628,7 +627,7 @@ describe Grape::Entity do
 
       it 'returns a serialized array of hashes of multiple objects if serializable: true' do
         subject.expose(:awesome) { |_| true }
-        representation = subject.represent(2.times.map { Object.new }, serializable: true)
+        representation = subject.represent(Array.new(2) { Object.new }, serializable: true)
         expect(representation).to eq([{ awesome: true }, { awesome: true }])
       end
 
@@ -903,7 +902,7 @@ describe Grape::Entity do
         subject.present_collection true
         subject.expose :items
 
-        representation = subject.represent(4.times.map { Object.new })
+        representation = subject.represent(Array.new(4) { Object.new })
         expect(representation).to be_kind_of(subject)
         expect(representation.object).to be_kind_of(Hash)
         expect(representation.object).to have_key :items
@@ -915,7 +914,7 @@ describe Grape::Entity do
         subject.present_collection true, :my_items
         subject.expose :my_items
 
-        representation = subject.represent(4.times.map { Object.new }, serializable: true)
+        representation = subject.represent(Array.new(4) { Object.new }, serializable: true)
         expect(representation).to be_kind_of(Grape::Entity::Exposure::NestingExposure::OutputBuilder)
         expect(representation).to be_kind_of(Hash)
         expect(representation).to have_key :my_items
@@ -941,7 +940,7 @@ describe Grape::Entity do
 
         context 'with an array of objects' do
           it 'allows a root element name to be specified' do
-            representation = subject.represent(4.times.map { Object.new })
+            representation = subject.represent(Array.new(4) { Object.new })
             expect(representation).to be_kind_of Hash
             expect(representation).to have_key 'things'
             expect(representation['things']).to be_kind_of Array
@@ -952,13 +951,13 @@ describe Grape::Entity do
 
         context 'it can be overridden' do
           it 'can be disabled' do
-            representation = subject.represent(4.times.map { Object.new }, root: false)
+            representation = subject.represent(Array.new(4) { Object.new }, root: false)
             expect(representation).to be_kind_of Array
             expect(representation.size).to eq 4
             expect(representation.reject { |r| r.is_a?(subject) }).to be_empty
           end
           it 'can use a different name' do
-            representation = subject.represent(4.times.map { Object.new }, root: 'others')
+            representation = subject.represent(Array.new(4) { Object.new }, root: 'others')
             expect(representation).to be_kind_of Hash
             expect(representation).to have_key 'others'
             expect(representation['others']).to be_kind_of Array
@@ -984,7 +983,7 @@ describe Grape::Entity do
 
         context 'with an array of objects' do
           it 'allows a root element name to be specified' do
-            representation = subject.represent(4.times.map { Object.new })
+            representation = subject.represent(Array.new(4) { Object.new })
             expect(representation).to be_kind_of Array
             expect(representation.size).to eq 4
             expect(representation.reject { |r| r.is_a?(subject) }).to be_empty
@@ -1005,7 +1004,7 @@ describe Grape::Entity do
 
         context 'with an array of objects' do
           it 'allows a root element name to be specified' do
-            representation = subject.represent(4.times.map { Object.new })
+            representation = subject.represent(Array.new(4) { Object.new })
             expect(representation).to be_kind_of Hash
             expect(representation).to have_key('things')
             expect(representation['things']).to be_kind_of Array
@@ -1030,7 +1029,7 @@ describe Grape::Entity do
 
         it 'inherits array root root' do
           child_class = Class.new(subject)
-          representation = child_class.represent(4.times.map { Object.new })
+          representation = child_class.represent(Array.new(4) { Object.new })
           expect(representation).to be_kind_of Hash
           expect(representation).to have_key('things')
           expect(representation['things']).to be_kind_of Array

@@ -2,6 +2,7 @@
 
 #### Features
 
+* [#247](https://github.com/ruby-grape/grape-entity/pull/247): Updates dependencies; refactores to make specs green - [@LeFnord](https://github.com/LeFnord).
 * Your contribution here.
 
 #### Fixes

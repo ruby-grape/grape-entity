@@ -54,11 +54,11 @@ module Grape
       end
 
       def ==(other)
-        if other.is_a? Options
-          @opts_hash == other.opts_hash
-        else
-          @opts_hash == other
-        end
+        @opts_hash == if other.is_a? Options
+                        other.opts_hash
+                      else
+                        other
+                      end
       end
 
       def should_return_key?(key)
@@ -79,42 +79,20 @@ module Grape
         return nil unless @has_only
 
         @only_fields ||= @opts_hash[:only].each_with_object({}) do |attribute, allowed_fields|
-          if attribute.is_a?(Hash)
-            attribute.each do |attr, nested_attrs|
-              allowed_fields[attr] ||= []
-              allowed_fields[attr] += nested_attrs
-            end
-          else
-            allowed_fields[attribute] = true
-          end
-        end.symbolize_keys
-
-        if for_key && @only_fields[for_key].is_a?(Array)
-          @only_fields[for_key]
-        elsif for_key.nil?
-          @only_fields
+          build_symbolized_hash(attribute, allowed_fields)
         end
+
+        only_for_given(for_key, @only_fields)
       end
 
       def except_fields(for_key = nil)
         return nil unless @has_except
 
         @except_fields ||= @opts_hash[:except].each_with_object({}) do |attribute, allowed_fields|
-          if attribute.is_a?(Hash)
-            attribute.each do |attr, nested_attrs|
-              allowed_fields[attr] ||= []
-              allowed_fields[attr] += nested_attrs
-            end
-          else
-            allowed_fields[attribute] = true
-          end
-        end.symbolize_keys
-
-        if for_key && @except_fields[for_key].is_a?(Array)
-          @except_fields[for_key]
-        elsif for_key.nil?
-          @except_fields
+          build_symbolized_hash(attribute, allowed_fields)
         end
+
+        only_for_given(for_key, @except_fields)
       end
 
       def with_attr_path(part)
@@ -140,6 +118,28 @@ module Grape
         new_opts_hash[:attr_path] = opts_hash[:attr_path]
 
         Options.new(new_opts_hash)
+      end
+
+      def build_symbolized_hash(attribute, hash)
+        if attribute.is_a?(Hash)
+          attribute.each do |attr, nested_attrs|
+            hash[attr.to_sym] = build_symbolized_hash(nested_attrs, {})
+          end
+        elsif attribute.is_a?(Array)
+          return attribute.each { |x| build_symbolized_hash(x, {}) }
+        else
+          hash[attribute.to_sym] = true
+        end
+
+        hash
+      end
+
+      def only_for_given(key, fields)
+        if key && fields[key].is_a?(Array)
+          fields[key]
+        elsif key.nil?
+          fields
+        end
       end
     end
   end

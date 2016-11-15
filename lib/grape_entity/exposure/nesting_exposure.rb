@@ -107,11 +107,7 @@ module Grape
               # For the given key if the last candidates for exposing are nesting then combine them.
               nesting_tail = []
               exposures.reverse_each do |exposure|
-                if exposure.nesting?
-                  nesting_tail.unshift exposure
-                else
-                  break
-                end
+                nesting_tail.unshift exposure if exposure.nesting?
               end
               new_nested_exposures = nesting_tail.flat_map(&:nested_exposures)
               NestingExposure.new(key, {}, [], new_nested_exposures).tap do |new_exposure|

@@ -12,24 +12,20 @@ module Grape
             # Save a result array in collections' array if it should be merged
             if result.is_a?(Array) && exposure.for_merge
               @output_collection << result
-            else
-
+            elsif exposure.for_merge
               # If we have an array which should not be merged - save it with a key as a hash
               # If we have hash which should be merged - save it without a key (merge)
-              if exposure.for_merge
-                return unless result
-                @output_hash.merge! result, &merge_strategy(exposure.for_merge)
-              else
-                @output_hash[exposure.key] = result
-              end
-
+              return unless result
+              @output_hash.merge! result, &merge_strategy(exposure.for_merge)
+            else
+              @output_hash[exposure.key] = result
             end
           end
 
           def kind_of?(klass)
             klass == output.class || super
           end
-          alias_method :is_a?, :kind_of?
+          alias is_a? kind_of?
 
           def __getobj__
             output

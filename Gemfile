@@ -7,10 +7,7 @@ if RUBY_VERSION < '2.2.2'
   gem 'activesupport', '<5.0.0'
 end
 
-gem 'json', '< 2', group: [:development, :test]
-
 group :development, :test do
-  gem 'rubocop', '0.31.0'
   gem 'ruby-grape-danger', '~> 0.1.0', require: false
 end
 
