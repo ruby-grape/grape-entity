@@ -11,7 +11,7 @@ module Grape
         end
 
         def ==(other)
-          (self.class == other.class) && (self.inversed? == other.inversed?)
+          (self.class == other.class) && (inversed? == other.inversed?)
         end
 
         def inversed?
@@ -23,7 +23,7 @@ module Grape
         end
 
         def if_value(_entity, _options)
-          fail NotImplementedError
+          raise NotImplementedError
         end
 
         def unless_value(entity, options)

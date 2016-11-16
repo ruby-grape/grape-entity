@@ -151,11 +151,11 @@ module Grape
       options = merge_options(args.last.is_a?(Hash) ? args.pop : {})
 
       if args.size > 1
-        fail ArgumentError, 'You may not use the :as option on multi-attribute exposures.' if options[:as]
-        fail ArgumentError, 'You may not use block-setting on multi-attribute exposures.' if block_given?
+        raise ArgumentError, 'You may not use the :as option on multi-attribute exposures.' if options[:as]
+        raise ArgumentError, 'You may not use block-setting on multi-attribute exposures.' if block_given?
       end
 
-      fail ArgumentError, 'You may not use block-setting when also using format_with' if block_given? && options[:format_with].respond_to?(:call)
+      raise ArgumentError, 'You may not use block-setting when also using format_with' if block_given? && options[:format_with].respond_to?(:call)
 
       if block_given?
         if block.parameters.any?
@@ -214,7 +214,7 @@ module Grape
     end
 
     def self.cannot_unexpose!
-      fail "You cannot call 'unexpose` inside of nesting exposure!"
+      raise "You cannot call 'unexpose` inside of nesting exposure!"
     end
 
     # Set options that will be applied to any exposures declared inside the block.
@@ -270,7 +270,7 @@ module Grape
     #   end
     #
     def self.format_with(name, &block)
-      fail ArgumentError, 'You must pass a block for formatters' unless block_given?
+      raise ArgumentError, 'You must pass a block for formatters' unless block_given?
       formatters[name.to_sym] = block
     end
 
@@ -392,8 +392,8 @@ module Grape
     # @option options :only [Array] all the fields that should be returned
     # @option options :except [Array] all the fields that should not be returned
     def self.represent(objects, options = {})
-      if objects.respond_to?(:to_ary) && ! @present_collection
-        root_element =  root_element(:collection_root)
+      if objects.respond_to?(:to_ary) && !@present_collection
+        root_element = root_element(:collection_root)
         inner = objects.to_ary.map { |object| new(object, options.reverse_merge(collection: true)).presented }
       else
         objects = { @collection_name => objects } if @present_collection
@@ -485,7 +485,7 @@ module Grape
       end
     end
 
-    alias_method :as_json, :serializable_hash
+    alias as_json serializable_hash
 
     def to_json(options = {})
       options = options.to_h if options && options.respond_to?(:to_h)
@@ -536,7 +536,7 @@ module Grape
     # @param options [Hash] Exposure options.
     def self.valid_options(options)
       options.keys.each do |key|
-        fail ArgumentError, "#{key.inspect} is not a valid option." unless OPTIONS.include?(key)
+        raise ArgumentError, "#{key.inspect} is not a valid option." unless OPTIONS.include?(key)
       end
 
       options[:using] = options.delete(:with) if options.key?(:with)

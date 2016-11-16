@@ -3,25 +3,24 @@ sudo: false
 language: ruby
 
 cache: bundler
-
-bundler_args: --without development
-
-rvm:
-  - 2.3.1
-  - 2.3.0
-  - 2.2
-  - 2.1
-  - 2.0.0
-  - ruby-head
-  - jruby-head
-  - rbx-2
+bundler_args: --without test
 
 matrix:
   include:
     - rvm: 2.3.1
       script:
         - bundle exec danger
+    - rvm: 2.3.1
+    - rvm: 2.3.0
+    - rvm: 2.2
+    - rvm: 2.1
+    - rvm: ruby-head
+    - rvm: jruby-9.1.2.0
+    - rvm: jruby-head
+    - rvm: rbx-2
+
   allow_failures:
     - rvm: ruby-head
+    - rvm: jruby-9.1.2.0
     - rvm: jruby-head
     - rvm: rbx-2

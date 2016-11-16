@@ -51,12 +51,12 @@ module Grape
           if @is_safe
             is_delegatable
           else
-            is_delegatable || fail(NoMethodError, "#{entity.class.name} missing attribute `#{@attribute}' on #{entity.object}")
+            is_delegatable || raise(NoMethodError, "#{entity.class.name} missing attribute `#{@attribute}' on #{entity.object}")
           end
         end
 
         def value(_entity, _options)
-          fail NotImplementedError
+          raise NotImplementedError
         end
 
         def serializable_value(entity, options)
