@@ -112,13 +112,16 @@ module Grape
       end
 
       attr_writer :formatters
+      attr_writer :meta
     end
 
     @formatters = {}
+    @meta = {}
 
     def self.inherited(subclass)
       subclass.root_exposure = root_exposure.dup
       subclass.formatters = formatters.dup
+      subclass.meta = meta.dup
     end
 
     # This method is the primary means by which you will declare what attributes
@@ -272,6 +275,26 @@ module Grape
     def self.format_with(name, &block)
       raise ArgumentError, 'You must pass a block for formatters' unless block_given?
       formatters[name.to_sym] = block
+    end
+
+    # This allows you to declare meta data on the entity level, which can be useful for
+    # automated documentation.
+    #
+    # @param pairs [Hash] the name-value pairs to associate
+    #
+    # @example Meta declaration
+    #
+    #   module API
+    #     module Entities
+    #       class User < Grape::Entity
+    #         meta description: "My user entity"
+    #       end
+    #     end
+    #   end
+    #
+    def self.meta(pairs = nil)
+      @meta.update(pairs) if pairs.is_a?(Hash)
+      @meta
     end
 
     # This allows you to set a root element name for your representation.
@@ -448,6 +471,10 @@ module Grape
 
     def formatters
       self.class.formatters
+    end
+
+    def meta
+      self.class.meta
     end
 
     # The serializable hash is the Entity's primary output. It is the transformed
