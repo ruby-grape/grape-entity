@@ -1,4 +1,4 @@
-### Next
+### 0.6.0 (Next)
 
 #### Features
 
@@ -7,6 +7,7 @@
 
 #### Fixes
 
+* [#249](https://github.com/ruby-grape/grape-entity/issues/249): Fix leaking of options and internals in default serialization - [@dblock](https://github.com/dblock), [@KingsleyKelly](https://github.com/KingsleyKelly).
 * [#248](https://github.com/ruby-grape/grape-entity/pull/248): Fix `nil` values causing errors when `merge` option passed - [@arempe93](https://github.com/arempe93).
 * Your contribution here.
 

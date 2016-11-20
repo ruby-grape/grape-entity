@@ -1347,6 +1347,22 @@ describe Grape::Entity do
       end
     end
 
+    describe '#inspect' do
+      before do
+        fresh_class.class_eval do
+          expose :name, :email
+        end
+      end
+
+      it 'does not serialize delegator or options' do
+        data = subject.inspect
+        expect(data).to include 'name='
+        expect(data).to include 'email='
+        expect(data).to_not include '@options'
+        expect(data).to_not include '@delegator'
+      end
+    end
+
     describe '#value_for' do
       before do
         fresh_class.class_eval do
