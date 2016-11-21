@@ -1,15 +1,13 @@
-### 0.6.0 (Next)
+### 0.6.0 (2016-11-20)
 
 #### Features
 
 * [#247](https://github.com/ruby-grape/grape-entity/pull/247): Updates dependencies; refactores to make specs green - [@LeFnord](https://github.com/LeFnord).
-* Your contribution here.
 
 #### Fixes
 
 * [#249](https://github.com/ruby-grape/grape-entity/issues/249): Fix leaking of options and internals in default serialization - [@dblock](https://github.com/dblock), [@KingsleyKelly](https://github.com/KingsleyKelly).
 * [#248](https://github.com/ruby-grape/grape-entity/pull/248): Fix `nil` values causing errors when `merge` option passed - [@arempe93](https://github.com/arempe93).
-* Your contribution here.
 
 ### 0.5.2 (2016-11-14)
 
