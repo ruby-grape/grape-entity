@@ -1,3 +1,13 @@
+### 0.6.1 (Next)
+
+#### Features
+
+* Your contrbution here.
+
+#### Fixes
+
+* Your contrbution here.
+
 ### 0.6.0 (2016-11-20)
 
 #### Features
