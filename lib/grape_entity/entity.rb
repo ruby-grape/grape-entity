@@ -392,6 +392,7 @@ module Grape
     # @option options :only [Array] all the fields that should be returned
     # @option options :except [Array] all the fields that should not be returned
     def self.represent(objects, options = {})
+      @present_collection ||= nil
       if objects.respond_to?(:to_ary) && !@present_collection
         root_element = root_element(:collection_root)
         inner = objects.to_ary.map { |object| new(object, options.reverse_merge(collection: true)).presented }
@@ -409,8 +410,9 @@ module Grape
     # This method returns the entity's root or collection root node, or its parent's
     # @param root_type: either :collection_root or just :root
     def self.root_element(root_type)
-      if instance_variable_get("@#{root_type}")
-        instance_variable_get("@#{root_type}")
+      instance_variable = "@#{root_type}"
+      if instance_variable_defined?(instance_variable) && instance_variable_get(instance_variable)
+        instance_variable_get(instance_variable)
       elsif superclass.respond_to? :root_element
         superclass.root_element(root_type)
       end

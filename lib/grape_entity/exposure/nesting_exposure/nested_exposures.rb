@@ -7,6 +7,7 @@ module Grape
 
           def initialize(exposures)
             @exposures = exposures
+            @deep_complex_nesting = nil
           end
 
           def find_by(attribute)
