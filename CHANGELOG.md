@@ -2,11 +2,12 @@
 
 #### Features
 
-* Your contrbution here.
+* Your contribution here.
 
 #### Fixes
 
-* Your contrbution here.
+* [#251](https://github.com/ruby-grape/grape-entity/pull/251): Avoid noise when code runs with Ruby warnings - [@cpetschnig](https://github.com/cpetschnig).
+* Your contribution here.
 
 ### 0.6.0 (2016-11-20)
 
