@@ -2,6 +2,7 @@
 
 #### Features
 
+* [#253](https://github.com/ruby-grape/grape-entity/pull/253): Adds ruby 2.4.0 support, updates dependencies - [@LeFnord](https://github.com/LeFnord).
 * Your contribution here.
 
 #### Fixes
