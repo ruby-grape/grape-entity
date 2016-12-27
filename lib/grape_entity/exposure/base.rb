@@ -34,8 +34,7 @@ module Grape
             @conditions == other.conditions
         end
 
-        def setup
-        end
+        def setup; end
 
         def nesting?
           false

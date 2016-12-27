@@ -7,20 +7,19 @@ bundler_args: --without test
 
 matrix:
   include:
-    - rvm: 2.3.1
+    - rvm: 2.4.0
       script:
         - bundle exec danger
-    - rvm: 2.3.1
-    - rvm: 2.3.0
-    - rvm: 2.2
-    - rvm: 2.1
+    - rvm: 2.4.0
+    - rvm: 2.3.3
+    - rvm: 2.2.6
     - rvm: ruby-head
-    - rvm: jruby-9.1.2.0
+    - rvm: jruby-9.1.6.0
     - rvm: jruby-head
     - rvm: rbx-2
 
   allow_failures:
     - rvm: ruby-head
-    - rvm: jruby-9.1.2.0
+    - rvm: jruby-9.1.6.0
     - rvm: jruby-head
     - rvm: rbx-2

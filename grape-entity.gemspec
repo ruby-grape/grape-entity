@@ -12,10 +12,12 @@ Gem::Specification.new do |s|
   s.description = 'Extracted from Grape, A Ruby framework for rapid API development with great conventions.'
   s.license     = 'MIT'
 
+  s.required_ruby_version = '>= 2.2.6'
+
   s.rubyforge_project = 'grape-entity'
 
   s.add_runtime_dependency 'multi_json', '>= 1.3.2'
-  s.add_runtime_dependency 'activesupport'
+  s.add_runtime_dependency 'activesupport', '>= 5.0.0'
 
   s.add_development_dependency 'bundler'
   s.add_development_dependency 'rake'
