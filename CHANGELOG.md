@@ -1,14 +1,22 @@
-### 0.6.1 (Next)
+### Next
 
 #### Features
 
-* [#253](https://github.com/ruby-grape/grape-entity/pull/253): Adds ruby 2.4.0 support, updates dependencies - [@LeFnord](https://github.com/LeFnord).
 * Your contribution here.
 
 #### Fixes
 
-* [#251](https://github.com/ruby-grape/grape-entity/pull/251): Avoid noise when code runs with Ruby warnings - [@cpetschnig](https://github.com/cpetschnig).
 * Your contribution here.
+
+### 0.6.1 (2017-01-09)
+
+#### Features
+
+* [#253](https://github.com/ruby-grape/grape-entity/pull/253): Adds ruby 2.4.0 support, updates dependencies - [@LeFnord](https://github.com/LeFnord).
+
+#### Fixes
+
+* [#251](https://github.com/ruby-grape/grape-entity/pull/251): Avoid noise when code runs with Ruby warnings - [@cpetschnig](https://github.com/cpetschnig).
 
 ### 0.6.0 (2016-11-20)
 
