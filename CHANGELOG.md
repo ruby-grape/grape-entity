@@ -2,6 +2,8 @@
 
 #### Features
 
+* [#255](https://github.com/ruby-grape/grape-entity/pull/255): Adds code coverage w/ coveralls - [@LeFnord](https://github.com/LeFnord).
+
 * Your contribution here.
 
 #### Fixes

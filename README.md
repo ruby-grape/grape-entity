@@ -2,6 +2,7 @@
 
 [![Gem Version](http://img.shields.io/gem/v/grape-entity.svg)](http://badge.fury.io/rb/grape-entity)
 [![Build Status](http://img.shields.io/travis/ruby-grape/grape-entity.svg)](https://travis-ci.org/ruby-grape/grape-entity)
+[![Coverage Status](https://coveralls.io/repos/github/ruby-grape/grape-entity/badge.svg?branch=master)](https://coveralls.io/github/ruby-grape/grape-entity?branch=master)
 [![Dependency Status](https://gemnasium.com/ruby-grape/grape-entity.svg)](https://gemnasium.com/ruby-grape/grape-entity)
 [![Code Climate](https://codeclimate.com/github/ruby-grape/grape-entity.svg)](https://codeclimate.com/github/ruby-grape/grape-entity)
 
