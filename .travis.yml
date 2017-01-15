@@ -2,8 +2,11 @@ sudo: false
 
 language: ruby
 
-cache: bundler
-bundler_args: --without test
+before_install:
+  - gem install bundler
+
+after_success:
+  - coveralls
 
 matrix:
   include:
