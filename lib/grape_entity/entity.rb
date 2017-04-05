@@ -127,6 +127,19 @@ module Grape
     # should be exposed by the entity.
     #
     # @option options :as Declare an alias for the representation of this attribute.
+    #   If a proc is presented it is evaluated in the context of the entity so object
+    #   and the entity methods are available to it.
+    #
+    # @example as: a proc
+    #
+    #   object = OpenStruct(awesomness: 'awesome_key', awesome: 'not-my-key' )
+    #
+    #   class MyEntity < Grape::Entity
+    #     expose :awesome, as: -> { object.awesomness }
+    #   end
+    #
+    #   => { 'awesome_key': 'not-my-key' }
+    #
     # @option options :if When passed a Hash, the attribute will only be exposed if the
     #   runtime options match all the conditions passed in. When passed a lambda, the
     #   lambda will execute with two arguments: the object being represented and the
