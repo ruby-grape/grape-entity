@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'active_support/version'
 require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/hash/reverse_merge'

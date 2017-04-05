@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'grape_entity/exposure/base'
 require 'grape_entity/exposure/represent_exposure'
 require 'grape_entity/exposure/block_exposure'

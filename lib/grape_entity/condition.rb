@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'grape_entity/condition/base'
 require 'grape_entity/condition/block_condition'
 require 'grape_entity/condition/hash_condition'
