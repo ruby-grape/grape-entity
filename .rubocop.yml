@@ -1,6 +1,23 @@
 AllCops:
+  TargetRubyVersion: 2.1
+  Include:
+    - Dangerfile
+
   Exclude:
     - vendor/**/*
+    - bin/**/*
     - Guardfile
 
 inherit_from: .rubocop_todo.yml
+
+Style/Documentation:
+  Enabled: false
+
+Style/MultilineIfModifier:
+  Enabled: false
+
+Style/RaiseArgs:
+  Enabled: false
+
+Lint/UnneededDisable:
+  Enabled: false
