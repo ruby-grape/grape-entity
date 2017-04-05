@@ -35,7 +35,7 @@ describe Grape::Entity::Exposure do
     end
 
     it 'returns the result if :as is a proc' do
-      fresh_class.expose :name, as: -> (entity) { entity.object.name.reverse }
+      fresh_class.expose :name, as: -> { object.name.reverse }
       expect(subject.key(entity)).to eq(model.name.reverse)
     end
   end

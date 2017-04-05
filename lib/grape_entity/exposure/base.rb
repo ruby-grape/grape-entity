@@ -106,7 +106,7 @@ module Grape
         end
 
         def key(entity = nil)
-          @key.respond_to?(:call) ? @key.call(entity) : @key
+          @key.respond_to?(:call) ? entity.exec_with_object(@options, &@key) : @key
         end
 
         def with_attr_path(entity, options)
