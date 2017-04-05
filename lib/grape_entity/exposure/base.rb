@@ -4,7 +4,7 @@ module Grape
   class Entity
     module Exposure
       class Base
-        attr_reader :attribute, :key, :is_safe, :documentation, :conditions, :for_merge
+        attr_reader :attribute, :is_safe, :documentation, :conditions, :for_merge
 
         def self.new(attribute, options, conditions, *args, &block)
           super(attribute, options, conditions).tap { |e| e.setup(*args, &block) }
@@ -106,7 +106,7 @@ module Grape
         end
 
         def key(entity = nil)
-          @key.respond_to?(:call) ? @key.call(entity).try(:to_sym) : @key
+          @key.respond_to?(:call) ? @key.call(entity) : @key
         end
 
         def with_attr_path(entity, options)

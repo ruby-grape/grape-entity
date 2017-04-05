@@ -26,12 +26,17 @@ describe Grape::Entity::Exposure do
   describe '#key' do
     it 'returns the attribute if no :as is set' do
       fresh_class.expose :name
-      expect(subject.key).to eq :name
+      expect(subject.key(entity)).to eq :name
     end
 
     it 'returns the :as alias if one exists' do
       fresh_class.expose :name, as: :nombre
-      expect(subject.key).to eq :nombre
+      expect(subject.key(entity)).to eq :nombre
+    end
+
+    it 'returns the result if :as is a proc' do
+      fresh_class.expose :name, as: -> (entity) { entity.object.name.reverse }
+      expect(subject.key(entity)).to eq(model.name.reverse)
     end
   end
 
