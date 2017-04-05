@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'bundler'
   s.add_development_dependency 'rake'
-  s.add_development_dependency 'rubocop', '~> 0.40'
+  s.add_development_dependency 'rubocop', '~> 0.48'
   s.add_development_dependency 'rspec', '~> 3.0'
   s.add_development_dependency 'rack-test'
   s.add_development_dependency 'maruku'
