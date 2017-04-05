@@ -5,7 +5,8 @@ module Grape
     module Exposure
       class NestingExposure
         class OutputBuilder < SimpleDelegator
-          def initialize
+          def initialize(entity)
+            @entity = entity
             @output_hash = {}
             @output_collection = []
           end
@@ -20,7 +21,7 @@ module Grape
               return unless result
               @output_hash.merge! result, &merge_strategy(exposure.for_merge)
             else
-              @output_hash[exposure.key] = result
+              @output_hash[exposure.key(@entity)] = result
             end
           end
 

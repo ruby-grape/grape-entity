@@ -4,7 +4,7 @@ module Grape
   class Entity
     module Exposure
       class Base
-        attr_reader :attribute, :key, :is_safe, :documentation, :conditions, :for_merge
+        attr_reader :attribute, :is_safe, :documentation, :conditions, :for_merge
 
         def self.new(attribute, options, conditions, *args, &block)
           super(attribute, options, conditions).tap { |e| e.setup(*args, &block) }
@@ -13,7 +13,8 @@ module Grape
         def initialize(attribute, options, conditions)
           @attribute = attribute.try(:to_sym)
           @options = options
-          @key = (options[:as] || attribute).try(:to_sym)
+          key = options[:as] || attribute
+          @key = key.respond_to?(:to_sym) ? key.to_sym : key
           @is_safe = options[:safe]
           @for_merge = options[:merge]
           @attr_path_proc = options[:attr_path]
@@ -43,7 +44,7 @@ module Grape
         end
 
         # if we have any nesting exposures with the same name.
-        def deep_complex_nesting?
+        def deep_complex_nesting?(entity) # rubocop:disable Lint/UnusedMethodArgument
           false
         end
 
@@ -102,6 +103,10 @@ module Grape
           else
             @key
           end
+        end
+
+        def key(entity = nil)
+          @key.respond_to?(:call) ? entity.exec_with_object(@options, &@key) : @key
         end
 
         def with_attr_path(entity, options)

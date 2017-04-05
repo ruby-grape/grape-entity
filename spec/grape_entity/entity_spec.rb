@@ -133,7 +133,7 @@ describe Grape::Entity do
             expect(another_nested).to_not be_nil
             expect(another_nested.using_class_name).to eq('Awesome')
             expect(moar_nested).to_not be_nil
-            expect(moar_nested.key).to eq(:weee)
+            expect(moar_nested.key(subject)).to eq(:weee)
           end
 
           it 'represents the exposure as a hash of its nested.root_exposures' do
@@ -498,7 +498,7 @@ describe Grape::Entity do
         end
 
         exposure = subject.find_exposure(:awesome_thing)
-        expect(exposure.key).to eq :extra_smooth
+        expect(exposure.key(subject)).to eq :extra_smooth
       end
 
       it 'merges nested :if option' do

@@ -53,10 +53,13 @@ module Grape
           end
 
           # Determine if we have any nesting exposures with the same name.
-          def deep_complex_nesting?
+          def deep_complex_nesting?(entity)
             if @deep_complex_nesting.nil?
               all_nesting = select(&:nesting?)
-              @deep_complex_nesting = all_nesting.group_by(&:key).any? { |_key, exposures| exposures.length > 1 }
+              @deep_complex_nesting =
+                all_nesting
+                .group_by { |exposure| exposure.key(entity) }
+                .any? { |_key, exposures| exposures.length > 1 }
             else
               @deep_complex_nesting
             end

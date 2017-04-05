@@ -32,7 +32,7 @@ module Grape
 
         def value(entity, options)
           new_options = nesting_options_for(options)
-          output = OutputBuilder.new
+          output = OutputBuilder.new(entity)
 
           normalized_exposures(entity, new_options).each_with_object(output) do |exposure, out|
             exposure.with_attr_path(entity, new_options) do
@@ -46,7 +46,7 @@ module Grape
           new_options = nesting_options_for(options)
 
           result = nil
-          normalized_exposures(entity, new_options).select { |e| e.key == key }.each do |exposure|
+          normalized_exposures(entity, new_options).select { |e| e.key(entity) == key }.each do |exposure|
             exposure.with_attr_path(entity, new_options) do
               result = exposure.valid_value(entity, new_options)
             end
@@ -56,7 +56,7 @@ module Grape
 
         def serializable_value(entity, options)
           new_options = nesting_options_for(options)
-          output = OutputBuilder.new
+          output = OutputBuilder.new(entity)
 
           normalized_exposures(entity, new_options).each_with_object(output) do |exposure, out|
             exposure.with_attr_path(entity, new_options) do
@@ -67,9 +67,9 @@ module Grape
         end
 
         # if we have any nesting exposures with the same name.
-        # delegate :deep_complex_nesting?, to: :nested_exposures
-        def deep_complex_nesting?
-          nested_exposures.deep_complex_nesting?
+        # delegate :deep_complex_nesting?(entity), to: :nested_exposures
+        def deep_complex_nesting?(entity)
+          nested_exposures.deep_complex_nesting?(entity)
         end
 
         private
@@ -92,15 +92,15 @@ module Grape
 
         # This method 'merges' subsequent nesting exposures with the same name if it's needed
         def normalized_exposures(entity, options)
-          return easy_normalized_exposures(entity, options) unless deep_complex_nesting? # optimization
+          return easy_normalized_exposures(entity, options) unless deep_complex_nesting?(entity) # optimization
 
           table = nested_exposures.each_with_object({}) do |exposure, output|
             should_expose = exposure.with_attr_path(entity, options) do
               exposure.should_expose?(entity, options)
             end
             next unless should_expose
-            output[exposure.key] ||= []
-            output[exposure.key] << exposure
+            output[exposure.key(entity)] ||= []
+            output[exposure.key(entity)] << exposure
           end
           table.map do |key, exposures|
             last_exposure = exposures.last
@@ -113,7 +113,9 @@ module Grape
               end
               new_nested_exposures = nesting_tail.flat_map(&:nested_exposures)
               NestingExposure.new(key, {}, [], new_nested_exposures).tap do |new_exposure|
-                new_exposure.instance_variable_set(:@deep_complex_nesting, true) if nesting_tail.any?(&:deep_complex_nesting?)
+                if nesting_tail.any? { |exposure| exposure.deep_complex_nesting?(entity) }
+                  new_exposure.instance_variable_set(:@deep_complex_nesting, true)
+                end
               end
             else
               last_exposure
