@@ -1,6 +1,30 @@
 AllCops:
+  TargetRubyVersion: 2.4
+  Include:
+    - Dangerfile
+
   Exclude:
     - vendor/**/*
+    - bin/**/*
     - Guardfile
 
 inherit_from: .rubocop_todo.yml
+
+Style/FileName:
+  Exclude:
+    - 'Gemfile'
+    - 'Rakefile'
+    - 'grape-entity.gemspec'
+    - 'lib/grape-entity.rb'
+
+Style/Documentation:
+  Enabled: false
+
+Style/MultilineIfModifier:
+  Enabled: false
+
+Style/RaiseArgs:
+  Enabled: false
+
+Lint/UnneededDisable:
+  Enabled: false

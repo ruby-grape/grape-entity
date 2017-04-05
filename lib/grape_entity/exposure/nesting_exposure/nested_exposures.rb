@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Grape
   class Entity
     module Exposure
@@ -30,18 +32,18 @@ module Grape
             @exposures.clear
           end
 
-          [
-            :each,
-            :to_ary, :to_a,
-            :all?,
-            :select,
-            :each_with_object,
-            :[],
-            :==,
-            :size,
-            :count,
-            :length,
-            :empty?
+          %i[
+            each
+            to_ary to_a
+            all?
+            select
+            each_with_object
+            \[\]
+            ==
+            size
+            count
+            length
+            empty?
           ].each do |name|
             class_eval <<-RUBY, __FILE__, __LINE__
               def #{name}(*args, &block)
