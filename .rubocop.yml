@@ -10,6 +10,13 @@ AllCops:
 
 inherit_from: .rubocop_todo.yml
 
+Style/FileName:
+  Exclude:
+    - 'Gemfile'
+    - 'Rakefile'
+    - 'grape-entity.gemspec'
+    - 'lib/grape-entity.rb'
+
 Style/Documentation:
   Enabled: false
 
