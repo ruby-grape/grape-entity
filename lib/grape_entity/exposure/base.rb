@@ -13,7 +13,8 @@ module Grape
         def initialize(attribute, options, conditions)
           @attribute = attribute.try(:to_sym)
           @options = options
-          @key = (options[:as] || attribute).try(:to_sym)
+          key = options[:as] || attribute
+          @key = key.respond_to?(:to_sym) ? key.to_sym : key
           @is_safe = options[:safe]
           @for_merge = options[:merge]
           @attr_path_proc = options[:attr_path]
@@ -43,7 +44,7 @@ module Grape
         end
 
         # if we have any nesting exposures with the same name.
-        def deep_complex_nesting?
+        def deep_complex_nesting?(entity)
           false
         end
 
@@ -102,6 +103,10 @@ module Grape
           else
             @key
           end
+        end
+
+        def key(entity=nil)
+          @key.respond_to?(:call) ? @key.call(entity).try(:to_sym) : @key
         end
 
         def with_attr_path(entity, options)

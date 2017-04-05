@@ -5,11 +5,11 @@ require 'spec_helper'
 describe Grape::Entity::Exposure::NestingExposure::NestedExposures do
   subject(:nested_exposures) { described_class.new([]) }
 
-  describe '#deep_complex_nesting?' do
+  describe '#deep_complex_nesting?(entity)' do
     it 'is reset when additional exposure is added' do
       subject << Grape::Entity::Exposure.new(:x, {})
       expect(subject.instance_variable_get(:@deep_complex_nesting)).to be_nil
-      subject.deep_complex_nesting?
+      subject.deep_complex_nesting?(subject)
       expect(subject.instance_variable_get(:@deep_complex_nesting)).to_not be_nil
       subject << Grape::Entity::Exposure.new(:y, {})
       expect(subject.instance_variable_get(:@deep_complex_nesting)).to be_nil
@@ -18,7 +18,7 @@ describe Grape::Entity::Exposure::NestingExposure::NestedExposures do
     it 'is reset when exposure is deleted' do
       subject << Grape::Entity::Exposure.new(:x, {})
       expect(subject.instance_variable_get(:@deep_complex_nesting)).to be_nil
-      subject.deep_complex_nesting?
+      subject.deep_complex_nesting?(subject)
       expect(subject.instance_variable_get(:@deep_complex_nesting)).to_not be_nil
       subject.delete_by(:x)
       expect(subject.instance_variable_get(:@deep_complex_nesting)).to be_nil
@@ -27,7 +27,7 @@ describe Grape::Entity::Exposure::NestingExposure::NestedExposures do
     it 'is reset when exposures are cleared' do
       subject << Grape::Entity::Exposure.new(:x, {})
       expect(subject.instance_variable_get(:@deep_complex_nesting)).to be_nil
-      subject.deep_complex_nesting?
+      subject.deep_complex_nesting?(subject)
       expect(subject.instance_variable_get(:@deep_complex_nesting)).to_not be_nil
       subject.clear
       expect(subject.instance_variable_get(:@deep_complex_nesting)).to be_nil

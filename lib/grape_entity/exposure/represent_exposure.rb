@@ -23,7 +23,7 @@ module Grape
         end
 
         def value(entity, options)
-          new_options = options.for_nesting(key)
+          new_options = options.for_nesting(key(entity))
           using_class.represent(@subexposure.value(entity, options), new_options)
         end
 
