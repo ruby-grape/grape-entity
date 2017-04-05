@@ -506,8 +506,8 @@ module Grape
     end
 
     # All supported options.
-    OPTIONS = [
-      :rewrite, :as, :if, :unless, :using, :with, :proc, :documentation, :format_with, :safe, :attr_path, :if_extras, :unless_extras, :merge
+    OPTIONS = %i[
+      rewrite as if unless using with proc documentation format_with safe attr_path if_extras unless_extras merge
     ].to_set.freeze
 
     # Merges the given options with current block options.
@@ -517,7 +517,7 @@ module Grape
       opts = {}
 
       merge_logic = proc do |key, existing_val, new_val|
-        if [:if, :unless].include?(key)
+        if %i[if unless].include?(key)
           if existing_val.is_a?(Hash) && new_val.is_a?(Hash)
             existing_val.merge(new_val)
           elsif new_val.is_a?(Hash)

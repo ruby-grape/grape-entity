@@ -653,7 +653,7 @@ describe Grape::Entity do
       context 'with specified fields' do
         it 'returns only specified fields with only option' do
           subject.expose(:id, :name, :phone)
-          representation = subject.represent(OpenStruct.new, only: [:id, :name], serializable: true)
+          representation = subject.represent(OpenStruct.new, only: %i[id name], serializable: true)
           expect(representation).to eq(id: nil, name: nil)
         end
 
@@ -666,7 +666,7 @@ describe Grape::Entity do
         it 'returns only fields specified in the only option and not specified in the except option' do
           subject.expose(:id, :name, :phone)
           representation = subject.represent(OpenStruct.new,
-                                             only: [:name, :phone],
+                                             only: %i[name phone],
                                              except: [:phone], serializable: true)
           expect(representation).to eq(name: nil)
         end
@@ -736,7 +736,7 @@ describe Grape::Entity do
           subject.expose(:id, :name, :phone)
           subject.expose(:user, using: user_entity)
 
-          representation = subject.represent(OpenStruct.new(user: {}), only: [:id, :name, { user: [:name, :email] }], serializable: true)
+          representation = subject.represent(OpenStruct.new(user: {}), only: [:id, :name, { user: %i[name email] }], serializable: true)
           expect(representation).to eq(id: nil, name: nil, user: { name: nil, email: nil })
         end
 
@@ -759,7 +759,7 @@ describe Grape::Entity do
           subject.expose(:user, using: user_entity)
 
           representation = subject.represent(OpenStruct.new(user: {}),
-                                             only: [:id, :name, :phone, user: [:id, :name, :email]],
+                                             only: [:id, :name, :phone, user: %i[id name email]],
                                              except: [:phone, { user: [:id] }], serializable: true)
           expect(representation).to eq(id: nil, name: nil, user: { name: nil, email: nil })
         end
@@ -771,7 +771,7 @@ describe Grape::Entity do
               subject.expose(:name)
             end
 
-            representation = subject.represent(OpenStruct.new, condition: true, only: [:id, :name], serializable: true)
+            representation = subject.represent(OpenStruct.new, condition: true, only: %i[id name], serializable: true)
             expect(representation).to eq(id: nil, name: nil)
           end
 
@@ -781,7 +781,7 @@ describe Grape::Entity do
               subject.expose(:name, :mobile_phone)
             end
 
-            representation = subject.represent(OpenStruct.new, condition: true, except: [:phone, :mobile_phone], serializable: true)
+            representation = subject.represent(OpenStruct.new, condition: true, except: %i[phone mobile_phone], serializable: true)
             expect(representation).to eq(id: nil, name: nil)
           end
 
@@ -863,7 +863,7 @@ describe Grape::Entity do
             subject.expose(:id)
             subject.expose(:name, as: :title)
 
-            representation = subject.represent(OpenStruct.new, condition: true, only: [:id, :title], serializable: true)
+            representation = subject.represent(OpenStruct.new, condition: true, only: %i[id title], serializable: true)
             expect(representation).to eq(id: nil, title: nil)
           end
 
@@ -890,7 +890,7 @@ describe Grape::Entity do
             subject.expose(:nephew, using: nephew_entity)
 
             representation = subject.represent(OpenStruct.new(user: {}),
-                                               only: [:id, :name, :user], except: [:nephew], serializable: true)
+                                               only: %i[id name user], except: [:nephew], serializable: true)
             expect(representation).to eq(id: nil, name: nil, user: { id: nil, name: nil, email: nil })
           end
         end
@@ -1341,8 +1341,8 @@ describe Grape::Entity do
         it 'allows to pass different :only and :except params using the same instance' do
           fresh_class.expose :a, :b, :c
           presenter = fresh_class.new(a: 1, b: 2, c: 3)
-          expect(presenter.serializable_hash(only: [:a, :b])).to eq(a: 1, b: 2)
-          expect(presenter.serializable_hash(only: [:b, :c])).to eq(b: 2, c: 3)
+          expect(presenter.serializable_hash(only: %i[a b])).to eq(a: 1, b: 2)
+          expect(presenter.serializable_hash(only: %i[b c])).to eq(b: 2, c: 3)
         end
       end
     end
