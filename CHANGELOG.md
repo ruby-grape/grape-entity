@@ -2,6 +2,7 @@
 
 #### Features
 
+* [#264](https://github.com/ruby-grape/grape-entity/pull/264): Adds Rubocop config and todo list - [@james2m](https://github.com/james2m).
 * [#255](https://github.com/ruby-grape/grape-entity/pull/255): Adds code coverage w/ coveralls - [@LeFnord](https://github.com/LeFnord).
 
 * Your contribution here.
