@@ -32,6 +32,9 @@ dist
 Gemfile.lock
 tmp
 coverage/
+.byebug_history
+.ruby-version
+.ruby-gemset
 
 ## Rubinius
 .rbx
