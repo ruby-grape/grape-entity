@@ -113,7 +113,9 @@ module Grape
               end
               new_nested_exposures = nesting_tail.flat_map(&:nested_exposures)
               NestingExposure.new(key, {}, [], new_nested_exposures).tap do |new_exposure|
-                new_exposure.instance_variable_set(:@deep_complex_nesting, true) if nesting_tail.any? { |exposure| exposure.deep_complex_nesting?(entity) }
+                if nesting_tail.any? { |exposure| exposure.deep_complex_nesting?(entity) }
+                  new_exposure.instance_variable_set(:@deep_complex_nesting, true)
+                end
               end
             else
               last_exposure

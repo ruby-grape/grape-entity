@@ -44,7 +44,7 @@ module Grape
         end
 
         # if we have any nesting exposures with the same name.
-        def deep_complex_nesting?(entity)
+        def deep_complex_nesting?(entity) # rubocop:disable Lint/UnusedMethodArgument
           false
         end
 
@@ -105,7 +105,7 @@ module Grape
           end
         end
 
-        def key(entity=nil)
+        def key(entity = nil)
           @key.respond_to?(:call) ? @key.call(entity).try(:to_sym) : @key
         end
 

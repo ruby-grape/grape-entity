@@ -58,8 +58,8 @@ module Grape
               all_nesting = select(&:nesting?)
               @deep_complex_nesting =
                 all_nesting
-                  .group_by { |exposure| exposure.key(entity) }
-                  .any? { |_key, exposures| exposures.length > 1 }
+                .group_by { |exposure| exposure.key(entity) }
+                .any? { |_key, exposures| exposures.length > 1 }
             else
               @deep_complex_nesting
             end
