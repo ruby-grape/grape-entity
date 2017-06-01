@@ -10,19 +10,19 @@ after_success:
 
 matrix:
   include:
-    - rvm: 2.4.0
+    - rvm: 2.4.1
       script:
         - bundle exec danger
-    - rvm: 2.4.0
-    - rvm: 2.3.3
-    - rvm: 2.2.6
+    - rvm: 2.4.1
+    - rvm: 2.3.4
+    - rvm: 2.2.7
     - rvm: ruby-head
-    - rvm: jruby-9.1.6.0
+    - rvm: jruby-9.1.10.0
     - rvm: jruby-head
     - rvm: rbx-2
 
   allow_failures:
     - rvm: ruby-head
-    - rvm: jruby-9.1.6.0
+    - rvm: jruby-9.1.10.0
     - rvm: jruby-head
     - rvm: rbx-2
