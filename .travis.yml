@@ -17,12 +17,12 @@ matrix:
     - rvm: 2.3.4
     - rvm: 2.2.7
     - rvm: ruby-head
-    - rvm: jruby-9.1.9.0
+    - rvm: jruby-9.1.10.0
     - rvm: jruby-head
     - rvm: rbx-2
 
   allow_failures:
     - rvm: ruby-head
-    - rvm: jruby-9.1.9.0
+    - rvm: jruby-9.1.10.0
     - rvm: jruby-head
     - rvm: rbx-2
