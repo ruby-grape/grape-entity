@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.description = 'Extracted from Grape, A Ruby framework for rapid API development with great conventions.'
   s.license     = 'MIT'
 
-  s.required_ruby_version = '>= 2.2.6'
+  s.required_ruby_version = '>= 2.2'
 
   s.rubyforge_project = 'grape-entity'
 
