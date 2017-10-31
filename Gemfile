@@ -4,8 +4,8 @@ source 'http://rubygems.org'
 
 gemspec
 
-group :development do
-  gem 'rubocop', require: false
+group :development, :test do
+  gem 'rubocop', '~> 0.48.0', require: false
 end
 
 group :test do
