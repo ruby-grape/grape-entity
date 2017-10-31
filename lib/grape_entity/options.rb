@@ -25,6 +25,10 @@ module Grape
         @opts_hash.key? key
       end
 
+      def dig(*keys)
+        @opts_hash.dig(*keys)
+      end
+
       def merge(new_opts)
         if new_opts.empty?
           self
