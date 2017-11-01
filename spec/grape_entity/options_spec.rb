@@ -17,7 +17,6 @@ describe Grape::Entity::Options do
     class CrystallineEntity < Grape::Entity
       expose :prop1, if: ->(_, options) { options.fetch(:signal) }
       expose :prop2, if: ->(_, options) { options.fetch(:beam, 'destructive') == 'destructive' }
-      expose :prop3, if: ->(_, options) { options.dig(:first, :second) == :nested }
     end
   end
 
@@ -38,14 +37,30 @@ describe Grape::Entity::Options do
   end
 
   context '#dig', skip: !{}.respond_to?(:dig) do
+    let(:model_class) do
+      Class.new do
+        attr_accessor :prop1
+
+        def initialize
+          @prop1 = 'value1'
+        end
+      end
+    end
+
+    let(:entity_class) do
+      Class.new(Grape::Entity) do
+        expose :prop1, if: ->(_, options) { options.dig(:first, :second) == :nested }
+      end
+    end
+
     it 'without passing in a expected option hide the value' do
-      crystalline_entity = EntitySpec::CrystallineEntity.represent(EntitySpec::Crystalline.new, signal: true, first: { invalid: :nested })
-      expect(crystalline_entity.as_json).to eq(prop1: 'value1', prop2: 'value2')
+      entity = entity_class.represent(model_class.new, first: { invalid: :nested })
+      expect(entity.as_json).to eq({})
     end
 
     it 'passing in a expected option will expose the values' do
-      crystalline_entity = EntitySpec::CrystallineEntity.represent(EntitySpec::Crystalline.new, signal: true, first: { second: :nested })
-      expect(crystalline_entity.as_json).to eq(prop1: 'value1', prop2: 'value2', prop3: 'value3')
+      entity = entity_class.represent(model_class.new, first: { second: :nested })
+      expect(entity.as_json).to eq(prop1: 'value1')
     end
   end
 end
