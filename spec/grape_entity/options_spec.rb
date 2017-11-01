@@ -37,7 +37,7 @@ describe Grape::Entity::Options do
     end
   end
 
-  context '#dig', skip: !Hash.new.respond_to?(:dig) do
+  context '#dig', skip: !{}.respond_to?(:dig) do
     it 'without passing in a expected option hide the value' do
       crystalline_entity = EntitySpec::CrystallineEntity.represent(EntitySpec::Crystalline.new, signal: true, first: { invalid: :nested })
       expect(crystalline_entity.as_json).to eq(prop1: 'value1', prop2: 'value2')
