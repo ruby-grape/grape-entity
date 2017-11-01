@@ -29,7 +29,7 @@ describe Grape::Entity do
         end
 
         it 'makes sure that :format_with as a proc cannot be used with a block' do
-          expect { subject.expose :name, format_with: proc {} {} }.to raise_error ArgumentError
+          expect { subject.expose :name, format_with: proc {} }.to raise_error ArgumentError
         end
 
         it 'makes sure unknown options are not silently ignored' do
