@@ -29,5 +29,6 @@ Style/RaiseArgs:
 Lint/BooleanSymbol:
   Exclude:
     - 'spec/grape_entity/exposure_spec.rb'
+
 Lint/UnneededDisable:
   Enabled: false
