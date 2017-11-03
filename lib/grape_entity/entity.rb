@@ -561,7 +561,7 @@ module Grape
     #
     # @param options [Hash] Exposure options.
     def self.valid_options(options)
-      options.keys.each do |key|
+      options.each_key do |key|
         raise ArgumentError, "#{key.inspect} is not a valid option." unless OPTIONS.include?(key)
       end
 

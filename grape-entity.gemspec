@@ -18,17 +18,17 @@ Gem::Specification.new do |s|
 
   s.rubyforge_project = 'grape-entity'
 
-  s.add_runtime_dependency 'multi_json', '>= 1.3.2'
   s.add_runtime_dependency 'activesupport', '>= 4.0.0'
+  s.add_runtime_dependency 'multi_json', '>= 1.3.2'
 
   s.add_development_dependency 'bundler'
-  s.add_development_dependency 'rake'
-  s.add_development_dependency 'rspec', '~> 3.0'
-  s.add_development_dependency 'rack-test'
   s.add_development_dependency 'maruku'
-  s.add_development_dependency 'yard'
   s.add_development_dependency 'pry' unless RUBY_PLATFORM.eql?('java') || RUBY_ENGINE.eql?('rbx')
   s.add_development_dependency 'pry-byebug' unless RUBY_PLATFORM.eql?('java') || RUBY_ENGINE.eql?('rbx')
+  s.add_development_dependency 'rack-test'
+  s.add_development_dependency 'rake'
+  s.add_development_dependency 'rspec', '~> 3.0'
+  s.add_development_dependency 'yard'
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec}/*`.split("\n")

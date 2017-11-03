@@ -3,25 +3,29 @@ sudo: false
 language: ruby
 
 before_install:
+  - gem update --system
   - gem install bundler
 
 after_success:
   - coveralls
+  - bundle exec danger
+
+rvm:
+  - 2.4.2
+  - 2.3.5
 
 matrix:
+  fast_finish: true
+
   include:
-    - rvm: 2.4.2
-      script:
-        - bundle exec danger
-    - rvm: 2.4.2
-    - rvm: 2.3.5
-    - rvm: 2.2.7
+    - rvm: 2.2.8
     - rvm: ruby-head
     - rvm: jruby-9.1.10.0
     - rvm: jruby-head
     - rvm: rbx-2
 
   allow_failures:
+    - rvm: 2.2.8
     - rvm: ruby-head
     - rvm: jruby-9.1.10.0
     - rvm: jruby-head

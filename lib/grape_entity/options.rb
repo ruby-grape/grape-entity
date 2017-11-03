@@ -72,7 +72,7 @@ module Grape
 
         only = only_fields.nil? ||
                only_fields.key?(key)
-        except = except_fields && except_fields.key?(key) &&
+        except = except_fields&.key?(key) &&
                  except_fields[key] == true
         only && !except
       end
