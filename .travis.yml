@@ -11,22 +11,20 @@ after_success:
   - bundle exec danger
 
 rvm:
-  - 2.4.2
-  - 2.3.5
+  - 2.5.0
+  - 2.4.3
 
 matrix:
   fast_finish: true
 
   include:
-    - rvm: 2.2.8
+    - rvm: 2.3.6
     - rvm: ruby-head
-    - rvm: jruby-9.1.10.0
     - rvm: jruby-head
     - rvm: rbx-2
 
   allow_failures:
-    - rvm: 2.2.8
+    - rvm: 2.3.6
     - rvm: ruby-head
-    - rvm: jruby-9.1.10.0
     - rvm: jruby-head
     - rvm: rbx-2

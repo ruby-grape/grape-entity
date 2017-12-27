@@ -2,6 +2,7 @@
 
 #### Features
 
+* [#287](https://github.com/ruby-grape/grape-entity/pull/287): Adds ruby 2.5, drops ruby 2.2 support - [@LeFnord](https://github.com/LeFnord).
 * [#277](https://github.com/ruby-grape/grape-entity/pull/277): Provide grape::entity::options#dig - [@kachick](https://github.com/kachick).
 * [#265](https://github.com/ruby-grape/grape-entity/pull/265): Adds ability to provide a proc to as: - [@james2m](https://github.com/james2m).
 * [#264](https://github.com/ruby-grape/grape-entity/pull/264): Adds Rubocop config and todo list - [@james2m](https://github.com/james2m).
@@ -12,7 +13,7 @@
 
 #### Fixes
 
-* [#288](https://github.com/ruby-grape/grape-entity/pull/288) Fix wrong argument exception when &:block passed to the expose method  - [@DmitryTsepelev](https://github.com/DmitryTsepelev)
+* [#288](https://github.com/ruby-grape/grape-entity/pull/288) Fix wrong argument exception when &:block passed to the expose method  - [@DmitryTsepelev](https://github.com/DmitryTsepelev).
 
 * Your contribution here.
 

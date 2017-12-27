@@ -53,9 +53,7 @@ module Grape
 
       def self.compile_conditions(options)
         if_conditions = []
-        unless options[:if_extras].nil?
-          if_conditions.concat(options[:if_extras])
-        end
+        if_conditions.concat(options[:if_extras]) unless options[:if_extras].nil?
         if_conditions << options[:if] unless options[:if].nil?
 
         if_conditions.map! do |cond|
@@ -63,9 +61,7 @@ module Grape
         end
 
         unless_conditions = []
-        unless options[:unless_extras].nil?
-          unless_conditions.concat(options[:unless_extras])
-        end
+        unless_conditions.concat(options[:unless_extras]) unless options[:unless_extras].nil?
         unless_conditions << options[:unless] unless options[:unless].nil?
 
         unless_conditions.map! do |cond|

@@ -14,11 +14,12 @@ Gem::Specification.new do |s|
   s.description = 'Extracted from Grape, A Ruby framework for rapid API development with great conventions.'
   s.license     = 'MIT'
 
-  s.required_ruby_version = '>= 2.2'
+  s.required_ruby_version = '>= 2.3'
 
   s.rubyforge_project = 'grape-entity'
 
-  s.add_runtime_dependency 'activesupport', '>= 4.0.0'
+  s.add_runtime_dependency 'activesupport', '>=4.0'
+  # FIXME: remove dependecy
   s.add_runtime_dependency 'multi_json', '>= 1.3.2'
 
   s.add_development_dependency 'bundler'
