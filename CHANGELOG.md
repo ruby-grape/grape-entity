@@ -12,6 +12,8 @@
 
 #### Fixes
 
+* [#288](https://github.com/ruby-grape/grape-entity/pull/288) Fix wrong argument exception when &:block passed to the expose method  - [@DmitryTsepelev](https://github.com/DmitryTsepelev)
+
 * Your contribution here.
 
 ### 0.6.1 (2017-01-09)
