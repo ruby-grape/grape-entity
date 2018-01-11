@@ -492,7 +492,11 @@ module Grape
     end
 
     def exec_with_object(options, &block)
-      instance_exec(object, options, &block)
+      if block.parameters.count == 1
+        instance_exec(object, &block)
+      else
+        instance_exec(object, options, &block)
+      end
     end
 
     def exec_with_attribute(attribute, &block)
