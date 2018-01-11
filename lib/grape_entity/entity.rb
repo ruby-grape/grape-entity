@@ -203,6 +203,7 @@ module Grape
           @nesting_stack.pop
         end
       end
+      # rubocop:enable Style/Next
     end
 
     # Returns exposures that have been declared for this Entity on the top level.
@@ -255,9 +256,7 @@ module Grape
     # #docmentation, any exposure without a documentation key will be ignored.
     def self.documentation
       @documentation ||= root_exposures.each_with_object({}) do |exposure, memo|
-        if exposure.documentation && !exposure.documentation.empty?
-          memo[exposure.key] = exposure.documentation
-        end
+        memo[exposure.key] = exposure.documentation if exposure.documentation && !exposure.documentation.empty?
       end
     end
 

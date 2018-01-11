@@ -10,7 +10,10 @@ AllCops:
 
 inherit_from: .rubocop_todo.yml
 
-Style/FileName:
+Gemspec/RequiredRubyVersion:
+  Enabled: false
+
+Naming/FileName:
   Exclude:
     - 'Gemfile'
     - 'Rakefile'
