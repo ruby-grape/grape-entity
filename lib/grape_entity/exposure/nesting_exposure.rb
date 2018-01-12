@@ -31,39 +31,27 @@ module Grape
         end
 
         def value(entity, options)
-          new_options = nesting_options_for(options)
-          output = OutputBuilder.new(entity)
+          map_entity_exposures(entity, options) do |exposure, nested_options|
+            exposure.value(entity, nested_options)
+          end
+        end
 
-          normalized_exposures(entity, new_options).each_with_object(output) do |exposure, out|
-            exposure.with_attr_path(entity, new_options) do
-              result = exposure.value(entity, new_options)
-              out.add(exposure, result)
-            end
+        def serializable_value(entity, options)
+          map_entity_exposures(entity, options) do |exposure, nested_options|
+            exposure.serializable_value(entity, nested_options)
           end
         end
 
         def valid_value_for(key, entity, options)
           new_options = nesting_options_for(options)
 
-          result = nil
-          normalized_exposures(entity, new_options).select { |e| e.key(entity) == key }.each do |exposure|
-            exposure.with_attr_path(entity, new_options) do
-              result = exposure.valid_value(entity, new_options)
-            end
-          end
-          result
-        end
+          key_exposures = normalized_exposures(entity, new_options).select { |e| e.key(entity) == key }
 
-        def serializable_value(entity, options)
-          new_options = nesting_options_for(options)
-          output = OutputBuilder.new(entity)
-
-          normalized_exposures(entity, new_options).each_with_object(output) do |exposure, out|
+          key_exposures.map do |exposure|
             exposure.with_attr_path(entity, new_options) do
-              result = exposure.serializable_value(entity, new_options)
-              out.add(exposure, result)
+              exposure.valid_value(entity, new_options)
             end
-          end
+          end.last
         end
 
         # if we have any nesting exposures with the same name.
@@ -119,6 +107,18 @@ module Grape
               end
             else
               last_exposure
+            end
+          end
+        end
+
+        def map_entity_exposures(entity, options)
+          new_options = nesting_options_for(options)
+          output = OutputBuilder.new(entity)
+
+          normalized_exposures(entity, new_options).each_with_object(output) do |exposure, out|
+            exposure.with_attr_path(entity, new_options) do
+              result = yield(exposure, new_options)
+              out.add(exposure, result)
             end
           end
         end
