@@ -10,15 +10,14 @@ module Grape
   class Entity
     module Delegator
       def self.new(object)
-        if object.is_a?(Hash)
-          HashObject.new object
-        elsif defined?(OpenStruct) && object.is_a?(OpenStruct)
-          OpenStructObject.new object
-        elsif object.respond_to? :fetch, true
-          FetchableObject.new object
-        else
-          PlainObject.new object
-        end
+        delegator_klass =
+          if object.is_a?(Hash) then HashObject
+          elsif defined?(OpenStruct) && object.is_a?(OpenStruct) then OpenStructObject
+          elsif object.respond_to?(:fetch, true) then FetchableObject
+          else PlainObject
+          end
+
+        delegator_klass.new(object)
       end
     end
   end

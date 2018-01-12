@@ -1,9 +1,15 @@
 # frozen_string_literal: true
 
+require 'forwardable'
+
 module Grape
   class Entity
     class Options
+      extend Forwardable
+
       attr_reader :opts_hash
+
+      def_delegators :opts_hash, :dig, :key?, :fetch, :[], :empty
 
       def initialize(opts_hash = {})
         @opts_hash = opts_hash
@@ -13,58 +19,33 @@ module Grape
         @should_return_key_cache = {}
       end
 
-      def [](key)
-        @opts_hash[key]
-      end
-
-      def fetch(*args)
-        @opts_hash.fetch(*args)
-      end
-
-      def key?(key)
-        @opts_hash.key? key
-      end
-
-      def dig(*keys)
-        @opts_hash.dig(*keys)
-      end
-
       def merge(new_opts)
-        if new_opts.empty?
-          self
-        else
-          merged = if new_opts.instance_of? Options
-                     @opts_hash.merge(new_opts.opts_hash)
-                   else
-                     @opts_hash.merge(new_opts)
-                   end
-          Options.new(merged)
-        end
+        return self if new_opts.empty?
+
+        merged = if new_opts.instance_of? Options
+                   @opts_hash.merge(new_opts.opts_hash)
+                 else
+                   @opts_hash.merge(new_opts)
+                 end
+
+        Options.new(merged)
       end
 
       def reverse_merge(new_opts)
-        if new_opts.empty?
-          self
-        else
-          merged = if new_opts.instance_of? Options
-                     new_opts.opts_hash.merge(@opts_hash)
-                   else
-                     new_opts.merge(@opts_hash)
-                   end
-          Options.new(merged)
-        end
-      end
+        return self if new_opts.empty?
 
-      def empty?
-        @opts_hash.empty?
+        merged = if new_opts.instance_of? Options
+                   new_opts.opts_hash.merge(@opts_hash)
+                 else
+                   new_opts.merge(@opts_hash)
+                 end
+
+        Options.new(merged)
       end
 
       def ==(other)
-        @opts_hash == if other.is_a? Options
-                        other.opts_hash
-                      else
-                        other
-                      end
+        other_hash = other.is_a?(Options) ? other.opts_hash : other
+        @opts_hash == other_hash
       end
 
       def should_return_key?(key)
@@ -102,28 +83,26 @@ module Grape
       end
 
       def with_attr_path(part)
+        return yield unless part
+
         stack = (opts_hash[:attr_path] ||= [])
-        if part
-          stack.push part
-          result = yield
-          stack.pop
-          result
-        else
-          yield
-        end
+        stack.push part
+        result = yield
+        stack.pop
+        result
       end
 
       private
 
       def build_for_nesting(key)
-        new_opts_hash = opts_hash.dup
-        new_opts_hash.delete(:collection)
-        new_opts_hash[:root] = nil
-        new_opts_hash[:only] = only_fields(key)
-        new_opts_hash[:except] = except_fields(key)
-        new_opts_hash[:attr_path] = opts_hash[:attr_path]
-
-        Options.new(new_opts_hash)
+        Options.new(
+          opts_hash.dup.reject { |current_key| current_key == :collection }.merge(
+            root: nil,
+            only: only_fields(key),
+            except: except_fields(key),
+            attr_path: opts_hash[:attr_path]
+          )
+        )
       end
 
       def build_symbolized_hash(attribute, hash)

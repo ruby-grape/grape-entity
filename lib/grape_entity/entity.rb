@@ -451,12 +451,8 @@ module Grape
 
     def initialize(object, options = {})
       @object = object
-      @delegator = Delegator.new object
-      @options = if options.is_a? Options
-                   options
-                 else
-                   Options.new options
-                 end
+      @delegator = Delegator.new(object)
+      @options = options.is_a?(Options) ? options : Options.new(options)
     end
 
     def root_exposures

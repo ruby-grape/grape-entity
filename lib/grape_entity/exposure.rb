@@ -12,63 +12,74 @@ require 'grape_entity/condition'
 module Grape
   class Entity
     module Exposure
-      def self.new(attribute, options)
-        conditions = compile_conditions(options)
-        base_args = [attribute, options, conditions]
+      class << self
+        def new(attribute, options)
+          conditions = compile_conditions(options)
+          base_args = [attribute, options, conditions]
 
-        if options[:proc]
-          block_exposure = BlockExposure.new(*base_args, &options[:proc])
-        else
-          delegator_exposure = DelegatorExposure.new(*base_args)
-        end
-
-        if options[:using]
+          passed_proc = options[:proc]
           using_class = options[:using]
-
-          if options[:proc]
-            RepresentExposure.new(*base_args, using_class, block_exposure)
-          else
-            RepresentExposure.new(*base_args, using_class, delegator_exposure)
-          end
-
-        elsif options[:proc]
-          block_exposure
-
-        elsif options[:format_with]
           format_with = options[:format_with]
 
+          if using_class
+            build_class_exposure(base_args, using_class, passed_proc)
+          elsif passed_proc
+            build_block_exposure(base_args, passed_proc)
+          elsif format_with
+            build_formatter_exposure(base_args, format_with)
+          elsif options[:nesting]
+            build_nesting_exposure(base_args)
+          else
+            build_delegator_exposure(base_args)
+          end
+        end
+
+        private
+
+        def compile_conditions(options)
+          if_conditions = [
+            options[:if_extras],
+            options[:if]
+          ].compact.flatten.map { |cond| Condition.new_if(cond) }
+
+          unless_conditions = [
+            options[:unless_extras],
+            options[:unless]
+          ].compact.flatten.map { |cond| Condition.new_unless(cond) }
+
+          if_conditions + unless_conditions
+        end
+
+        def build_class_exposure(base_args, using_class, passed_proc)
+          exposure =
+            if passed_proc
+              build_block_exposure(base_args, passed_proc)
+            else
+              build_delegator_exposure(base_args)
+            end
+
+          RepresentExposure.new(*base_args, using_class, exposure)
+        end
+
+        def build_formatter_exposure(base_args, format_with)
           if format_with.is_a? Symbol
             FormatterExposure.new(*base_args, format_with)
-          elsif format_with.respond_to? :call
+          elsif format_with.respond_to?(:call)
             FormatterBlockExposure.new(*base_args, &format_with)
           end
+        end
 
-        elsif options[:nesting]
+        def build_nesting_exposure(base_args)
           NestingExposure.new(*base_args)
-
-        else
-          delegator_exposure
-        end
-      end
-
-      def self.compile_conditions(options)
-        if_conditions = []
-        if_conditions.concat(options[:if_extras]) unless options[:if_extras].nil?
-        if_conditions << options[:if] unless options[:if].nil?
-
-        if_conditions.map! do |cond|
-          Condition.new_if cond
         end
 
-        unless_conditions = []
-        unless_conditions.concat(options[:unless_extras]) unless options[:unless_extras].nil?
-        unless_conditions << options[:unless] unless options[:unless].nil?
-
-        unless_conditions.map! do |cond|
-          Condition.new_unless cond
+        def build_block_exposure(base_args, passed_proc)
+          BlockExposure.new(*base_args, &passed_proc)
         end
 
-        if_conditions + unless_conditions
+        def build_delegator_exposure(base_args)
+          DelegatorExposure.new(*base_args)
+        end
       end
     end
   end

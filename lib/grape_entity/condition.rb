@@ -8,19 +8,26 @@ require 'grape_entity/condition/symbol_condition'
 module Grape
   class Entity
     module Condition
-      def self.new_if(arg)
-        case arg
-        when Hash then HashCondition.new false, arg
-        when Proc then BlockCondition.new false, &arg
-        when Symbol then SymbolCondition.new false, arg
+      class << self
+        def new_if(arg)
+          condition(false, arg)
         end
-      end
 
-      def self.new_unless(arg)
-        case arg
-        when Hash then HashCondition.new true, arg
-        when Proc then BlockCondition.new true, &arg
-        when Symbol then SymbolCondition.new true, arg
+        def new_unless(arg)
+          condition(true, arg)
+        end
+
+        private
+
+        def condition(inverse, arg)
+          condition_klass =
+            case arg
+            when Hash then HashCondition
+            when Proc then BlockCondition
+            when Symbol then SymbolCondition
+            end
+
+          condition_klass.new(inverse, arg)
         end
       end
     end

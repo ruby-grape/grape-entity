@@ -6,7 +6,7 @@ module Grape
       class BlockCondition < Base
         attr_reader :block
 
-        def setup(&block)
+        def setup(block)
           @block = block
         end
 
