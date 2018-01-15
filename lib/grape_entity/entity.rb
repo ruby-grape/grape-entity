@@ -185,25 +185,24 @@ module Grape
 
       @documentation = nil
       @nesting_stack ||= []
+      args.each { |attribute| build_exposure_for_attribute(attribute, @nesting_stack, options, block) }
+    end
 
-      # rubocop:disable Style/Next
-      args.each do |attribute|
-        exposure = Exposure.new(attribute, options)
+    def self.build_exposure_for_attribute(attribute, nesting_stack, options, block)
+      exposure_list = nesting_stack.empty? ? root_exposures : nesting_stack.last.nested_exposures
 
-        if @nesting_stack.empty?
-          root_exposures << exposure
-        else
-          @nesting_stack.last.nested_exposures << exposure
-        end
+      exposure = Exposure.new(attribute, options)
 
-        # Nested exposures are given in a block with no parameters.
-        if exposure.nesting?
-          @nesting_stack << exposure
-          block.call
-          @nesting_stack.pop
-        end
-      end
-      # rubocop:enable Style/Next
+      exposure_list.delete_by(attribute) if exposure_list.select_by(attribute).all? { |exp| exp.replaceable_by?(exposure) }
+
+      exposure_list << exposure
+
+      # Nested exposures are given in a block with no parameters.
+      return unless exposure.nesting?
+
+      nesting_stack << exposure
+      block.call
+      nesting_stack.pop
     end
 
     # Returns exposures that have been declared for this Entity on the top level.

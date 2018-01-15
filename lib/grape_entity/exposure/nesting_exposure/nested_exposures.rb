@@ -16,6 +16,10 @@ module Grape
             @exposures.find { |e| e.attribute == attribute }
           end
 
+          def select_by(attribute)
+            @exposures.select { |e| e.attribute == attribute }
+          end
+
           def <<(exposure)
             reset_memoization!
             @exposures << exposure
