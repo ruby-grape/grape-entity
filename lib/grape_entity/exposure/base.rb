@@ -116,6 +116,10 @@ module Grape
           end
         end
 
+        def replaceable_by?(other)
+          !nesting? && !conditional? && !other.nesting? && !other.conditional?
+        end
+
         protected
 
         attr_reader :options

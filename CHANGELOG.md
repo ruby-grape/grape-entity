@@ -14,7 +14,8 @@
 #### Fixes
 
 * [#288](https://github.com/ruby-grape/grape-entity/pull/288) Fix wrong argument exception when &:block passed to the expose method  - [@DmitryTsepelev](https://github.com/DmitryTsepelev).
-* [#291](https://github.com/ruby-grape/grape-entity/pull/291) Refactor and simplify various classes and modules
+* [#291](https://github.com/ruby-grape/grape-entity/pull/291) Refactor and simplify various classes and modules  - [@DmitryTsepelev](https://github.com/DmitryTsepelev).
+* [#292](https://github.com/ruby-grape/grape-entity/pull/292): Allow replace non-conditional non-nesting exposures in child classes (fixes  [#286](https://github.com/ruby-grape/grape-entity/issues/286)) - [@DmitryTsepelev](https://github.com/DmitryTsepelev).
 * Your contribution here.
 
 ### 0.6.1 (2017-01-09)

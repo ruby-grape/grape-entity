@@ -352,6 +352,15 @@ describe Grape::Entity do
           expect(subject.represent({ name: 'bar' }, serializable: true)).to eq(email: nil, name: 'bar')
           expect(child_class.represent({ name: 'bar' }, serializable: true)).to eq(email: nil, name: 'foo')
         end
+
+        it 'overrides parent class exposure' do
+          subject.expose :name
+          child_class = Class.new(subject)
+          child_class.expose :name, as: :child_name
+
+          expect(subject.represent({ name: 'bar' }, serializable: true)).to eq(name: 'bar')
+          expect(child_class.represent({ name: 'bar' }, serializable: true)).to eq(child_name: 'bar')
+        end
       end
 
       context 'register formatters' do
