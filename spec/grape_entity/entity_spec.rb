@@ -68,6 +68,130 @@ describe Grape::Entity do
         end
       end
 
+      context 'with :expose_nil option' do
+        let(:a) { nil }
+        let(:b) { nil }
+        let(:c) { 'value' }
+
+        context 'when model is a PORO' do
+          let(:model) { Model.new(a, b, c) }
+
+          before do
+            stub_const 'Model', Class.new
+            Model.class_eval do
+              attr_accessor :a, :b, :c
+
+              def initialize(a, b, c)
+                @a = a
+                @b = b
+                @c = c
+              end
+            end
+          end
+
+          context 'when expose_nil option is not provided' do
+            it 'exposes nil attributes' do
+              subject.expose(:a)
+              subject.expose(:b)
+              subject.expose(:c)
+              expect(subject.represent(model).serializable_hash).to eq(a: nil, b: nil, c: 'value')
+            end
+          end
+
+          context 'when expose_nil option is true' do
+            it 'exposes nil attributes' do
+              subject.expose(:a, expose_nil: true)
+              subject.expose(:b, expose_nil: true)
+              subject.expose(:c)
+              expect(subject.represent(model).serializable_hash).to eq(a: nil, b: nil, c: 'value')
+            end
+          end
+
+          context 'when expose_nil option is false' do
+            it 'does not expose nil attributes' do
+              subject.expose(:a, expose_nil: false)
+              subject.expose(:b, expose_nil: false)
+              subject.expose(:c)
+              expect(subject.represent(model).serializable_hash).to eq(c: 'value')
+            end
+
+            it 'is only applied per attribute' do
+              subject.expose(:a, expose_nil: false)
+              subject.expose(:b)
+              subject.expose(:c)
+              expect(subject.represent(model).serializable_hash).to eq(b: nil, c: 'value')
+            end
+
+            it 'raises an error when applied to multiple attribute exposures' do
+              expect { subject.expose(:a, :b, :c, expose_nil: false) }.to raise_error ArgumentError
+            end
+          end
+        end
+
+        context 'when model is a hash' do
+          let(:model) { { a: a, b: b, c: c } }
+
+          context 'when expose_nil option is not provided' do
+            it 'exposes nil attributes' do
+              subject.expose(:a)
+              subject.expose(:b)
+              subject.expose(:c)
+              expect(subject.represent(model).serializable_hash).to eq(a: nil, b: nil, c: 'value')
+            end
+          end
+
+          context 'when expose_nil option is true' do
+            it 'exposes nil attributes' do
+              subject.expose(:a, expose_nil: true)
+              subject.expose(:b, expose_nil: true)
+              subject.expose(:c)
+              expect(subject.represent(model).serializable_hash).to eq(a: nil, b: nil, c: 'value')
+            end
+          end
+
+          context 'when expose_nil option is false' do
+            it 'does not expose nil attributes' do
+              subject.expose(:a, expose_nil: false)
+              subject.expose(:b, expose_nil: false)
+              subject.expose(:c)
+              expect(subject.represent(model).serializable_hash).to eq(c: 'value')
+            end
+
+            it 'is only applied per attribute' do
+              subject.expose(:a, expose_nil: false)
+              subject.expose(:b)
+              subject.expose(:c)
+              expect(subject.represent(model).serializable_hash).to eq(b: nil, c: 'value')
+            end
+
+            it 'raises an error when applied to multiple attribute exposures' do
+              expect { subject.expose(:a, :b, :c, expose_nil: false) }.to raise_error ArgumentError
+            end
+          end
+        end
+
+        context 'with nested structures' do
+          let(:model) { { a: a, b: b, c: { d: nil, e: nil, f: { g: nil, h: nil } } } }
+
+          context 'when expose_nil option is false' do
+            it 'does not expose nil attributes' do
+              subject.expose(:a, expose_nil: false)
+              subject.expose(:b)
+              subject.expose(:c) do
+                subject.expose(:d, expose_nil: false)
+                subject.expose(:e)
+                subject.expose(:f) do
+                  subject.expose(:g, expose_nil: false)
+                  subject.expose(:h)
+                end
+              end
+
+              expect(subject.represent(model).serializable_hash).to eq(b: nil, c: { e: nil, f: { h: nil } })
+            end
+          end
+        end
+      end
+
       context 'with a block' do
         it 'errors out if called with multiple attributes' do
           expect { subject.expose(:name, :email) { true } }.to raise_error ArgumentError
@@ -632,6 +756,34 @@ describe Grape::Entity do
 
         exposure = subject.find_exposure(:awesome_thing)
         expect(exposure.documentation).to eq(desc: 'Other description.')
+      end
+
+      it 'propagates expose_nil option' do
+        subject.class_eval do
+          with_options(expose_nil: false) do
+            expose :awesome_thing
+          end
+        end
+
+        exposure = subject.find_exposure(:awesome_thing)
+        expect(exposure.conditions[0].inversed?).to be true
+        expect(exposure.conditions[0].block.call(awesome_thing: nil)).to be true
+      end
+
+      it 'overrides nested :expose_nil option' do
+        subject.class_eval do
+          with_options(expose_nil: true) do
+            expose :awesome_thing, expose_nil: false
+            expose :other_awesome_thing
+          end
+        end
+
+        exposure = subject.find_exposure(:awesome_thing)
+        expect(exposure.conditions[0].inversed?).to be true
+        expect(exposure.conditions[0].block.call(awesome_thing: nil)).to be true
+        # Conditions are only added for exposures that do not expose nil
+        exposure = subject.find_exposure(:other_awesome_thing)
+        expect(exposure.conditions[0]).to be_nil
       end
     end
 

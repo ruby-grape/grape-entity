@@ -321,7 +321,7 @@ module Entities
     with_options(format_with: :iso_timestamp) do
       expose :created_at
       expose :updated_at
-    end    
+    end
   end
 end
 ```
@@ -346,6 +346,86 @@ module Entities
 
   class AnotherModel < Grape::Entity
     expose :created_at, format_with: :utc
+  end
+end
+```
+
+#### Expose Nil
+
+By default, exposures that contain `nil` values will be represented in the resulting JSON as `null`.
+
+As an example, a hash with the following values:
+
+```ruby
+{
+  name: nil,
+  age: 100
+}
+```
+
+will result in a JSON object that looks like:
+
+```javascript
+{
+  "name": null,
+  "age": 100
+}
+```
+
+There are also times when, rather than displaying an attribute with a `null` value, it is more desirable to not display the attribute at all. Using the hash from above the desired JSON would look like:
+
+```javascript
+{
+  "age": 100
+}
+```
+
+In order to turn on this behavior for an as-exposure basis, the option `expose_nil` can be used. By default, `expose_nil` is considered to be `true`, meaning that `nil` values will be represented in JSON as `null`. If `false` is provided, then attributes with `nil` values will be omitted from the resulting JSON completely.
+
+```ruby
+module  Entities
+  class MyModel < Grape::Entity
+    expose :name, expose_nil: false
+    expose :age, expose_nil: false
+  end
+end
+```
+
+`expose_nil` is per exposure, so you can suppress exposures from resulting in `null` or express `null` values on a per exposure basis as you need:
+
+```ruby
+module  Entities
+  class MyModel < Grape::Entity
+    expose :name, expose_nil: false
+    expose :age # since expose_nil is omitted nil values will be rendered as null
+  end
+end
+```
+
+It is also possible to use `expose_nil` with `with_options` if you want to add the configuration to multiple exposures at once.
+
+```ruby
+module  Entities
+  class MyModel < Grape::Entity
+    # None of the exposures in the with_options block will render nil values as null
+    with_options(expose_nil: false) do
+      expose :name
+      expose :age
+    end
+  end
+end
+```
+
+When using `with_options`, it is possible to again override which exposures will render `nil` as `null` by adding the option on a specific exposure.
+
+```ruby
+module  Entities
+  class MyModel < Grape::Entity
+    # None of the exposures in the with_options block will render nil values as null
+    with_options(expose_nil: false) do
+      expose :name
+      expose :age, expose_nil: true # nil values would be rendered as null in the JSON
+    end
   end
 end
 ```

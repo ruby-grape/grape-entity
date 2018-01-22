@@ -14,7 +14,7 @@ module Grape
     module Exposure
       class << self
         def new(attribute, options)
-          conditions = compile_conditions(options)
+          conditions = compile_conditions(attribute, options)
           base_args = [attribute, options, conditions]
 
           passed_proc = options[:proc]
@@ -36,7 +36,7 @@ module Grape
 
         private
 
-        def compile_conditions(options)
+        def compile_conditions(attribute, options)
           if_conditions = [
             options[:if_extras],
             options[:if]
@@ -47,7 +47,15 @@ module Grape
             options[:unless]
           ].compact.flatten.map { |cond| Condition.new_unless(cond) }
 
+          unless_conditions << expose_nil_condition(attribute) if options[:expose_nil] == false
+
           if_conditions + unless_conditions
+        end
+
+        def expose_nil_condition(attribute)
+          Condition.new_unless(
+            proc { |object, _options| Delegator.new(object).delegate(attribute).nil? }
+          )
         end
 
         def build_class_exposure(base_args, using_class, passed_proc)

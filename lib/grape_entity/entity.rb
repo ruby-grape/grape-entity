@@ -126,6 +126,9 @@ module Grape
     # This method is the primary means by which you will declare what attributes
     # should be exposed by the entity.
     #
+    # @option options :expose_nil When set to false the associated exposure will not
+    #   be rendered if its value is nil.
+    #
     # @option options :as Declare an alias for the representation of this attribute.
     #   If a proc is presented it is evaluated in the context of the entity so object
     #   and the entity methods are available to it.
@@ -170,6 +173,7 @@ module Grape
 
       if args.size > 1
         raise ArgumentError, 'You may not use the :as option on multi-attribute exposures.' if options[:as]
+        raise ArgumentError, 'You may not use the :expose_nil on multi-attribute exposures.' if options.key?(:expose_nil)
         raise ArgumentError, 'You may not use block-setting on multi-attribute exposures.' if block_given?
       end
 
@@ -523,7 +527,7 @@ module Grape
 
     # All supported options.
     OPTIONS = %i[
-      rewrite as if unless using with proc documentation format_with safe attr_path if_extras unless_extras merge
+      rewrite as if unless using with proc documentation format_with safe attr_path if_extras unless_extras merge expose_nil
     ].to_set.freeze
 
     # Merges the given options with current block options.

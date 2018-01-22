@@ -8,6 +8,7 @@
 * [#264](https://github.com/ruby-grape/grape-entity/pull/264): Adds Rubocop config and todo list - [@james2m](https://github.com/james2m).
 * [#255](https://github.com/ruby-grape/grape-entity/pull/255): Adds code coverage w/ coveralls - [@LeFnord](https://github.com/LeFnord).
 * [#268](https://github.com/ruby-grape/grape-entity/pull/268): Loosens the version dependency for activesupport - [@anakinj](https://github.com/anakinj).
+* [#293](https://github.com/ruby-grape/grape-entity/pull/293): Adds expose_nil option - [@b-boogaard](https://github.com/b-boogaard).
 
 * Your contribution here.
 
