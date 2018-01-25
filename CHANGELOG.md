@@ -2,6 +2,16 @@
 
 #### Features
 
+* Your contribution here.
+
+#### Fixes
+
+* Your contribution here.
+
+### 0.7.0 (2018-01-25)
+
+#### Features
+
 * [#287](https://github.com/ruby-grape/grape-entity/pull/287): Adds ruby 2.5, drops ruby 2.2 support - [@LeFnord](https://github.com/LeFnord).
 * [#277](https://github.com/ruby-grape/grape-entity/pull/277): Provide grape::entity::options#dig - [@kachick](https://github.com/kachick).
 * [#265](https://github.com/ruby-grape/grape-entity/pull/265): Adds ability to provide a proc to as: - [@james2m](https://github.com/james2m).
@@ -10,14 +20,11 @@
 * [#268](https://github.com/ruby-grape/grape-entity/pull/268): Loosens the version dependency for activesupport - [@anakinj](https://github.com/anakinj).
 * [#293](https://github.com/ruby-grape/grape-entity/pull/293): Adds expose_nil option - [@b-boogaard](https://github.com/b-boogaard).
 
-* Your contribution here.
-
 #### Fixes
 
-* [#288](https://github.com/ruby-grape/grape-entity/pull/288) Fix wrong argument exception when &:block passed to the expose method  - [@DmitryTsepelev](https://github.com/DmitryTsepelev).
-* [#291](https://github.com/ruby-grape/grape-entity/pull/291) Refactor and simplify various classes and modules  - [@DmitryTsepelev](https://github.com/DmitryTsepelev).
+* [#288](https://github.com/ruby-grape/grape-entity/pull/288): Fix wrong argument exception when `&:block` passed to the expose method  - [@DmitryTsepelev](https://github.com/DmitryTsepelev).
+* [#291](https://github.com/ruby-grape/grape-entity/pull/291): Refactor and simplify various classes and modules  - [@DmitryTsepelev](https://github.com/DmitryTsepelev).
 * [#292](https://github.com/ruby-grape/grape-entity/pull/292): Allow replace non-conditional non-nesting exposures in child classes (fixes  [#286](https://github.com/ruby-grape/grape-entity/issues/286)) - [@DmitryTsepelev](https://github.com/DmitryTsepelev).
-* Your contribution here.
 
 ### 0.6.1 (2017-01-09)
 
