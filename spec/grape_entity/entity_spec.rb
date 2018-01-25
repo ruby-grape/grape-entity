@@ -39,6 +39,31 @@ describe Grape::Entity do
         end
       end
 
+      context 'with :as option' do
+        let(:a) { 'hi' }
+
+        context 'when same item exposed more than once with different names' do
+
+          let(:model) { Model.new(a) }
+          before do
+            stub_const 'Model', Class.new
+            Model.class_eval do
+              attr_accessor :a
+
+              def initialize(a)
+                @a = a
+              end
+            end
+          end
+
+          it 'exposes attribute twice' do
+            subject.expose(:a)
+            subject.expose(:a, as: :z)
+            expect(subject.represent(model).serializable_hash).to eq(a: 'hi', z: 'hi')
+          end
+        end
+      end
+
       context 'with a :merge option' do
         let(:nested_hash) do
           { something: { like_nested_hash: true }, special: { like_nested_hash: '12' } }
