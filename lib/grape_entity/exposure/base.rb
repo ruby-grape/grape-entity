@@ -4,7 +4,7 @@ module Grape
   class Entity
     module Exposure
       class Base
-        attr_reader :attribute, :is_safe, :documentation, :conditions, :for_merge
+        attr_reader :attribute, :is_safe, :documentation, :override, :conditions, :for_merge
 
         def self.new(attribute, options, conditions, *args, &block)
           super(attribute, options, conditions).tap { |e| e.setup(*args, &block) }
@@ -19,6 +19,7 @@ module Grape
           @for_merge = options[:merge]
           @attr_path_proc = options[:attr_path]
           @documentation = options[:documentation]
+          @override = options[:override]
           @conditions = conditions
         end
 
@@ -116,8 +117,8 @@ module Grape
           end
         end
 
-        def replaceable_by?(other)
-          !nesting? && !conditional? && !other.nesting? && !other.conditional?
+        def override?
+          @override
         end
 
         protected

@@ -256,6 +256,22 @@ class MailingAddress < UserData
 end
 ```
 
+#### Overriding exposures
+
+If you want to add one more exposure for the field but don't want the first one to be fired (for instance, when using inheritance), you can use the `override` flag. For instance:
+
+```ruby
+class User < Grape::Entity
+  expose :name
+end
+
+class Employee < UserData
+  expose :name, as: :employee_name, override: true
+end
+```
+
+`User` will return something like this `{ "name" : "John" }` while `Employee` will present the same data as `{ "employee_name" : "John" }` instead of `{ "name" : "John", "employee_name" : "John" }`.
+
 #### Returning only the fields you want
 
 After exposing the desired attributes, you can choose which one you need when representing some object or collection by using the only: and except: options. See the example:
