@@ -477,10 +477,19 @@ describe Grape::Entity do
           expect(child_class.represent({ name: 'bar' }, serializable: true)).to eq(email: nil, name: 'foo')
         end
 
-        it 'overrides parent class exposure' do
+        it 'not overrides exposure by default' do
           subject.expose :name
           child_class = Class.new(subject)
           child_class.expose :name, as: :child_name
+
+          expect(subject.represent({ name: 'bar' }, serializable: true)).to eq(name: 'bar')
+          expect(child_class.represent({ name: 'bar' }, serializable: true)).to eq(name: 'bar', child_name: 'bar')
+        end
+
+        it 'overrides parent class exposure when option is specified' do
+          subject.expose :name
+          child_class = Class.new(subject)
+          child_class.expose :name, as: :child_name, override: true
 
           expect(subject.represent({ name: 'bar' }, serializable: true)).to eq(name: 'bar')
           expect(child_class.represent({ name: 'bar' }, serializable: true)).to eq(child_name: 'bar')

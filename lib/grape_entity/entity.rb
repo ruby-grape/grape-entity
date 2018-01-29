@@ -197,7 +197,7 @@ module Grape
 
       exposure = Exposure.new(attribute, options)
 
-      exposure_list.delete_by(attribute) if exposure_list.select_by(attribute).all? { |exp| exp.replaceable_by?(exposure) }
+      exposure_list.delete_by(attribute) if exposure.override?
 
       exposure_list << exposure
 
@@ -527,7 +527,7 @@ module Grape
 
     # All supported options.
     OPTIONS = %i[
-      rewrite as if unless using with proc documentation format_with safe attr_path if_extras unless_extras merge expose_nil
+      rewrite as if unless using with proc documentation format_with safe attr_path if_extras unless_extras merge expose_nil override
     ].to_set.freeze
 
     # Merges the given options with current block options.
