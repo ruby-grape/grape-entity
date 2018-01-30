@@ -2,12 +2,17 @@
 
 #### Features
 
-* [#292](https://github.com/ruby-grape/grape-entity/pull/297): Introduce `override` option for expose (fixes [#286](https://github.com/ruby-grape/grape-entity/issues/296)) - [@DmitryTsepelev](https://github.com/DmitryTsepelev).
 * Your contribution here.
 
 #### Fixes
 
 * Your contribution here.
+
+### 0.7.1 (2018-01-30)
+
+#### Features
+
+* [#292](https://github.com/ruby-grape/grape-entity/pull/297): Introduce `override` option for expose (fixes [#286](https://github.com/ruby-grape/grape-entity/issues/296)) - [@DmitryTsepelev](https://github.com/DmitryTsepelev).
 
 ### 0.7.0 (2018-01-25)
 
