@@ -835,6 +835,12 @@ describe Grape::Entity do
         expect(representation).to eq(awesome: true)
       end
 
+      it 'returns a serialized hash of a hash with string keys' do
+        subject.expose('awesome', 'data')
+        representation = subject.represent({ 'awesome' => true, 'data' => 'awesome' }, serializable: true)
+        expect(representation).to eq(awesome: true, data: 'awesome')
+      end
+
       it 'returns a serialized hash of an OpenStruct' do
         subject.expose(:awesome)
         representation = subject.represent(OpenStruct.new, serializable: true)
