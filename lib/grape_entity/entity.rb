@@ -516,12 +516,12 @@ module Grape
     alias as_json serializable_hash
 
     def to_json(options = {})
-      options = options.to_h if options && options.respond_to?(:to_h)
+      options = options.to_h if options&.respond_to?(:to_h)
       MultiJson.dump(serializable_hash(options))
     end
 
     def to_xml(options = {})
-      options = options.to_h if options && options.respond_to?(:to_h)
+      options = options.to_h if options&.respond_to?(:to_h)
       serializable_hash(options).to_xml(options)
     end
 
