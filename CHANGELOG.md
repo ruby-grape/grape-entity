@@ -3,6 +3,7 @@
 #### Features
 
 * Your contribution here.
+* [#300](https://github.com/ruby-grape/grape-entity/pull/300): Loosens activesupport to 3 - [@ericschultz](https://github.com/ericschultz).
 
 #### Fixes
 
