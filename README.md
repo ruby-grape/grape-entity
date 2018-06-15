@@ -265,7 +265,7 @@ class User < Grape::Entity
   expose :name
 end
 
-class Employee < UserData
+class Employee < User
   expose :name, as: :employee_name, override: true
 end
 ```
