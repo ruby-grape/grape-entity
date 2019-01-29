@@ -5,11 +5,11 @@ source 'http://rubygems.org'
 gemspec
 
 group :development, :test do
-  gem 'rubocop', '~> 0.51', require: false
+  gem 'rubocop', '~> 0.61', require: false
 end
 
 group :test do
-  gem 'coveralls', require: false
+  gem 'coveralls_reborn', require: false
   gem 'growl'
   gem 'guard'
   gem 'guard-bundler'

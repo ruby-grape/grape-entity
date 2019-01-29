@@ -7,24 +7,23 @@ before_install:
   - gem install bundler
 
 after_success:
-  - coveralls
+  # - coveralls
   - bundle exec danger
 
 rvm:
-  - 2.5.0
-  - 2.4.3
+  - 2.4.5
+  - 2.5.3
+  - 2.6.0
 
 matrix:
   fast_finish: true
 
   include:
-    - rvm: 2.3.6
+    - rvm: 2.3.8
     - rvm: ruby-head
     - rvm: jruby-head
-    - rvm: rbx-2
 
   allow_failures:
-    - rvm: 2.3.6
+    - rvm: 2.3.8
     - rvm: ruby-head
     - rvm: jruby-head
-    - rvm: rbx-2
