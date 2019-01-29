@@ -8,6 +8,7 @@
 #### Fixes
 
 * Your contribution here.
+* [#258](https://github.com/ruby-grape/grape-entity/pull/307): Allow exposures to call methods defined in modules included in an entity [@robertoz-01](https://github.com/robertoz-01).
 
 ### 0.7.1 (2018-01-30)
 

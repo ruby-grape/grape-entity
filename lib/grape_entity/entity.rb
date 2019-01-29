@@ -506,11 +506,18 @@ module Grape
     end
 
     def delegate_attribute(attribute)
-      if respond_to?(attribute, true) && Grape::Entity > method(attribute).owner
+      if is_defined_in_entity?(attribute)
         send(attribute)
       else
         delegator.delegate(attribute)
       end
+    end
+
+    def is_defined_in_entity?(attribute)
+      return false unless respond_to?(attribute, true)
+
+      ancestors = self.class.ancestors
+      ancestors.index(Grape::Entity) > ancestors.index(method(attribute).owner)
     end
 
     alias as_json serializable_hash
