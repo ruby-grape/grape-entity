@@ -168,10 +168,13 @@ module Grape
     # @option options :documentation Define documenation for an exposed
     #   field, typically the value is a hash with two fields, type and desc.
     # @option options :merge This option allows you to merge an exposed field to the root
+    #
+    # rubocop:disable Metrics/LineLength
     def self.expose(*args, &block)
       options = merge_options(args.last.is_a?(Hash) ? args.pop : {})
 
       if args.size > 1
+
         raise ArgumentError, 'You may not use the :as option on multi-attribute exposures.' if options[:as]
         raise ArgumentError, 'You may not use the :expose_nil on multi-attribute exposures.' if options.key?(:expose_nil)
         raise ArgumentError, 'You may not use block-setting on multi-attribute exposures.' if block_given?
@@ -191,6 +194,7 @@ module Grape
       @nesting_stack ||= []
       args.each { |attribute| build_exposure_for_attribute(attribute, @nesting_stack, options, block) }
     end
+    # rubocop:enable Metrics/LineLength
 
     def self.build_exposure_for_attribute(attribute, nesting_stack, options, block)
       exposure_list = nesting_stack.empty? ? root_exposures : nesting_stack.last.nested_exposures
@@ -291,6 +295,7 @@ module Grape
     #
     def self.format_with(name, &block)
       raise ArgumentError, 'You must pass a block for formatters' unless block_given?
+
       formatters[name.to_sym] = block
     end
 
@@ -534,7 +539,22 @@ module Grape
 
     # All supported options.
     OPTIONS = %i[
-      rewrite as if unless using with proc documentation format_with safe attr_path if_extras unless_extras merge expose_nil override
+      rewrite
+      as
+      if
+      unless
+      using
+      with
+      proc
+      documentation
+      format_with
+      safe
+      attr_path
+      if_extras
+      unless_extras
+      merge
+      expose_nil
+      override
     ].to_set.freeze
 
     # Merges the given options with current block options.

@@ -1376,7 +1376,7 @@ describe Grape::Entity do
         expect(res).to have_key :nonexistent_attribute
       end
 
-      it "exposes attributes defined through module inclusion" do
+      it 'exposes attributes defined through module inclusion' do
         module SharedAttributes
           def a_value
             3.14
