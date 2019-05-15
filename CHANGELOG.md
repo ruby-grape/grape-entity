@@ -1,5 +1,7 @@
 ### Next
 
+* [#319](https://github.com/ruby-grape/grape-entity/pull/319): Support hashes with string keys - [@mhenrixon](https://github.com/mhenrixon).
+
 #### Features
 
 * Your contribution here.
