@@ -8,7 +8,7 @@
 #### Fixes
 
 * Your contribution here.
-* [#318](https://github.com/ruby-grape/grape-entity/pull/318): CI: use 2.4.6, 2.5.5, 2.6.2 - [@olleolleolle](https://github.com/olleolleolle).
+* [#318](https://github.com/ruby-grape/grape-entity/pull/318): CI: use 2.4.6, 2.5.5, 2.6.3 - [@olleolleolle](https://github.com/olleolleolle).
 * [#258](https://github.com/ruby-grape/grape-entity/pull/307): Allow exposures to call methods defined in modules included in an entity [@robertoz-01](https://github.com/robertoz-01).
 
 ### 0.7.1 (2018-01-30)
