@@ -16,8 +16,6 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 2.4'
 
-  s.rubyforge_project = 'grape-entity'
-
   s.add_runtime_dependency 'activesupport', '>= 3.0.0'
   # FIXME: remove dependecy
   s.add_runtime_dependency 'multi_json', '>= 1.3.2'
