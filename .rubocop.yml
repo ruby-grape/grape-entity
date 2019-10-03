@@ -1,37 +1,48 @@
-AllCops:
-  TargetRubyVersion: 2.4
-  Include:
-    - Dangerfile
-
-  Exclude:
-    - vendor/**/*
-    - bin/**/*
-    - Guardfile
-
 inherit_from: .rubocop_todo.yml
 
-Gemspec/RequiredRubyVersion:
+AllCops:
+  Exclude:
+    - vendor/**/*
+    - example/**/*
+  TargetRubyVersion: 2.4
+
+Layout/EmptyLinesAroundArguments:
   Enabled: false
 
-Naming/FileName:
+Layout/IndentFirstHashElement:
+  EnforcedStyle: consistent
+
+Metrics/AbcSize:
+  Max: 25
+
+Metrics/BlockLength:
   Exclude:
-    - 'Gemfile'
-    - 'Rakefile'
-    - 'grape-entity.gemspec'
-    - 'lib/grape-entity.rb'
+    - spec/**/*
+
+Metrics/CyclomaticComplexity:
+  Max: 10
+
+Metrics/ClassLength:
+  Max: 300
+
+Metrics/LineLength:
+  Max: 120
+  Exclude:
+    - spec/**/*
+
+Metrics/MethodLength:
+  Max: 26
+  Exclude:
+    - spec/**/*
+
+Metrics/PerceivedComplexity:
+  Max: 11
+
+Naming:
+  Enabled: false
 
 Style/Documentation:
   Enabled: false
 
-Style/MultilineIfModifier:
-  Enabled: false
-
-Style/RaiseArgs:
-  Enabled: false
-
-Lint/BooleanSymbol:
-  Exclude:
-    - 'spec/grape_entity/exposure_spec.rb'
-
-Lint/UnneededDisable:
+Style/RegexpLiteral:
   Enabled: false

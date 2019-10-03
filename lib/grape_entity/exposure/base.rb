@@ -54,7 +54,10 @@ module Grape
           if @is_safe
             is_delegatable
           else
-            is_delegatable || raise(NoMethodError, "#{entity.class.name} missing attribute `#{@attribute}' on #{entity.object}")
+            is_delegatable || raise(
+              NoMethodError,
+              "#{entity.class.name} missing attribute `#{@attribute}' on #{entity.object}"
+            )
           end
         end
 

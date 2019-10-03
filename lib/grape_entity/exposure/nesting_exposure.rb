@@ -87,6 +87,7 @@ module Grape
               exposure.should_expose?(entity, options)
             end
             next unless should_expose
+
             output[exposure.key(entity)] ||= []
             output[exposure.key(entity)] << exposure
           end

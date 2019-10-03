@@ -220,7 +220,8 @@ class ExampleEntity < Grape::Entity
 end
 ```
 
-You have always access to the presented instance with `object`
+You always have access to the presented instance (`object`) and the top-level
+entity options (`options`).
 
 ```ruby
 class ExampleEntity < Grape::Entity
@@ -229,7 +230,7 @@ class ExampleEntity < Grape::Entity
   private
 
   def formatted_value
-    "+ X #{object.value}"
+    "+ X #{object.value} #{options[:y]}"
   end
 end
 ```

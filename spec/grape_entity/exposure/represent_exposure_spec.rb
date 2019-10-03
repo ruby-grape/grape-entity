@@ -12,11 +12,11 @@ describe Grape::Entity::Exposure::RepresentExposure do
     let(:subexposure)      { double(:subexposure) }
 
     it 'sets using_class_name' do
-      expect { subject }.to change { exposure.using_class_name }.to(using_class_name)
+      expect { subject }.to change(exposure, :using_class_name).to(using_class_name)
     end
 
     it 'sets subexposure' do
-      expect { subject }.to change { exposure.subexposure }.to(subexposure)
+      expect { subject }.to change(exposure, :subexposure).to(subexposure)
     end
 
     context 'when using_class is set' do
@@ -25,7 +25,7 @@ describe Grape::Entity::Exposure::RepresentExposure do
       end
 
       it 'resets using_class' do
-        expect { subject }.to change { exposure.using_class }
+        expect { subject }.to change(exposure, :using_class)
       end
     end
   end

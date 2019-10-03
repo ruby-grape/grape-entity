@@ -5,7 +5,7 @@ source 'http://rubygems.org'
 gemspec
 
 group :development, :test do
-  gem 'rubocop', '~> 0.61', require: false
+  gem 'rubocop', '~> 0.65', require: false
 end
 
 group :test do

@@ -49,7 +49,7 @@ module Grape
             length
             empty?
           ].each do |name|
-            class_eval <<-RUBY, __FILE__, __LINE__
+            class_eval <<-RUBY, __FILE__, __LINE__ + 1
               def #{name}(*args, &block)
                 @exposures.#{name}(*args, &block)
               end
