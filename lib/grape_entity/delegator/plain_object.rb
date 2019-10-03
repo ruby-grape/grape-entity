@@ -4,7 +4,7 @@ module Grape
   class Entity
     module Delegator
       class PlainObject < Base
-        def delegate(attribute)
+        def delegate(attribute, **)
           object.send attribute
         end
 

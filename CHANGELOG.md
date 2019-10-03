@@ -3,6 +3,7 @@
 #### Features
 
 * Your contribution here.
+* [#319](https://github.com/ruby-grape/grape-entity/pull/319): Support hashes with string keys - [@mhenrixon](https://github.com/mhenrixon).
 * [#300](https://github.com/ruby-grape/grape-entity/pull/300): Loosens activesupport to 3 - [@ericschultz](https://github.com/ericschultz).
 
 #### Fixes
@@ -15,7 +16,7 @@
 
 #### Features
 
-* [#292](https://github.com/ruby-grape/grape-entity/pull/297): Introduce `override` option for expose (fixes [#286](https://github.com/ruby-grape/grape-entity/issues/296)) - [@DmitryTsepelev](https://github.com/DmitryTsepelev).
+* [#297](https://github.com/ruby-grape/grape-entity/pull/297): Introduce `override` option for expose (fixes [#286](https://github.com/ruby-grape/grape-entity/issues/296)) - [@DmitryTsepelev](https://github.com/DmitryTsepelev).
 
 ### 0.7.0 (2018-01-25)
 
