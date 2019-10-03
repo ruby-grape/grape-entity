@@ -114,6 +114,22 @@ module Grape
       end
 
       attr_writer :formatters
+
+      def hash_access
+        @hash_access ||= :to_sym
+      end
+
+      def hash_access=(value)
+        @hash_access =
+          case value
+          when :to_s, :str, :string
+            :to_s
+          when :to_sym, :sym, :symbol
+            :to_sym
+          else
+            :to_sym
+          end
+      end
     end
 
     @formatters = {}
@@ -459,8 +475,8 @@ module Grape
 
     def initialize(object, options = {})
       @object = object
-      @delegator = Delegator.new(object)
       @options = options.is_a?(Options) ? options : Options.new(options)
+      @delegator = Delegator.new(object)
     end
 
     def root_exposures
@@ -514,7 +530,7 @@ module Grape
       if is_defined_in_entity?(attribute)
         send(attribute)
       else
-        delegator.delegate(attribute)
+        delegator.delegate(attribute, hash_access: self.class.hash_access)
       end
     end
 
