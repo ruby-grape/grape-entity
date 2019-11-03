@@ -185,7 +185,7 @@ module Grape
     #   field, typically the value is a hash with two fields, type and desc.
     # @option options :merge This option allows you to merge an exposed field to the root
     #
-    # rubocop:disable Metrics/LineLength
+    # rubocop:disable Metrics/LineLength, Style/IfUnlessModifier
     def self.expose(*args, &block)
       options = merge_options(args.last.is_a?(Hash) ? args.pop : {})
 
@@ -196,9 +196,11 @@ module Grape
         raise ArgumentError, 'You may not use block-setting on multi-attribute exposures.' if block_given?
       end
 
-      raise ArgumentError, 'You may not use block-setting when also using format_with' if block_given? && options[:format_with].respond_to?(:call)
-
       if block_given?
+        if options[:format_with].respond_to?(:call)
+          raise ArgumentError, 'You may not use block-setting when also using format_with'
+        end
+
         if block.parameters.any?
           options[:proc] = block
         else
@@ -210,7 +212,7 @@ module Grape
       @nesting_stack ||= []
       args.each { |attribute| build_exposure_for_attribute(attribute, @nesting_stack, options, block) }
     end
-    # rubocop:enable Metrics/LineLength
+    # rubocop:enable Metrics/LineLength, Style/IfUnlessModifier
 
     def self.build_exposure_for_attribute(attribute, nesting_stack, options, block)
       exposure_list = nesting_stack.empty? ? root_exposures : nesting_stack.last.nested_exposures
