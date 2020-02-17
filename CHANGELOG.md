@@ -3,7 +3,7 @@
 #### Features
 
 * Your contribution here.
-* [#307](https://github.com/ruby-grape/grape-entity/pull/307): Allow exposures to call methods defined in modules included in an entity [@robertoz-01](https://github.com/robertoz-01).
+* [#307](https://github.com/ruby-grape/grape-entity/pull/307): Allow exposures to call methods defined in modules included in an entity - [@robertoz-01](https://github.com/robertoz-01).
 * [#319](https://github.com/ruby-grape/grape-entity/pull/319): Support hashes with string keys - [@mhenrixon](https://github.com/mhenrixon).
 * [#300](https://github.com/ruby-grape/grape-entity/pull/300): Loosens activesupport to 3 - [@ericschultz](https://github.com/ericschultz).
 
@@ -11,7 +11,7 @@
 
 * Your contribution here.
 * [#320](https://github.com/ruby-grape/grape-entity/pull/320): Gemspec: drop eol'd property rubyforge_project - [@olleolleolle](https://github.com/olleolleolle).
-* [#307](https://github.com/ruby-grape/grape-entity/pull/307): Allow exposures to call methods defined in modules included in an entity [@robertoz-01](https://github.com/robertoz-01).
+* [#307](https://github.com/ruby-grape/grape-entity/pull/307): Allow exposures to call methods defined in modules included in an entity - [@robertoz-01](https://github.com/robertoz-01).
 
 ### 0.7.1 (2018-01-30)
 
