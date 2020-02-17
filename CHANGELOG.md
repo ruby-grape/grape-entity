@@ -10,6 +10,7 @@
 #### Fixes
 
 * Your contribution here.
+* [#329](https://github.com/ruby-grape/grape-entity/pull/329): Option expose_nil doesn't work when block is passed - [@serbiant](https://github.com/serbiant).
 * [#320](https://github.com/ruby-grape/grape-entity/pull/320): Gemspec: drop eol'd property rubyforge_project - [@olleolleolle](https://github.com/olleolleolle).
 * [#307](https://github.com/ruby-grape/grape-entity/pull/307): Allow exposures to call methods defined in modules included in an entity - [@robertoz-01](https://github.com/robertoz-01).
 

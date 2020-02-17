@@ -47,14 +47,20 @@ module Grape
             options[:unless]
           ].compact.flatten.map { |cond| Condition.new_unless(cond) }
 
-          unless_conditions << expose_nil_condition(attribute) if options[:expose_nil] == false
+          unless_conditions << expose_nil_condition(attribute, options) if options[:expose_nil] == false
 
           if_conditions + unless_conditions
         end
 
-        def expose_nil_condition(attribute)
+        def expose_nil_condition(attribute, options)
           Condition.new_unless(
-            proc { |object, _options| Delegator.new(object).delegate(attribute).nil? }
+            proc do |object, _options|
+              if options[:proc].nil?
+                Delegator.new(object).delegate(attribute).nil?
+              else
+                exec_with_object(options, &options[:proc]).nil?
+              end
+            end
           )
         end
 

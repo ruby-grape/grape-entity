@@ -126,6 +126,26 @@ describe Grape::Entity do
               expect { subject.expose(:a, :b, :c, expose_nil: false) }.to raise_error ArgumentError
             end
           end
+
+          context 'when expose_nil option is false and block passed' do
+            it 'does not expose if block returns nil' do
+              subject.expose(:a, expose_nil: false) do |_obj, _options|
+                nil
+              end
+              subject.expose(:b)
+              subject.expose(:c)
+              expect(subject.represent(model).serializable_hash).to eq(b: nil, c: 'value')
+            end
+
+            it 'exposes is block returns a value' do
+              subject.expose(:a, expose_nil: false) do |_obj, _options|
+                100
+              end
+              subject.expose(:b)
+              subject.expose(:c)
+              expect(subject.represent(model).serializable_hash).to eq(a: 100, b: nil, c: 'value')
+            end
+          end
         end
 
         context 'when model is a hash' do
