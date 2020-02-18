@@ -7,7 +7,6 @@ after_success:
   - bundle exec danger
 
 rvm:
-  - 2.4.9
   - 2.5.7
   - 2.6.5
   - 2.7.0
@@ -16,6 +15,9 @@ rvm:
 
 matrix:
   fast_finish: true
+
+  include:
+    - rvm: 2.4.9
 
   allow_failures:
     - rvm: 2.4.9
