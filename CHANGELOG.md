@@ -3,13 +3,21 @@
 #### Features
 
 * Your contribution here.
+
+#### Fixes
+
+* Your contribution here.
+
+### 0.9.0 (2020-02-18)
+
+#### Features
+
 * [#307](https://github.com/ruby-grape/grape-entity/pull/307): Allow exposures to call methods defined in modules included in an entity - [@robertoz-01](https://github.com/robertoz-01).
 * [#319](https://github.com/ruby-grape/grape-entity/pull/319): Support hashes with string keys - [@mhenrixon](https://github.com/mhenrixon).
 * [#300](https://github.com/ruby-grape/grape-entity/pull/300): Loosens activesupport to 3 - [@ericschultz](https://github.com/ericschultz).
 
 #### Fixes
 
-* Your contribution here.
 * [#330](https://github.com/ruby-grape/grape-entity/pull/330): CI: use Ruby 2.5.7, 2.6.5, 2.7.0 - [@budnik](https://github.com/budnik).
 * [#329](https://github.com/ruby-grape/grape-entity/pull/329): Option expose_nil doesn't work when block is passed - [@serbiant](https://github.com/serbiant).
 * [#320](https://github.com/ruby-grape/grape-entity/pull/320): Gemspec: drop eol'd property rubyforge_project - [@olleolleolle](https://github.com/olleolleolle).
