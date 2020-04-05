@@ -7,9 +7,9 @@ after_success:
   - bundle exec danger
 
 rvm:
-  - 2.5.7
-  - 2.6.5
-  - 2.7.0
+  - 2.5.8
+  - 2.6.6
+  - 2.7.1
   - ruby-head
   - jruby-head
 
@@ -17,9 +17,9 @@ matrix:
   fast_finish: true
 
   include:
-    - rvm: 2.4.9
+    - rvm: 2.4.10
 
   allow_failures:
-    - rvm: 2.4.9
+    - rvm: 2.4.10
     - rvm: ruby-head
     - rvm: jruby-head
