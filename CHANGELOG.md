@@ -8,6 +8,7 @@
 
 * Your contribution here.
 * [#333](https://github.com/ruby-grape/grape-entity/pull/333): Fix typo in CHANGELOG.md - [@eitoball](https://github.com/eitoball).
+* [#336](https://github.com/ruby-grape/grape-entity/pull/336): Pass options to delegators when they accept it - [@dnesteryuk](https://github.com/dnesteryuk).
 
 ### 0.8.0 (2020-02-18)
 
