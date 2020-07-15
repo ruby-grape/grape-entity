@@ -105,15 +105,13 @@ module Grape
         @root_exposure ||= Exposure.new(nil, nesting: true)
       end
 
-      attr_writer :root_exposure
+      attr_writer :root_exposure, :formatters
 
       # Returns all formatters that are registered for this and it's ancestors
       # @return [Hash] of formatters
       def formatters
         @formatters ||= {}
       end
-
-      attr_writer :formatters
 
       def hash_access
         @hash_access ||= :to_sym

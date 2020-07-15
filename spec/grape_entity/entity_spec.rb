@@ -977,7 +977,7 @@ describe Grape::Entity do
           subject.expose(:user, using: user_entity)
 
           representation = subject.represent(OpenStruct.new(user: {}),
-                                             only: [:id, :name, :phone, user: %i[id name email]],
+                                             only: [:id, :name, :phone, { user: %i[id name email] }],
                                              except: [:phone, { user: [:id] }], serializable: true)
           expect(representation).to eq(id: nil, name: nil, user: { name: nil, email: nil })
         end
