@@ -7,6 +7,7 @@ require 'benchmark'
 module Models
   class School
     attr_reader :classrooms
+
     def initialize
       @classrooms = []
     end
@@ -15,6 +16,7 @@ module Models
   class ClassRoom
     attr_reader :students
     attr_accessor :teacher
+
     def initialize(opts = {})
       @teacher = opts[:teacher]
       @students = []
@@ -23,6 +25,7 @@ module Models
 
   class Person
     attr_accessor :name
+
     def initialize(opts = {})
       @name = opts[:name]
     end
@@ -30,6 +33,7 @@ module Models
 
   class Teacher < Models::Person
     attr_accessor :tenure
+
     def initialize(opts = {})
       super(opts)
       @tenure = opts[:tenure]
@@ -38,6 +42,7 @@ module Models
 
   class Student < Models::Person
     attr_reader :grade
+
     def initialize(opts = {})
       super(opts)
       @grade = opts[:grade]
