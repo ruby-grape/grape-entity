@@ -130,6 +130,10 @@ module Grape
             :to_sym
           end
       end
+
+      def delegation_opts
+        @delegation_opts ||= { hash_access: hash_access }
+      end
     end
 
     @formatters = {}
@@ -479,6 +483,9 @@ module Grape
       @object = object
       @options = options.is_a?(Options) ? options : Options.new(options)
       @delegator = Delegator.new(object)
+
+      # Why not `arity > 1`? It might be negative https://ruby-doc.org/core-2.6.6/Method.html#method-i-arity
+      @delegator_accepts_opts = @delegator.method(:delegate).arity != 1
     end
 
     def root_exposures
@@ -531,8 +538,10 @@ module Grape
     def delegate_attribute(attribute)
       if is_defined_in_entity?(attribute)
         send(attribute)
+      elsif @delegator_accepts_opts
+        delegator.delegate(attribute, self.class.delegation_opts)
       else
-        delegator.delegate(attribute, hash_access: self.class.hash_access)
+        delegator.delegate(attribute)
       end
     end
 
