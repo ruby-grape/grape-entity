@@ -537,7 +537,7 @@ module Grape
       if is_defined_in_entity?(attribute)
         send(attribute)
       elsif @delegator_accepts_opts
-        delegator.delegate(attribute, self.class.delegation_opts)
+        delegator.delegate(attribute, **self.class.delegation_opts)
       else
         delegator.delegate(attribute)
       end
