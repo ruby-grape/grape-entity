@@ -139,6 +139,8 @@ module Grape
     def self.inherited(subclass)
       subclass.root_exposure = root_exposure.dup
       subclass.formatters = formatters.dup
+
+      super
     end
 
     # This method is the primary means by which you will declare what attributes
