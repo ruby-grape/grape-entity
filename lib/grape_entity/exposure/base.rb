@@ -113,11 +113,9 @@ module Grape
           @key.respond_to?(:call) ? entity.exec_with_object(@options, &@key) : @key
         end
 
-        def with_attr_path(entity, options)
+        def with_attr_path(entity, options, &block)
           path_part = attr_path(entity, options)
-          options.with_attr_path(path_part) do
-            yield
-          end
+          options.with_attr_path(path_part, &block)
         end
 
         def override?

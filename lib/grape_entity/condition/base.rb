@@ -21,7 +21,7 @@ module Grape
         end
 
         def met?(entity, options)
-          !@inverse ? if_value(entity, options) : unless_value(entity, options)
+          @inverse ? unless_value(entity, options) : if_value(entity, options)
         end
 
         def if_value(_entity, _options)
