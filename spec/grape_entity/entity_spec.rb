@@ -30,7 +30,9 @@ describe Grape::Entity do
 
         it 'makes sure that :format_with as a proc cannot be used with a block' do
           # rubocop:disable Style/BlockDelimiters
+          # rubocop:disable Lint/EmptyBlock
           expect { subject.expose :name, format_with: proc {} do p 'hi' end }.to raise_error ArgumentError
+          # rubocop:enable Lint/EmptyBlock
           # rubocop:enable Style/BlockDelimiters
         end
 
@@ -279,8 +281,12 @@ describe Grape::Entity do
             value = subject.represent(object).value_for(:that_method_without_args)
             expect(value).to eq('result')
 
-            value2 = subject.represent(object).value_for(:that_method_without_args_again)
-            expect(value2).to eq('result')
+            if RUBY_VERSION.start_with?('3')
+              expect { subject.represent(object).value_for(:that_method_without_args_again) }.to raise_error Grape::Entity::Deprecated
+            else
+              value2 = subject.represent(object).value_for(:that_method_without_args_again)
+              expect(value2).to eq('result')
+            end
           end
         end
 
@@ -1693,10 +1699,12 @@ describe Grape::Entity do
             end
           end
 
+          # rubocop:disable Lint/EmptyBlock
           fresh_class.class_eval do
             expose :first_friend, using: EntitySpec::FriendEntity do |_user, _opts|
             end
           end
+          # rubocop:enable Lint/EmptyBlock
 
           rep = subject.value_for(:first_friend)
           expect(rep).to be_kind_of EntitySpec::FriendEntity

@@ -91,6 +91,7 @@ module Grape
             output[exposure.key(entity)] ||= []
             output[exposure.key(entity)] << exposure
           end
+
           table.map do |key, exposures|
             last_exposure = exposures.last
 

@@ -139,6 +139,8 @@ module Grape
     def self.inherited(subclass)
       subclass.root_exposure = root_exposure.dup
       subclass.formatters = formatters.dup
+
+      super
     end
 
     # This method is the primary means by which you will declare what attributes
@@ -523,6 +525,9 @@ module Grape
       else
         instance_exec(object, options, &block)
       end
+    rescue StandardError => e
+      # it handles: https://github.com/ruby/ruby/blob/v3_0_0_preview1/NEWS.md#language-changes point 3, Proc
+      raise Grape::Entity::Deprecated.new e.message, 'in ruby 3.0'
     end
 
     def exec_with_attribute(attribute, &block)

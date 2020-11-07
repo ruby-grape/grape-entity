@@ -5,6 +5,8 @@ AllCops:
     - vendor/**/*
     - example/**/*
   TargetRubyVersion: 2.7
+  UseCache: true
+  NewCops: enable
 
 #  Layout stuff
 #
@@ -27,25 +29,18 @@ Layout/SpaceAroundMethodCallOperator:
 
 #  Lint stuff
 #
-Lint/DeprecatedOpenSSLConstant:
+Lint/ConstantDefinitionInBlock:
   Enabled: true
-
-Lint/DuplicateElsifCondition:
-  Enabled: true
-
-Lint/MixedRegexpCaptureTypes:
-  Enabled: true
-
-Lint/RaiseException:
-  Enabled: true
-
-Lint/StructNewOverride:
-  Enabled: true
+  Exclude:
+    - spec/**/*
 
 #  Metrics stuff
 #
 Metrics/AbcSize:
   Max: 25
+  IgnoredMethods:
+    # from lib/grape_entity/exposure/nesting_exposure.rb
+    - 'normalized_exposures'
 
 Metrics/BlockLength:
   Exclude:
@@ -64,6 +59,12 @@ Metrics/MethodLength:
 
 Metrics/PerceivedComplexity:
   Max: 11
+  IgnoredMethods:
+    # from lib/grape_entity/entity.rb
+    - 'expose'
+    - 'merge_options'
+    # from lib/grape_entity/exposure/nesting_exposure.rb
+    - 'normalized_exposures'
 
 #  Naming stuff
 #
@@ -73,56 +74,13 @@ Naming:
 
 #  Style stuff
 #
-Style/AccessorGrouping:
-  Enabled: true
-
-Style/ArrayCoercion:
-  Enabled: true
-
-Style/BisectedAttrAccessor:
-  Enabled: true
-
-Style/CaseLikeIf:
-  Enabled: true
-
 Style/Documentation:
   Enabled: false
 
-Style/ExponentialNotation:
-  Enabled: true
-
-Style/HashAsLastArrayItem:
-  Enabled: true
-
-Style/HashEachMethods:
-  Enabled: true
-
-Style/HashLikeCase:
-  Enabled: true
-
-Style/HashTransformKeys:
-  Enabled: true
-
-Style/HashTransformValues:
-  Enabled: true
-
-Style/RedundantAssignment:
-  Enabled: true
-
-Style/RedundantFetchBlock:
-  Enabled: true
-
-Style/RedundantFileExtensionInRequire:
-  Enabled: true
-
-Style/RedundantRegexpCharacterClass:
-  Enabled: true
-
-Style/RedundantRegexpEscape:
-  Enabled: true
-
-Style/RegexpLiteral:
-  Enabled: false
-
-Style/SlicingWithRange:
-  Enabled: true
+Style/OptionalBooleanParameter:
+  AllowedMethods:
+    # from lib/grape_entity/condition/base.rb
+    - 'initialize'
+    # form lib/grape_entity/entity.rb
+    - 'entity_class'
+    - 'present_collection'
