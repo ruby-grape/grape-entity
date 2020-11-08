@@ -525,6 +525,11 @@ module Grape
       else
         instance_exec(object, options, &block)
       end
+    rescue StandardError => e
+      # it handles: https://github.com/ruby/ruby/blob/v3_0_0_preview1/NEWS.md#language-changes point 3, Proc
+      raise Grape::Entity::Deprecated.new e.message, 'in ruby 3.0' if e.is_a?(ArgumentError)
+
+      raise e.class, e.message
     end
 
     def exec_with_attribute(attribute, &block)
