@@ -283,16 +283,25 @@ describe Grape::Entity do
           end
 
           context 'with block passed in via &' do
-            specify do
-              subject.expose :that_method_without_args_again, &:method_without_args
+            if RUBY_VERSION.start_with?('3')
+              specify do
+                subject.expose :that_method_without_args, &:method_without_args
+                subject.expose :method_without_args, as: :that_method_without_args_again
 
-              object = SomeObject.new
-
-              if RUBY_VERSION.start_with?('3')
+                object = SomeObject.new
                 expect do
-                  subject.represent(object).value_for(:that_method_without_args_again)
+                  subject.represent(object).value_for(:that_method_without_args)
                 end.to raise_error Grape::Entity::Deprecated
-              else
+
+                value2 = subject.represent(object).value_for(:that_method_without_args_again)
+                expect(value2).to eq('result')
+              end
+            else
+              specify do
+                subject.expose :that_method_without_args_again, &:method_without_args
+
+                object = SomeObject.new
+
                 value2 = subject.represent(object).value_for(:that_method_without_args_again)
                 expect(value2).to eq('result')
               end

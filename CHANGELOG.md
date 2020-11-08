@@ -6,6 +6,8 @@
 
 #### Fixes
 
+* Your contribution here.
+* [#340](https://github.com/ruby-grape/grape-entity/pull/340): Preparations for 3.0 - [@LeFnord](https://github.com/LeFnord).
 * [#338](https://github.com/ruby-grape/grape-entity/pull/338): Fix ruby 2.7 deprecation warning - [@begotten63](https://github.com/begotten63).
 
 ### 0.8.1 (2020-07-15)
