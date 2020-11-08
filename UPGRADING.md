@@ -1,5 +1,4 @@
-Upgrading Grape Entity
-===============
+# Upgrading Grape Entity
 
 ### Upgrading to >= 0.8.2
 
