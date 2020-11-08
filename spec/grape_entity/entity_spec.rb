@@ -262,30 +262,40 @@ describe Grape::Entity do
           end
         end
 
-        context 'with block passed via &' do
-          it 'with does not pass options when block is passed via &' do
-            class SomeObject
-              def method_without_args
-                'result'
+        describe 'blocks' do
+          class SomeObject
+            def method_without_args
+              'result'
+            end
+          end
+
+          describe 'with block passed in' do
+            specify do
+              subject.expose :that_method_without_args do |object|
+                object.method_without_args
               end
+
+              object = SomeObject.new
+
+              value = subject.represent(object).value_for(:that_method_without_args)
+              expect(value).to eq('result')
             end
+          end
 
-            subject.expose :that_method_without_args do |object|
-              object.method_without_args
-            end
+          context 'with block passed in via &' do
+            specify do
+              subject.expose :that_method_without_args_again, &:method_without_args
 
-            subject.expose :that_method_without_args_again, &:method_without_args
+              object = SomeObject.new
 
-            object = SomeObject.new
-
-            value = subject.represent(object).value_for(:that_method_without_args)
-            expect(value).to eq('result')
-
-            if RUBY_VERSION.start_with?('3')
-              expect { subject.represent(object).value_for(:that_method_without_args_again) }.to raise_error Grape::Entity::Deprecated
-            else
-              value2 = subject.represent(object).value_for(:that_method_without_args_again)
-              expect(value2).to eq('result')
+              if RUBY_VERSION.start_with?('3')
+                expect do
+                  subject.represent(object).value_for(:that_method_without_args_again)
+                end.to raise_error Grape::Entity::Deprecated
+              else
+                value2 = subject.represent(object).value_for(:that_method_without_args_again)
+                expect(value2).to eq('result')
+              end
             end
           end
         end
