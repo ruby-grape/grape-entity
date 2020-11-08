@@ -7,8 +7,15 @@
 #### Fixes
 
 * Your contribution here.
+
+
+### 0.8.2 (2020-11-08)
+
+#### Fixes
+
 * [#340](https://github.com/ruby-grape/grape-entity/pull/340): Preparations for 3.0 - [@LeFnord](https://github.com/LeFnord).
 * [#338](https://github.com/ruby-grape/grape-entity/pull/338): Fix ruby 2.7 deprecation warning - [@begotten63](https://github.com/begotten63).
+
 
 ### 0.8.1 (2020-07-15)
 
@@ -16,6 +23,7 @@
 
 * [#336](https://github.com/ruby-grape/grape-entity/pull/336): Pass options to delegators when they accept it - [@dnesteryuk](https://github.com/dnesteryuk).
 * [#333](https://github.com/ruby-grape/grape-entity/pull/333): Fix typo in CHANGELOG.md - [@eitoball](https://github.com/eitoball).
+
 
 ### 0.8.0 (2020-02-18)
 
@@ -32,11 +40,13 @@
 * [#320](https://github.com/ruby-grape/grape-entity/pull/320): Gemspec: drop eol'd property rubyforge_project - [@olleolleolle](https://github.com/olleolleolle).
 * [#307](https://github.com/ruby-grape/grape-entity/pull/307): Allow exposures to call methods defined in modules included in an entity - [@robertoz-01](https://github.com/robertoz-01).
 
+
 ### 0.7.1 (2018-01-30)
 
 #### Features
 
 * [#297](https://github.com/ruby-grape/grape-entity/pull/297): Introduce `override` option for expose (fixes [#286](https://github.com/ruby-grape/grape-entity/issues/296)) - [@DmitryTsepelev](https://github.com/DmitryTsepelev).
+
 
 ### 0.7.0 (2018-01-25)
 
@@ -56,6 +66,7 @@
 * [#291](https://github.com/ruby-grape/grape-entity/pull/291): Refactor and simplify various classes and modules  - [@DmitryTsepelev](https://github.com/DmitryTsepelev).
 * [#292](https://github.com/ruby-grape/grape-entity/pull/292): Allow replace non-conditional non-nesting exposures in child classes (fixes  [#286](https://github.com/ruby-grape/grape-entity/issues/286)) - [@DmitryTsepelev](https://github.com/DmitryTsepelev).
 
+
 ### 0.6.1 (2017-01-09)
 
 #### Features
@@ -65,6 +76,7 @@
 #### Fixes
 
 * [#251](https://github.com/ruby-grape/grape-entity/pull/251): Avoid noise when code runs with Ruby warnings - [@cpetschnig](https://github.com/cpetschnig).
+
 
 ### 0.6.0 (2016-11-20)
 
@@ -76,6 +88,7 @@
 
 * [#249](https://github.com/ruby-grape/grape-entity/issues/249): Fix leaking of options and internals in default serialization - [@dblock](https://github.com/dblock), [@KingsleyKelly](https://github.com/KingsleyKelly).
 * [#248](https://github.com/ruby-grape/grape-entity/pull/248): Fix `nil` values causing errors when `merge` option passed - [@arempe93](https://github.com/arempe93).
+
 
 ### 0.5.2 (2016-11-14)
 
@@ -92,6 +105,7 @@
 * [#219](https://github.com/ruby-grape/grape-entity/pull/219): Double pass options in `serializable_hash` - [@sbatykov](https://github.com/sbatykov).
 * [#231](https://github.com/ruby-grape/grape-entity/pull/231), [#215](https://github.com/ruby-grape/grape-entity/issues/215): Allow `delegate_attribute` for derived entity - [@sbatykov](https://github.com/sbatykov).
 
+
 ### 0.5.1 (2016-4-4)
 
 #### Features
@@ -102,6 +116,7 @@
 #### Fixes
 
 * [#202](https://github.com/ruby-grape/grape-entity/pull/202): Reset `@using_class` memoization on `.setup` - [@rngtng](https://github.com/rngtng).
+
 
 ### 0.5.0 (2015-12-07)
 
@@ -123,17 +138,20 @@
 * [#151](https://github.com/ruby-grape/grape-entity/pull/151): Serializing of deeply nested presenter exposures: [#155](https://github.com/ruby-grape/grape-entity/issues/155) - [@marshall-lee](https://github.com/marshall-lee).
 * [#151](https://github.com/ruby-grape/grape-entity/pull/151): Deep projections (`:only`, `:except`) were unaware of nesting: [#156](https://github.com/ruby-grape/grape-entity/issues/156) - [@marshall-lee](https://github.com/marshall-lee).
 
+
 ### 0.4.8 (2015-08-10)
 
 #### Features
 
 * [#167](https://github.com/ruby-grape/grape-entity/pull/167), [#166](https://github.com/ruby-grape/grape-entity/issues/166): Regression with global settings (exposures, formatters) on `Grape::Entity` - [@marshall-lee](https://github.com/marshall-lee).
 
+
 ### 0.4.7 (2015-08-03)
 
 #### Features
 
 * [#164](https://github.com/ruby-grape/grape-entity/pull/164): Regression: entity instance methods were exposed with `NoMethodError`: [#163](https://github.com/ruby-grape/grape-entity/issues/163) - [@marshall-lee](https://github.com/marshall-lee).
+
 
 ### 0.4.6 (2015-07-27)
 
@@ -153,6 +171,7 @@
 
 * [#147](https://github.com/ruby-grape/grape-entity/pull/147), [#142](https://github.com/ruby-grape/grape-entity/pull/142): Private method values were not exposed with `safe` option - [@marshall-lee](https://github.com/marshall-lee).
 
+
 ### 0.4.5 (2015-03-10)
 
 #### Features
@@ -167,12 +186,14 @@
 * [#110](https://github.com/ruby-grape/grape-entity/pull/110): Safe exposure when using `Hash` models - [@croeck](https://github.com/croeck).
 * [#91](https://github.com/ruby-grape/grape-entity/pull/91): OpenStruct serializing - [@etehtsea](https://github.com/etehtsea).
 
+
 ### 0.4.4 (2014-08-17)
 
 #### Features
 
 * [#85](https://github.com/ruby-grape/grape-entity/pull/85): Added `present_collection` to indicate that an `Entity` presents an entire Collection - [@dspaeth-faber](https://github.com/dspaeth-faber).
 * [#85](https://github.com/ruby-grape/grape-entity/pull/85): Hashes can now be passed as object to be presented and the `Hash` keys can be referenced by expose - [@dspaeth-faber](https://github.com/dspaeth-faber).
+
 
 ### 0.4.3 (2014-06-12)
 
@@ -184,6 +205,7 @@
 
 * [#77](https://github.com/ruby-grape/grape-entity/pull/77): Compatibility with Rspec 3 - [@justfalter](https://github.com/justfalter).
 
+
 ### 0.4.2 (2014-04-03)
 
 #### Features
@@ -191,11 +213,13 @@
 * [#60](https://github.com/ruby-grape/grape-entity/issues/59): Performance issues introduced by nested exposures - [@AlexYankee](https://github.com/AlexYankee).
 * [#60](https://github.com/ruby-grape/grape-entity/issues/57): Nested exposure double-exposes a field - [@AlexYankee](https://github.com/AlexYankee).
 
+
 ### 0.4.1 (2014-02-13)
 
 #### Fixes
 
 * [#54](https://github.com/ruby-grape/grape-entity/issues/54): Fix: undefined method `to_set` - [@aj0strow](https://github.com/aj0strow).
+
 
 ### 0.4.0 (2014-01-27)
 
@@ -216,6 +240,7 @@
 * [#51](https://github.com/ruby-grape/grape-entity/pull/51): Raise `ArgumentError` if an unknown option is used with `expose` - [@aj0strow](https://github.com/aj0strow).
 * [#51](https://github.com/ruby-grape/grape-entity/pull/51): Alias `:with` to `:using`, consistently with the Grape api endpoints - [@aj0strow](https://github.com/aj0strow).
 
+
 ### 0.3.0 (2013-03-29)
 
 #### Features
@@ -224,11 +249,13 @@
 * The `instance.entity` method now optionally accepts `options` - [@mbleigh](https://github.com/mbleigh).
 * You can pass symbols to `:if` and `:unless` to simply check for truthiness/falsiness of the specified options key - [@mbleigh](https://github.com/mbleigh).
 
+
 ### 0.2.0 (2013-01-11)
 
 #### Features
 
 * Moved the namespace back to `Grape::Entity` to preserve compatibility with Grape - [@dblock](https://github.com/dblock).
+
 
 ### 0.1.0 (2013-01-11)
 
