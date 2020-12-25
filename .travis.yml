@@ -7,20 +7,21 @@ after_success:
   - bundle exec danger
 
 rvm:
-  - 2.5.8
   - 2.6.6
   - 2.7.2
-  - ruby-head
-  - jruby-head
-  - truffleruby-head
-  - 2.4.10
-
+  - 3.0.0
 
 matrix:
   fast_finish: true
 
+  include:
+    - rvm: 2.5.8
+    - rvm: ruby-head
+    - rvm: jruby-head
+    - rvm: truffleruby-head
+
   allow_failures:
-    - rvm: 2.4.10
+    - rvm: 2.5.8
     - rvm: ruby-head
     - rvm: jruby-head
     - rvm: truffleruby-head

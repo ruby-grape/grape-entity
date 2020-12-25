@@ -51,7 +51,6 @@ module Grape
             output
           end
 
-          # rubocop:disable Lint/EmptyBlock
           # In case if we want to solve collisions providing lambda to :merge option
           def merge_strategy(for_merge)
             if for_merge.respond_to? :call
@@ -60,7 +59,6 @@ module Grape
               -> {}
             end
           end
-          # rubocop:enable Lint/EmptyBlock
         end
       end
     end
