@@ -122,8 +122,6 @@ module Grape
           case value
           when :to_s, :str, :string
             :to_s
-          when :to_sym, :sym, :symbol
-            :to_sym
           else
             :to_sym
           end
