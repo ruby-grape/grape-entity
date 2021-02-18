@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.description = 'Extracted from Grape, A Ruby framework for rapid API development with great conventions.'
   s.license     = 'MIT'
 
-  s.required_ruby_version = '>= 2.4'
+  s.required_ruby_version = '>= 2.5'
 
   s.add_runtime_dependency 'activesupport', '>= 3.0.0'
   # FIXME: remove dependecy
