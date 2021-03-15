@@ -3,7 +3,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/ruby-grape/grape-entity/badge.svg?branch=master)](https://coveralls.io/github/ruby-grape/grape-entity?branch=master)
 [![Code Climate](https://codeclimate.com/github/ruby-grape/grape-entity.svg)](https://codeclimate.com/github/ruby-grape/grape-entity)
 
-### Table of Contents
+# Table of Contents
 
 - [Grape::Entity](#grapeentity)
   - [Introduction](#introduction)
