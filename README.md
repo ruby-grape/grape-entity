@@ -1,9 +1,45 @@
-# Grape::Entity
-
 [![Gem Version](http://img.shields.io/gem/v/grape-entity.svg)](http://badge.fury.io/rb/grape-entity)
-[![Build Status](http://img.shields.io/travis/ruby-grape/grape-entity.svg)](https://travis-ci.org/ruby-grape/grape-entity)
+![Ruby](https://github.com/ruby-grape/grape-entity/workflows/Ruby/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/ruby-grape/grape-entity/badge.svg?branch=master)](https://coveralls.io/github/ruby-grape/grape-entity?branch=master)
 [![Code Climate](https://codeclimate.com/github/ruby-grape/grape-entity.svg)](https://codeclimate.com/github/ruby-grape/grape-entity)
+
+# Table of Contents
+
+- [Grape::Entity](#grapeentity)
+  - [Introduction](#introduction)
+    - [Example](#example)
+  - [Reusable Responses with Entities](#reusable-responses-with-entities)
+    - [Defining Entities](#defining-entities)
+      - [Basic Exposure](#basic-exposure)
+      - [Exposing with a Presenter](#exposing-with-a-presenter)
+      - [Conditional Exposure](#conditional-exposure)
+      - [Safe Exposure](#safe-exposure)
+      - [Nested Exposure](#nested-exposure)
+      - [Collection Exposure](#collection-exposure)
+      - [Merge Fields](#merge-fields)
+      - [Runtime Exposure](#runtime-exposure)
+      - [Unexpose](#unexpose)
+      - [Overriding exposures](#overriding-exposures)
+      - [Returning only the fields you want](#returning-only-the-fields-you-want)
+      - [Aliases](#aliases)
+      - [Format Before Exposing](#format-before-exposing)
+      - [Expose Nil](#expose-nil)
+      - [Documentation](#documentation)
+    - [Options Hash](#options-hash)
+      - [Passing Additional Option To Nested Exposure](#passing-additional-option-to-nested-exposure)
+      - [Attribute Path Tracking](#attribute-path-tracking)
+    - [Using the Exposure DSL](#using-the-exposure-dsl)
+    - [Using Entities](#using-entities)
+    - [Entity Organization](#entity-organization)
+    - [Caveats](#caveats)
+  - [Installation](#installation)
+  - [Testing with Entities](#testing-with-entities)
+  - [Project Resources](#project-resources)
+  - [Contributing](#contributing)
+  - [License](#license)
+  - [Copyright](#copyright)
+
+# Grape::Entity
 
 ## Introduction
 

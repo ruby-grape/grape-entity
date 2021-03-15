@@ -3,7 +3,9 @@
 #### Features
 
 * Your contribution here.
-* [#342](https://github.com/ruby-grape/grape-entity/pull/342): Adds ruby 3.0.0 to travis - [@LeFnord](https://github.com/LeFnord).
+
+* [#348](https://github.com/ruby-grape/grape-entity/pull/348): Updates danger - [@LeFnord](https://github.com/LeFnord).
+* [#346](https://github.com/ruby-grape/grape-entity/pull/346): Adds GH actions - [@LeFnord](https://github.com/LeFnord).
 
 #### Fixes
 
