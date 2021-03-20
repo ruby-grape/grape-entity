@@ -4,9 +4,9 @@ AllCops:
   Exclude:
     - vendor/**/*
     - example/**/*
-  TargetRubyVersion: 2.7
-  UseCache: true
   NewCops: enable
+  TargetRubyVersion: 3.0
+  SuggestExtensions: false
 
 #  Layout stuff
 #
