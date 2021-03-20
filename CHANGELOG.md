@@ -4,12 +4,16 @@
 
 * Your contribution here.
 
-* [#348](https://github.com/ruby-grape/grape-entity/pull/348): Updates danger - [@LeFnord](https://github.com/LeFnord).
-* [#346](https://github.com/ruby-grape/grape-entity/pull/346): Adds GH actions - [@LeFnord](https://github.com/LeFnord).
-
 #### Fixes
 
 * Your contribution here.
+
+
+### 0.9.0 (2021-03-20)
+
+#### Features
+
+* [#346](https://github.com/ruby-grape/grape-entity/pull/346): Ruby 3 support - [@LeFnord](https://github.com/LeFnord).
 
 
 ### 0.8.2 (2020-11-08)
