@@ -153,7 +153,7 @@ module Grape
     #
     # @example as: a proc or lambda
     #
-    #   object = OpenStruct(awesomness: 'awesome_key', awesome: 'not-my-key', other: 'other-key' )
+    #   object = OpenStruct(awesomeness: 'awesome_key', awesome: 'not-my-key', other: 'other-key' )
     #
     #   class MyEntity < Grape::Entity
     #     expose :awesome, as: proc { object.awesomeness }
