@@ -24,6 +24,7 @@
       - [Aliases](#aliases)
       - [Format Before Exposing](#format-before-exposing)
       - [Expose Nil](#expose-nil)
+      - [Default Value](#default-value)
       - [Documentation](#documentation)
     - [Options Hash](#options-hash)
       - [Passing Additional Option To Nested Exposure](#passing-additional-option-to-nested-exposure)
@@ -478,6 +479,19 @@ module  Entities
       expose :name
       expose :age, expose_nil: true # nil values would be rendered as null in the JSON
     end
+  end
+end
+```
+
+#### Default Value
+
+This option can be used to provide a default value in case the return value is nil or empty.
+
+```ruby
+module  Entities
+  class MyModel < Grape::Entity
+    expose :name, default: ''
+    expose :age, default: 60
   end
 end
 ```

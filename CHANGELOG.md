@@ -4,6 +4,8 @@
 
 * Your contribution here.
 
+* [#352](https://github.com/ruby-grape/grape-entity/pull/352): Add Default value option - [@ahmednaguib](https://github.com/ahmednaguib).
+
 #### Fixes
 
 * Your contribution here.
