@@ -16,6 +16,7 @@ module Grape
           key = options[:as] || attribute
           @key = key.respond_to?(:to_sym) ? key.to_sym : key
           @is_safe = options[:safe]
+          @default_value = options[:default]
           @for_merge = options[:merge]
           @attr_path_proc = options[:attr_path]
           @documentation = options[:documentation]
@@ -82,7 +83,10 @@ module Grape
         end
 
         def valid_value(entity, options)
-          value(entity, options) if valid?(entity)
+          return unless valid?(entity)
+
+          output = value(entity, options)
+          output.blank? && @default_value.present? ? @default_value : output
         end
 
         def should_return_key?(options)

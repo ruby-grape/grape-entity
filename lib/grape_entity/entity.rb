@@ -585,6 +585,7 @@ module Grape
       merge
       expose_nil
       override
+      default
     ].to_set.freeze
 
     # Merges the given options with current block options.
