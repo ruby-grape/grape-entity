@@ -31,6 +31,19 @@ module Grape
         Options.new(merged)
       end
 
+      def with_expose(expose)
+        opts_only_ary = Array(self[:only])
+        opts_except_ary = Array(self[:except])
+
+        only_ary = Array(expose.only)
+        except_ary = Array(expose.except)
+
+        merge(
+          only: (opts_only_ary.any? || only_ary.any?) ? opts_only_ary | only_ary : nil,
+          except: (opts_except_ary.any? || except_ary.any?) ? opts_except_ary | except_ary : nil
+        )
+      end
+
       def reverse_merge(new_opts)
         return self if new_opts.empty?
 

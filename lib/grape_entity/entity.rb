@@ -192,10 +192,15 @@ module Grape
       options = merge_options(args.last.is_a?(Hash) ? args.pop : {})
 
       if args.size > 1
-
         raise ArgumentError, 'You may not use the :as option on multi-attribute exposures.' if options[:as]
         raise ArgumentError, 'You may not use the :expose_nil on multi-attribute exposures.' if options.key?(:expose_nil)
+        raise ArgumentError, 'You may not use the :only on multi-attribute exposures.' if options.key?(:only)
+        raise ArgumentError, 'You may not use the :except on multi-attribute exposures.' if options.key?(:except)
         raise ArgumentError, 'You may not use block-setting on multi-attribute exposures.' if block_given?
+      end
+
+      if (options.key?(:only) || options.key?(:except)) && !options.key?(:using)
+        raise ArgumentError, 'You cannot use the :only/:except without :using.'
       end
 
       if block_given?
@@ -585,6 +590,8 @@ module Grape
       merge
       expose_nil
       override
+      only
+      except
     ].to_set.freeze
 
     # Merges the given options with current block options.
