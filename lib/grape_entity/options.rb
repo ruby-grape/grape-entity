@@ -39,8 +39,8 @@ module Grape
         except_ary = Array(expose.except)
 
         merge(
-          only: (opts_only_ary.any? || only_ary.any?) ? opts_only_ary | only_ary : nil,
-          except: (opts_except_ary.any? || except_ary.any?) ? opts_except_ary | except_ary : nil
+          only: opts_only_ary.any? || only_ary.any? ? opts_only_ary | only_ary : nil,
+          except: opts_except_ary.any? || except_ary.any? ? opts_except_ary | except_ary : nil
         )
       end
 
