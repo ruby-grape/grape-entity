@@ -187,15 +187,12 @@ module Grape
     #   field, typically the value is a hash with two fields, type and desc.
     # @option options :merge This option allows you to merge an exposed field to the root
     #
-    # rubocop:disable Layout/LineLength
     def self.expose(*args, &block)
       options = merge_options(args.last.is_a?(Hash) ? args.pop : {})
 
-      if args.size > 1
-
-        raise ArgumentError, 'You may not use the :as option on multi-attribute exposures.' if options[:as]
-        raise ArgumentError, 'You may not use the :expose_nil on multi-attribute exposures.' if options.key?(:expose_nil)
-        raise ArgumentError, 'You may not use block-setting on multi-attribute exposures.' if block_given?
+      ensure_multi_attrs_options_valid!(args, options)
+      if (options.key?(:only) || options.key?(:except)) && !options.key?(:using)
+        raise ArgumentError, 'You cannot use the :only/:except without :using.'
       end
 
       if block_given?
@@ -214,7 +211,15 @@ module Grape
       @nesting_stack ||= []
       args.each { |attribute| build_exposure_for_attribute(attribute, @nesting_stack, options, block) }
     end
-    # rubocop:enable Layout/LineLength
+
+    def self.ensure_multi_attrs_options_valid!(args, options)
+      return if args.size < 2
+      raise ArgumentError, 'You may not use the :as option on multi-attribute exposures.' if options[:as]
+      raise ArgumentError, 'You may not use the :expose_nil on multi-attribute exposures.' if options.key?(:expose_nil)
+      raise ArgumentError, 'You may not use the :only on multi-attribute exposures.' if options.key?(:only)
+      raise ArgumentError, 'You may not use the :except on multi-attribute exposures.' if options.key?(:except)
+      raise ArgumentError, 'You may not use block-setting on multi-attribute exposures.' if block_given?
+    end
 
     def self.build_exposure_for_attribute(attribute, nesting_stack, options, block)
       exposure_list = nesting_stack.empty? ? root_exposures : nesting_stack.last.nested_exposures
@@ -585,6 +590,8 @@ module Grape
       merge
       expose_nil
       override
+      only
+      except
     ].to_set.freeze
 
     # Merges the given options with current block options.

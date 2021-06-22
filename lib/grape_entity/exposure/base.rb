@@ -4,7 +4,7 @@ module Grape
   class Entity
     module Exposure
       class Base
-        attr_reader :attribute, :is_safe, :documentation, :override, :conditions, :for_merge
+        attr_reader :attribute, :is_safe, :documentation, :override, :conditions, :for_merge, :only, :except
 
         def self.new(attribute, options, conditions, *args, &block)
           super(attribute, options, conditions).tap { |e| e.setup(*args, &block) }
@@ -20,6 +20,8 @@ module Grape
           @attr_path_proc = options[:attr_path]
           @documentation = options[:documentation]
           @override = options[:override]
+          @only = options[:only]
+          @except = options[:except]
           @conditions = conditions
         end
 

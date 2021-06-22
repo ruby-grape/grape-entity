@@ -25,14 +25,32 @@ describe Grape::Entity do
       context 'option validation' do
         it 'makes sure that :as only works on single attribute calls' do
           expect { subject.expose :name, :email, as: :foo }.to raise_error ArgumentError
+        end
+        it do
           expect { subject.expose :name, as: :foo }.not_to raise_error
+        end
+        it do
+          expect { subject.expose :name, :email, only: [:name], using: 'SomeEntity' }.to raise_error ArgumentError
+        end
+        it do
+          expect { subject.expose :name, only: [:name], using: 'SomeEntity' }.not_to raise_error
+        end
+        it do
+          expect { subject.expose :name, :email, except: [:name], using: 'SomeEntity' }.to raise_error ArgumentError
+        end
+        it do
+          expect { subject.expose :name, except: [:name], using: 'SomeEntity' }.not_to raise_error
+        end
+        it do
+          expect { subject.expose :name, only: [:name] }.to raise_error ArgumentError
+        end
+        it do
+          expect { subject.expose :name, except: [:name] }.to raise_error ArgumentError
         end
 
         it 'makes sure that :format_with as a proc cannot be used with a block' do
           # rubocop:disable Style/BlockDelimiters
-          # rubocop:disable Lint/EmptyBlock
           expect { subject.expose :name, format_with: proc {} do p 'hi' end }.to raise_error ArgumentError
-          # rubocop:enable Lint/EmptyBlock
           # rubocop:enable Style/BlockDelimiters
         end
 
@@ -1581,7 +1599,7 @@ describe Grape::Entity do
           end
 
           fresh_class.class_eval do
-            expose :characteristics, using: EntitySpec::NoPathCharacterEntity, attr_path: proc { nil }
+            expose :characteristics, using: EntitySpec::NoPathCharacterEntity, attr_path: proc {}
           end
 
           expect(subject.serializable_hash).to eq(
@@ -1668,6 +1686,36 @@ describe Grape::Entity do
           expect(rep.reject { |r| r.is_a?(EntitySpec::FriendEntity) }).to be_empty
           expect(rep.first.serializable_hash[:name]).to eq 'Friend 1'
           expect(rep.last.serializable_hash[:name]).to eq 'Friend 2'
+        end
+
+        it 'exposes only the specified fields' do
+          module EntitySpec
+            class FriendEntity < Grape::Entity
+              expose :name, :email
+            end
+          end
+
+          fresh_class.class_eval do
+            expose :friends, using: EntitySpec::FriendEntity, only: [:name]
+          end
+          rep = subject.value_for(:friends)
+          expect(rep.first.serializable_hash).to eq(name: 'Friend 1')
+          expect(rep.last.serializable_hash).to eq(name: 'Friend 2')
+        end
+
+        it 'exposes except the specified fields' do
+          module EntitySpec
+            class FriendEntity < Grape::Entity
+              expose :name, :email
+            end
+          end
+
+          fresh_class.class_eval do
+            expose :friends, using: EntitySpec::FriendEntity, except: [:email]
+          end
+          rep = subject.value_for(:friends)
+          expect(rep.first.serializable_hash).to eq(name: 'Friend 1')
+          expect(rep.last.serializable_hash).to eq(name: 'Friend 2')
         end
 
         it 'passes through the proc which returns an array of objects with custom options(:using)' do
