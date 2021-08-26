@@ -30,9 +30,7 @@ describe Grape::Entity do
 
         it 'makes sure that :format_with as a proc cannot be used with a block' do
           # rubocop:disable Style/BlockDelimiters
-          # rubocop:disable Lint/EmptyBlock
           expect { subject.expose :name, format_with: proc {} do p 'hi' end }.to raise_error ArgumentError
-          # rubocop:enable Lint/EmptyBlock
           # rubocop:enable Style/BlockDelimiters
         end
 
@@ -1137,6 +1135,18 @@ describe Grape::Entity do
             expect(representation).to eq(id: nil, name: nil, user: { id: nil, name: nil, email: nil })
           end
         end
+
+        context 'when NameError happens in a parameterized block_exposure' do
+          before do
+            subject.expose :raise_no_method_error do |_|
+              foo
+            end
+          end
+
+          it 'does not cause infinite loop' do
+            expect { subject.represent({}, serializable: true) }.to raise_error(NameError)
+          end
+        end
       end
     end
 
@@ -1581,7 +1591,7 @@ describe Grape::Entity do
           end
 
           fresh_class.class_eval do
-            expose :characteristics, using: EntitySpec::NoPathCharacterEntity, attr_path: proc { nil }
+            expose :characteristics, using: EntitySpec::NoPathCharacterEntity, attr_path: proc {}
           end
 
           expect(subject.serializable_hash).to eq(
