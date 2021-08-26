@@ -1155,6 +1155,18 @@ describe Grape::Entity do
             expect(representation).to eq(id: nil, name: nil, user: { id: nil, name: nil, email: nil })
           end
         end
+
+        context 'when NameError happens in a parameterized block_exposure' do
+          before do
+            subject.expose :raise_no_method_error do |_|
+              foo
+            end
+          end
+
+          it 'does not cause infinite loop' do
+            expect { subject.represent({}, serializable: true) }.to raise_error(NameError)
+          end
+        end
       end
     end
 
