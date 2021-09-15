@@ -4,11 +4,20 @@
 
 * Your contribution here.
 
+#### Fixes
+
+* Your contribution here.
+
+
+### 0.10.0 (2021-09-15)
+
+#### Features
+
 * [#352](https://github.com/ruby-grape/grape-entity/pull/352): Add Default value option - [@ahmednaguib](https://github.com/ahmednaguib).
 
 #### Fixes
 
-* Your contribution here.
+* [#355](https://github.com/ruby-grape/grape-entity/pull/355): Fix infinite loop problem with the `NameErrors` in block exposures - [@meinac](https://github.com/meinac).
 
 
 ### 0.9.0 (2021-03-20)
