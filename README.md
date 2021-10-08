@@ -111,6 +111,20 @@ The field lookup takes several steps
 * next try `object.fetch(exposure)`
 * last raise an Exception
 
+`exposure` is a Symbol by default. If `object` is a Hash with stringified keys, you can set the hash accessor at the entity-class level to properly expose its members:
+
+```ruby
+class Status < GrapeEntity
+  self.hash_access = :to_s
+
+  expose :code
+  expose :message
+end
+
+Status.represent({ 'code' => 418, 'message' => "I'm a teapot" }).as_json
+#=> { code: 418, message: "I'm a teapot" }
+```
+
 #### Exposing with a Presenter
 
 Don't derive your model classes from `Grape::Entity`, expose them using a presenter.
