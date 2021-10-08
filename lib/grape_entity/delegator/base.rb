@@ -13,6 +13,11 @@ module Grape
         def delegatable?(_attribute)
           true
         end
+
+        def accepts_options?
+          # Why not `arity > 1`? It might be negative https://ruby-doc.org/core-2.6.6/Method.html#method-i-arity
+          method(:delegate).arity != 1
+        end
       end
     end
   end
