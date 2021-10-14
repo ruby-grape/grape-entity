@@ -17,7 +17,7 @@ describe Grape::Entity do
         expose :post, if: :full
         expose :city
         expose :street
-        expose :house
+        expose :house, expose_nil: false
       end
 
       class Company < Grape::Entity
@@ -62,8 +62,22 @@ describe Grape::Entity do
       }
     }
 
+    company_without_house_with_string = {
+      'full_name' => 'full_name',
+      'name' => 'name',
+      'address' => {
+        'post' => '123456',
+        'city' => 'city',
+        'street' => 'street',
+        'something_else' => 'something_else'
+      }
+    }
+
     expect(EntitySpec::CompanyWithString.represent(company_with_string).serializable_hash).to eq \
       company.slice(:name).merge(address: company[:address].slice(:city, :street, :house))
+
+    expect(EntitySpec::CompanyWithString.represent(company_without_house_with_string).serializable_hash).to eq \
+      company.slice(:name).merge(address: company[:address].slice(:city, :street))
 
     expect(EntitySpec::CompanyWithString.represent(company_with_string, full: true).serializable_hash).to eq \
       company.slice(:full_name, :name).merge(address: company[:address].slice(:city, :street, :house))

@@ -56,7 +56,12 @@ module Grape
           Condition.new_unless(
             proc do |object, _options|
               if options[:proc].nil?
-                Delegator.new(object).delegate(attribute).nil?
+                delegator = Delegator.new(object)
+                if is_a?(Grape::Entity) && delegator.accepts_options?
+                  delegator.delegate(attribute, **self.class.delegation_opts).nil?
+                else
+                  delegator.delegate(attribute).nil?
+                end
               else
                 exec_with_object(options, &options[:proc]).nil?
               end
