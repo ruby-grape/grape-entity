@@ -6,8 +6,14 @@
 
 #### Fixes
 
-* [#359](https://github.com/ruby-grape/grape-entity/pull/359): Respect `hash_access` setting when using `expose_nil: false` option - [@magni-](https://github.com/magni-).
 * Your contribution here.
+
+
+### 0.10.1 (2021-10-22)
+
+#### Fixes
+
+* [#359](https://github.com/ruby-grape/grape-entity/pull/359): Respect `hash_access` setting when using `expose_nil: false` option - [@magni-](https://github.com/magni-).
 
 
 ### 0.10.0 (2021-09-15)
