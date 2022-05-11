@@ -7,6 +7,7 @@
 #### Fixes
 
 * Your contribution here.
+* [#363](https://github.com/ruby-grape/grape-entity/pull/338): Fix typo - [@OuYangJinTing](https://github.com/OuYangJinTing).
 
 
 ### 0.10.1 (2021-10-22)
