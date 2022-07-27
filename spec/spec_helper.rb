@@ -9,11 +9,15 @@ require 'active_support/core_ext/hash' if ActiveSupport::VERSION &&
                                           ActiveSupport::VERSION::MAJOR &&
                                           ActiveSupport::VERSION::MAJOR < 4
 
-SimpleCov.start do
-  add_filter 'spec/'
-end
+# Skip code covarge on Ruby >= 3.1
+# See https://github.com/simplecov-ruby/simplecov/issues/1003
+unless RUBY_VERSION >= '3.1'
+  SimpleCov.start do
+    add_filter 'spec/'
+  end
 
-Coveralls.wear! unless RUBY_PLATFORM.eql? 'java'
+  Coveralls.wear! unless RUBY_PLATFORM.eql? 'java'
+end
 
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
