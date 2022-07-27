@@ -389,6 +389,10 @@ describe Grape::Entity do
             def method_without_args
               'result'
             end
+
+            def raises_argument_error
+              raise ArgumentError, 'something different'
+            end
           end
 
           describe 'with block passed in' do
@@ -401,6 +405,17 @@ describe Grape::Entity do
 
               value = subject.represent(object).value_for(:that_method_without_args)
               expect(value).to eq('result')
+            end
+
+            it 'does not suppress ArgumentError' do
+              subject.expose :raises_argument_error do |object|
+                object.raises_argument_error
+              end
+
+              object = SomeObject.new
+              expect do
+                subject.represent(object).value_for(:raises_argument_error)
+              end.to raise_error(ArgumentError, 'something different')
             end
           end
 
