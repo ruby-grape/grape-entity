@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'active_support'
+require 'active_support/core_ext'
+
 module Grape
   class Entity
     module Exposure
