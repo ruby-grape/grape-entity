@@ -9,7 +9,7 @@ module Grape
 
       attr_reader :opts_hash
 
-      def_delegators :opts_hash, :dig, :key?, :fetch, :[], :empty
+      def_delegators :opts_hash, :dig, :key?, :fetch, :[], :empty?
 
       def initialize(opts_hash = {})
         @opts_hash = opts_hash

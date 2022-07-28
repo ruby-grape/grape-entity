@@ -522,7 +522,10 @@ module Grape
       end
     rescue StandardError => e
       # it handles: https://github.com/ruby/ruby/blob/v3_0_0_preview1/NEWS.md#language-changes point 3, Proc
-      raise Grape::Entity::Deprecated.new e.message, 'in ruby 3.0' if e.is_a?(ArgumentError)
+      # accounting for expose :foo, &:bar
+      if e.is_a?(ArgumentError) && block.parameters == [[:req], [:rest]]
+        raise Grape::Entity::Deprecated.new e.message, 'in ruby 3.0'
+      end
 
       raise e
     end
