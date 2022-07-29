@@ -5,7 +5,7 @@ AllCops:
     - vendor/**/*
     - example/**/*
   NewCops: enable
-  TargetRubyVersion: 3.0
+  TargetRubyVersion: 3.1
   SuggestExtensions: false
 
 #  Layout stuff
@@ -75,6 +75,9 @@ Naming:
 #  Style stuff
 #
 Style/Documentation:
+  Enabled: false
+
+Style/HashSyntax:
   Enabled: false
 
 Style/OptionalBooleanParameter:
