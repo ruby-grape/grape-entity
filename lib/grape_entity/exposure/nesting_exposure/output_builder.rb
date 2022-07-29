@@ -9,6 +9,8 @@ module Grape
             @entity = entity
             @output_hash = {}
             @output_collection = []
+
+            super
           end
 
           def add(exposure, result)

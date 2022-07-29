@@ -4,31 +4,53 @@ AllCops:
   Exclude:
     - vendor/**/*
     - example/**/*
-  TargetRubyVersion: 2.4
+  NewCops: enable
+  TargetRubyVersion: 3.0
+  SuggestExtensions: false
 
+#  Layout stuff
+#
 Layout/EmptyLinesAroundArguments:
   Enabled: false
 
-Layout/IndentFirstHashElement:
+Layout/EmptyLinesAroundAttributeAccessor:
+  Enabled: true
+
+Layout/FirstHashElementIndentation:
   EnforcedStyle: consistent
 
+Layout/LineLength:
+  Max: 120
+  Exclude:
+    - spec/**/*
+
+Layout/SpaceAroundMethodCallOperator:
+  Enabled: true
+
+#  Lint stuff
+#
+Lint/ConstantDefinitionInBlock:
+  Enabled: true
+  Exclude:
+    - spec/**/*
+
+#  Metrics stuff
+#
 Metrics/AbcSize:
   Max: 25
+  IgnoredMethods:
+    # from lib/grape_entity/exposure/nesting_exposure.rb
+    - 'normalized_exposures'
 
 Metrics/BlockLength:
   Exclude:
     - spec/**/*
 
 Metrics/CyclomaticComplexity:
-  Max: 10
+  Max: 13
 
 Metrics/ClassLength:
   Max: 300
-
-Metrics/LineLength:
-  Max: 120
-  Exclude:
-    - spec/**/*
 
 Metrics/MethodLength:
   Max: 26
@@ -37,12 +59,28 @@ Metrics/MethodLength:
 
 Metrics/PerceivedComplexity:
   Max: 11
+  IgnoredMethods:
+    # from lib/grape_entity/entity.rb
+    - 'expose'
+    - 'merge_options'
+    # from lib/grape_entity/exposure/nesting_exposure.rb
+    - 'normalized_exposures'
+
+#  Naming stuff
+#
 
 Naming:
   Enabled: false
 
+#  Style stuff
+#
 Style/Documentation:
   Enabled: false
 
-Style/RegexpLiteral:
-  Enabled: false
+Style/OptionalBooleanParameter:
+  AllowedMethods:
+    # from lib/grape_entity/condition/base.rb
+    - 'initialize'
+    # form lib/grape_entity/entity.rb
+    - 'entity_class'
+    - 'present_collection'

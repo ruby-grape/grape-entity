@@ -126,6 +126,150 @@ describe Grape::Entity do
               expect { subject.expose(:a, :b, :c, expose_nil: false) }.to raise_error ArgumentError
             end
           end
+
+          context 'when expose_nil option is false and block passed' do
+            it 'does not expose if block returns nil' do
+              subject.expose(:a, expose_nil: false) do |_obj, _options|
+                nil
+              end
+              subject.expose(:b)
+              subject.expose(:c)
+              expect(subject.represent(model).serializable_hash).to eq(b: nil, c: 'value')
+            end
+
+            it 'exposes is block returns a value' do
+              subject.expose(:a, expose_nil: false) do |_obj, _options|
+                100
+              end
+              subject.expose(:b)
+              subject.expose(:c)
+              expect(subject.represent(model).serializable_hash).to eq(a: 100, b: nil, c: 'value')
+            end
+          end
+        end
+
+        context 'when model is a hash' do
+          let(:model) { { a: a, b: b, c: c } }
+
+          context 'when expose_nil option is not provided' do
+            it 'exposes nil attributes' do
+              subject.expose(:a)
+              subject.expose(:b)
+              subject.expose(:c)
+              expect(subject.represent(model).serializable_hash).to eq(a: nil, b: nil, c: 'value')
+            end
+          end
+
+          context 'when expose_nil option is true' do
+            it 'exposes nil attributes' do
+              subject.expose(:a, expose_nil: true)
+              subject.expose(:b, expose_nil: true)
+              subject.expose(:c)
+              expect(subject.represent(model).serializable_hash).to eq(a: nil, b: nil, c: 'value')
+            end
+          end
+
+          context 'when expose_nil option is false' do
+            it 'does not expose nil attributes' do
+              subject.expose(:a, expose_nil: false)
+              subject.expose(:b, expose_nil: false)
+              subject.expose(:c)
+              expect(subject.represent(model).serializable_hash).to eq(c: 'value')
+            end
+
+            it 'is only applied per attribute' do
+              subject.expose(:a, expose_nil: false)
+              subject.expose(:b)
+              subject.expose(:c)
+              expect(subject.represent(model).serializable_hash).to eq(b: nil, c: 'value')
+            end
+
+            it 'raises an error when applied to multiple attribute exposures' do
+              expect { subject.expose(:a, :b, :c, expose_nil: false) }.to raise_error ArgumentError
+            end
+          end
+        end
+
+        context 'with nested structures' do
+          let(:model) { { a: a, b: b, c: { d: nil, e: nil, f: { g: nil, h: nil } } } }
+
+          context 'when expose_nil option is false' do
+            it 'does not expose nil attributes' do
+              subject.expose(:a, expose_nil: false)
+              subject.expose(:b)
+              subject.expose(:c) do
+                subject.expose(:d, expose_nil: false)
+                subject.expose(:e)
+                subject.expose(:f) do
+                  subject.expose(:g, expose_nil: false)
+                  subject.expose(:h)
+                end
+              end
+
+              expect(subject.represent(model).serializable_hash).to eq(b: nil, c: { e: nil, f: { h: nil } })
+            end
+          end
+        end
+      end
+
+      context 'with :default option' do
+        let(:a) { nil }
+        let(:b) { nil }
+        let(:c) { 'value' }
+
+        context 'when model is a PORO' do
+          let(:model) { Model.new(a, b, c) }
+
+          before do
+            stub_const 'Model', Class.new
+            Model.class_eval do
+              attr_accessor :a, :b, :c
+
+              def initialize(a, b, c)
+                @a = a
+                @b = b
+                @c = c
+              end
+            end
+          end
+
+          context 'when default option is not provided' do
+            it 'exposes attributes values' do
+              subject.expose(:a)
+              subject.expose(:b)
+              subject.expose(:c)
+              expect(subject.represent(model).serializable_hash).to eq(a: nil, b: nil, c: 'value')
+            end
+          end
+
+          context 'when default option is set' do
+            it 'exposes default values for attributes' do
+              subject.expose(:a, default: 'a')
+              subject.expose(:b, default: 'b')
+              subject.expose(:c, default: 'c')
+              expect(subject.represent(model).serializable_hash).to eq(a: 'a', b: 'b', c: 'value')
+            end
+          end
+
+          context 'when default option is set and block passed' do
+            it 'return default value if block returns nil' do
+              subject.expose(:a, default: 'a') do |_obj, _options|
+                nil
+              end
+              subject.expose(:b)
+              subject.expose(:c)
+              expect(subject.represent(model).serializable_hash).to eq(a: 'a', b: nil, c: 'value')
+            end
+
+            it 'return value from block if block returns a value' do
+              subject.expose(:a, default: 'a') do |_obj, _options|
+                100
+              end
+              subject.expose(:b)
+              subject.expose(:c)
+              expect(subject.represent(model).serializable_hash).to eq(a: 100, b: nil, c: 'value')
+            end
+          end
         end
 
         context 'when model is a hash' do
@@ -240,27 +384,65 @@ describe Grape::Entity do
           end
         end
 
-        context 'with block passed via &' do
-          it 'with does not pass options when block is passed via &' do
-            class SomeObject
-              def method_without_args
-                'result'
+        describe 'blocks' do
+          class SomeObject
+            def method_without_args
+              'result'
+            end
+
+            def raises_argument_error
+              raise ArgumentError, 'something different'
+            end
+          end
+
+          describe 'with block passed in' do
+            specify do
+              subject.expose :that_method_without_args do |object|
+                object.method_without_args
+              end
+
+              object = SomeObject.new
+
+              value = subject.represent(object).value_for(:that_method_without_args)
+              expect(value).to eq('result')
+            end
+
+            it 'does not suppress ArgumentError' do
+              subject.expose :raises_argument_error do |object|
+                object.raises_argument_error
+              end
+
+              object = SomeObject.new
+              expect do
+                subject.represent(object).value_for(:raises_argument_error)
+              end.to raise_error(ArgumentError, 'something different')
+            end
+          end
+
+          context 'with block passed in via &' do
+            if RUBY_VERSION.start_with?('3')
+              specify do
+                subject.expose :that_method_without_args, &:method_without_args
+                subject.expose :method_without_args, as: :that_method_without_args_again
+
+                object = SomeObject.new
+                expect do
+                  subject.represent(object).value_for(:that_method_without_args)
+                end.to raise_error Grape::Entity::Deprecated
+
+                value2 = subject.represent(object).value_for(:that_method_without_args_again)
+                expect(value2).to eq('result')
+              end
+            else
+              specify do
+                subject.expose :that_method_without_args_again, &:method_without_args
+
+                object = SomeObject.new
+
+                value2 = subject.represent(object).value_for(:that_method_without_args_again)
+                expect(value2).to eq('result')
               end
             end
-
-            subject.expose :that_method_without_args do |object|
-              object.method_without_args
-            end
-
-            subject.expose :that_method_without_args_again, &:method_without_args
-
-            object = SomeObject.new
-
-            value = subject.represent(object).value_for(:that_method_without_args)
-            expect(value).to eq('result')
-
-            value2 = subject.represent(object).value_for(:that_method_without_args_again)
-            expect(value2).to eq('result')
           end
         end
 
@@ -957,7 +1139,7 @@ describe Grape::Entity do
           subject.expose(:user, using: user_entity)
 
           representation = subject.represent(OpenStruct.new(user: {}),
-                                             only: [:id, :name, :phone, user: %i[id name email]],
+                                             only: [:id, :name, :phone, { user: %i[id name email] }],
                                              except: [:phone, { user: [:id] }], serializable: true)
           expect(representation).to eq(id: nil, name: nil, user: { name: nil, email: nil })
         end
@@ -1090,6 +1272,18 @@ describe Grape::Entity do
             representation = subject.represent(OpenStruct.new(user: {}),
                                                only: %i[id name user], except: [:nephew], serializable: true)
             expect(representation).to eq(id: nil, name: nil, user: { id: nil, name: nil, email: nil })
+          end
+        end
+
+        context 'when NameError happens in a parameterized block_exposure' do
+          before do
+            subject.expose :raise_no_method_error do |_|
+              foo
+            end
+          end
+
+          it 'does not cause infinite loop' do
+            expect { subject.represent({}, serializable: true) }.to raise_error(NameError)
           end
         end
       end
@@ -1536,7 +1730,7 @@ describe Grape::Entity do
           end
 
           fresh_class.class_eval do
-            expose :characteristics, using: EntitySpec::NoPathCharacterEntity, attr_path: proc { nil }
+            expose :characteristics, using: EntitySpec::NoPathCharacterEntity, attr_path: proc {}
           end
 
           expect(subject.serializable_hash).to eq(
@@ -1673,10 +1867,12 @@ describe Grape::Entity do
             end
           end
 
+          # rubocop:disable Lint/EmptyBlock
           fresh_class.class_eval do
             expose :first_friend, using: EntitySpec::FriendEntity do |_user, _opts|
             end
           end
+          # rubocop:enable Lint/EmptyBlock
 
           rep = subject.value_for(:first_friend)
           expect(rep).to be_kind_of EntitySpec::FriendEntity

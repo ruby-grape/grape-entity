@@ -5,7 +5,7 @@ source 'http://rubygems.org'
 gemspec
 
 group :development, :test do
-  gem 'rubocop', '~> 0.65', require: false
+  gem 'rubocop', '~> 1.0', require: false
 end
 
 group :test do
@@ -15,6 +15,6 @@ group :test do
   gem 'guard-bundler'
   gem 'guard-rspec'
   gem 'rb-fsevent'
-  gem 'ruby-grape-danger', '~> 0.1.1', require: false
+  gem 'ruby-grape-danger', '~> 0.2', require: false
   gem 'simplecov', require: false
 end

@@ -105,15 +105,13 @@ module Grape
         @root_exposure ||= Exposure.new(nil, nesting: true)
       end
 
-      attr_writer :root_exposure
+      attr_writer :root_exposure, :formatters
 
       # Returns all formatters that are registered for this and it's ancestors
       # @return [Hash] of formatters
       def formatters
         @formatters ||= {}
       end
-
-      attr_writer :formatters
 
       def hash_access
         @hash_access ||= :to_sym
@@ -124,11 +122,13 @@ module Grape
           case value
           when :to_s, :str, :string
             :to_s
-          when :to_sym, :sym, :symbol
-            :to_sym
           else
             :to_sym
           end
+      end
+
+      def delegation_opts
+        @delegation_opts ||= { hash_access: hash_access }
       end
     end
 
@@ -137,6 +137,8 @@ module Grape
     def self.inherited(subclass)
       subclass.root_exposure = root_exposure.dup
       subclass.formatters = formatters.dup
+
+      super
     end
 
     # This method is the primary means by which you will declare what attributes
@@ -151,7 +153,7 @@ module Grape
     #
     # @example as: a proc or lambda
     #
-    #   object = OpenStruct(awesomness: 'awesome_key', awesome: 'not-my-key', other: 'other-key' )
+    #   object = OpenStruct(awesomeness: 'awesome_key', awesome: 'not-my-key', other: 'other-key' )
     #
     #   class MyEntity < Grape::Entity
     #     expose :awesome, as: proc { object.awesomeness }
@@ -185,7 +187,7 @@ module Grape
     #   field, typically the value is a hash with two fields, type and desc.
     # @option options :merge This option allows you to merge an exposed field to the root
     #
-    # rubocop:disable Metrics/LineLength
+    # rubocop:disable Layout/LineLength
     def self.expose(*args, &block)
       options = merge_options(args.last.is_a?(Hash) ? args.pop : {})
 
@@ -196,9 +198,11 @@ module Grape
         raise ArgumentError, 'You may not use block-setting on multi-attribute exposures.' if block_given?
       end
 
-      raise ArgumentError, 'You may not use block-setting when also using format_with' if block_given? && options[:format_with].respond_to?(:call)
-
       if block_given?
+        if options[:format_with].respond_to?(:call)
+          raise ArgumentError, 'You may not use block-setting when also using format_with'
+        end
+
         if block.parameters.any?
           options[:proc] = block
         else
@@ -210,7 +214,7 @@ module Grape
       @nesting_stack ||= []
       args.each { |attribute| build_exposure_for_attribute(attribute, @nesting_stack, options, block) }
     end
-    # rubocop:enable Metrics/LineLength
+    # rubocop:enable Layout/LineLength
 
     def self.build_exposure_for_attribute(attribute, nesting_stack, options, block)
       exposure_list = nesting_stack.empty? ? root_exposures : nesting_stack.last.nested_exposures
@@ -516,6 +520,14 @@ module Grape
       else
         instance_exec(object, options, &block)
       end
+    rescue StandardError => e
+      # it handles: https://github.com/ruby/ruby/blob/v3_0_0_preview1/NEWS.md#language-changes point 3, Proc
+      # accounting for expose :foo, &:bar
+      if e.is_a?(ArgumentError) && block.parameters == [[:req], [:rest]]
+        raise Grape::Entity::Deprecated.new e.message, 'in ruby 3.0'
+      end
+
+      raise e
     end
 
     def exec_with_attribute(attribute, &block)
@@ -529,8 +541,10 @@ module Grape
     def delegate_attribute(attribute)
       if is_defined_in_entity?(attribute)
         send(attribute)
+      elsif delegator.accepts_options?
+        delegator.delegate(attribute, **self.class.delegation_opts)
       else
-        delegator.delegate(attribute, hash_access: self.class.hash_access)
+        delegator.delegate(attribute)
       end
     end
 
@@ -571,6 +585,7 @@ module Grape
       merge
       expose_nil
       override
+      default
     ].to_set.freeze
 
     # Merges the given options with current block options.

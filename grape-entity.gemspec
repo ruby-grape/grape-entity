@@ -14,9 +14,7 @@ Gem::Specification.new do |s|
   s.description = 'Extracted from Grape, A Ruby framework for rapid API development with great conventions.'
   s.license     = 'MIT'
 
-  s.required_ruby_version = '>= 2.4'
-
-  s.rubyforge_project = 'grape-entity'
+  s.required_ruby_version = '>= 2.5'
 
   s.add_runtime_dependency 'activesupport', '>= 3.0.0'
   # FIXME: remove dependecy
@@ -28,7 +26,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'pry-byebug' unless RUBY_PLATFORM.eql?('java') || RUBY_ENGINE.eql?('rbx')
   s.add_development_dependency 'rack-test'
   s.add_development_dependency 'rake'
-  s.add_development_dependency 'rspec', '~> 3.0'
+  s.add_development_dependency 'rspec', '~> 3.9'
   s.add_development_dependency 'yard'
 
   s.files         = `git ls-files`.split("\n")

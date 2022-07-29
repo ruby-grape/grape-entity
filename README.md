@@ -1,9 +1,46 @@
-# Grape::Entity
-
 [![Gem Version](http://img.shields.io/gem/v/grape-entity.svg)](http://badge.fury.io/rb/grape-entity)
-[![Build Status](http://img.shields.io/travis/ruby-grape/grape-entity.svg)](https://travis-ci.org/ruby-grape/grape-entity)
+![Ruby](https://github.com/ruby-grape/grape-entity/workflows/Ruby/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/ruby-grape/grape-entity/badge.svg?branch=master)](https://coveralls.io/github/ruby-grape/grape-entity?branch=master)
 [![Code Climate](https://codeclimate.com/github/ruby-grape/grape-entity.svg)](https://codeclimate.com/github/ruby-grape/grape-entity)
+
+# Table of Contents
+
+- [Grape::Entity](#grapeentity)
+  - [Introduction](#introduction)
+    - [Example](#example)
+  - [Reusable Responses with Entities](#reusable-responses-with-entities)
+    - [Defining Entities](#defining-entities)
+      - [Basic Exposure](#basic-exposure)
+      - [Exposing with a Presenter](#exposing-with-a-presenter)
+      - [Conditional Exposure](#conditional-exposure)
+      - [Safe Exposure](#safe-exposure)
+      - [Nested Exposure](#nested-exposure)
+      - [Collection Exposure](#collection-exposure)
+      - [Merge Fields](#merge-fields)
+      - [Runtime Exposure](#runtime-exposure)
+      - [Unexpose](#unexpose)
+      - [Overriding exposures](#overriding-exposures)
+      - [Returning only the fields you want](#returning-only-the-fields-you-want)
+      - [Aliases](#aliases)
+      - [Format Before Exposing](#format-before-exposing)
+      - [Expose Nil](#expose-nil)
+      - [Default Value](#default-value)
+      - [Documentation](#documentation)
+    - [Options Hash](#options-hash)
+      - [Passing Additional Option To Nested Exposure](#passing-additional-option-to-nested-exposure)
+      - [Attribute Path Tracking](#attribute-path-tracking)
+    - [Using the Exposure DSL](#using-the-exposure-dsl)
+    - [Using Entities](#using-entities)
+    - [Entity Organization](#entity-organization)
+    - [Caveats](#caveats)
+  - [Installation](#installation)
+  - [Testing with Entities](#testing-with-entities)
+  - [Project Resources](#project-resources)
+  - [Contributing](#contributing)
+  - [License](#license)
+  - [Copyright](#copyright)
+
+# Grape::Entity
 
 ## Introduction
 
@@ -73,6 +110,20 @@ The field lookup takes several steps
 * next try `object.exposure`
 * next try `object.fetch(exposure)`
 * last raise an Exception
+
+`exposure` is a Symbol by default. If `object` is a Hash with stringified keys, you can set the hash accessor at the entity-class level to properly expose its members:
+
+```ruby
+class Status < GrapeEntity
+  self.hash_access = :to_s
+
+  expose :code
+  expose :message
+end
+
+Status.represent({ 'code' => 418, 'message' => "I'm a teapot" }).as_json
+#=> { code: 418, message: "I'm a teapot" }
+```
 
 #### Exposing with a Presenter
 
@@ -442,6 +493,19 @@ module  Entities
       expose :name
       expose :age, expose_nil: true # nil values would be rendered as null in the JSON
     end
+  end
+end
+```
+
+#### Default Value
+
+This option can be used to provide a default value in case the return value is nil or empty.
+
+```ruby
+module  Entities
+  class MyModel < Grape::Entity
+    expose :name, default: ''
+    expose :age, default: 60
   end
 end
 ```

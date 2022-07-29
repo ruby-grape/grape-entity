@@ -11,10 +11,14 @@ module Grape
     module Delegator
       def self.new(object)
         delegator_klass =
-          if object.is_a?(Hash) then HashObject
-          elsif defined?(OpenStruct) && object.is_a?(OpenStruct) then OpenStructObject
-          elsif object.respond_to?(:fetch, true) then FetchableObject
-          else PlainObject
+          if object.is_a?(Hash)
+            HashObject
+          elsif defined?(OpenStruct) && object.is_a?(OpenStruct)
+            OpenStructObject
+          elsif object.respond_to?(:fetch, true)
+            FetchableObject
+          else
+            PlainObject
           end
 
         delegator_klass.new(object)

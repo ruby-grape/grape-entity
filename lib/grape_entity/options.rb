@@ -9,7 +9,7 @@ module Grape
 
       attr_reader :opts_hash
 
-      def_delegators :opts_hash, :dig, :key?, :fetch, :[], :empty
+      def_delegators :opts_hash, :dig, :key?, :fetch, :[], :empty?
 
       def initialize(opts_hash = {})
         @opts_hash = opts_hash
@@ -106,11 +106,12 @@ module Grape
       end
 
       def build_symbolized_hash(attribute, hash)
-        if attribute.is_a?(Hash)
+        case attribute
+        when Hash
           attribute.each do |attr, nested_attrs|
             hash[attr.to_sym] = build_symbolized_hash(nested_attrs, {})
           end
-        elsif attribute.is_a?(Array)
+        when Array
           return attribute.each { |x| build_symbolized_hash(x, {}) }
         else
           hash[attribute.to_sym] = true
