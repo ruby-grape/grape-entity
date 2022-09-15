@@ -15,8 +15,6 @@ module Grape
             HashObject
           elsif defined?(OpenStruct) && object.is_a?(OpenStruct)
             OpenStructObject
-          elsif object.is_a?(Hash) && object.respond_to?(:fetch, true)
-            FetchableObject
           else
             PlainObject
           end
