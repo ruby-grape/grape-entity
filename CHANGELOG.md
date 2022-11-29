@@ -7,6 +7,7 @@
 #### Fixes
 
 * Your contribution here.
+* [#371](https://github.com/ruby-grape/grape-entity/pull/371): Allow default exposed value to be `false` or any empty data - [@norydev](https://github.com/norydev).
 
 
 ### 0.10.2 (2022-07-29)
