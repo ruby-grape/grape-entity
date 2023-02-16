@@ -3,7 +3,6 @@
 require 'grape_entity/delegator/base'
 require 'grape_entity/delegator/hash_object'
 require 'grape_entity/delegator/openstruct_object'
-require 'grape_entity/delegator/fetchable_object'
 require 'grape_entity/delegator/plain_object'
 
 module Grape
@@ -15,8 +14,6 @@ module Grape
             HashObject
           elsif defined?(OpenStruct) && object.is_a?(OpenStruct)
             OpenStructObject
-          elsif object.respond_to?(:fetch, true)
-            FetchableObject
           else
             PlainObject
           end
