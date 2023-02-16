@@ -7,8 +7,8 @@ Gem::Specification.new do |s|
   s.name        = 'grape-entity'
   s.version     = GrapeEntity::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ['Michael Bleigh']
-  s.email       = ['michael@intridea.com']
+  s.authors     = ['LeFnord', 'Michael Bleigh']
+  s.email       = ['pscholz.le@gmail.com', 'michael@intridea.com']
   s.homepage    = 'https://github.com/ruby-grape/grape-entity'
   s.summary     = 'A simple facade for managing the relationship between your model and API.'
   s.description = 'Extracted from Grape, A Ruby framework for rapid API development with great conventions.'

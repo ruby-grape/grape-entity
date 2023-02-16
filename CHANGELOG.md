@@ -7,9 +7,16 @@
 #### Fixes
 
 * Your contribution here.
+
+
+### ### 1.0.0 (2023-02-16)
+
+#### Fixes
+
+**Breaking change:**
+* [#352](https://github.com/ruby-grape/grape-entity/pull/369): Remove `FetchableObject` behavior. - [@danielvdao](https://github.com/danielvdao).
 * [#371](https://github.com/ruby-grape/grape-entity/pull/371): Allow default exposed value to be `false` or any empty data - [@norydev](https://github.com/norydev).
 
-* [#352](https://github.com/ruby-grape/grape-entity/pull/369): Remove `FetchableObject` behavior. - [@danielvdao](https://github.com/danielvdao).
 
 ### 0.10.2 (2022-07-29)
 
