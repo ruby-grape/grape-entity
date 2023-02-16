@@ -8,6 +8,7 @@
 
 * Your contribution here.
 
+* [#352](https://github.com/ruby-grape/grape-entity/pull/369): Remove `FetchableObject` behavior. - [@danielvdao](https://github.com/danielvdao).
 
 ### 0.10.2 (2022-07-29)
 
