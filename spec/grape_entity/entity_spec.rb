@@ -29,11 +29,11 @@ describe Grape::Entity do
         end
 
         it 'makes sure that :format_with as a proc cannot be used with a block' do
-          expect do
-            subject.expose :name, format_with: proc {} do
-              puts 'hi'
-            end
-          end.to raise_error ArgumentError
+          # rubocop:disable Style/BlockDelimiters
+          # rubocop:disable Lint/Debugger
+          expect { subject.expose :name, format_with: proc {} do p 'hi' end }.to raise_error ArgumentError
+          # rubocop:enable Lint/Debugger
+          # rubocop:enable Style/BlockDelimiters
         end
 
         it 'makes sure unknown options are not silently ignored' do
