@@ -89,7 +89,7 @@ module Grape
           return unless valid?(entity)
 
           output = value(entity, options)
-          output.blank? && @default_value.present? ? @default_value : output
+          output.blank? && !@default_value.nil? ? @default_value : output
         end
 
         def should_return_key?(options)
