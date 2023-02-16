@@ -5,7 +5,7 @@ AllCops:
     - vendor/**/*
     - example/**/*
   NewCops: enable
-  TargetRubyVersion: 3.0
+  TargetRubyVersion: 3.2
   SuggestExtensions: false
 
 #  Layout stuff
@@ -38,7 +38,7 @@ Lint/ConstantDefinitionInBlock:
 #
 Metrics/AbcSize:
   Max: 25
-  IgnoredMethods:
+  AllowedMethods:
     # from lib/grape_entity/exposure/nesting_exposure.rb
     - 'normalized_exposures'
 
@@ -59,7 +59,7 @@ Metrics/MethodLength:
 
 Metrics/PerceivedComplexity:
   Max: 11
-  IgnoredMethods:
+  AllowedMethods:
     # from lib/grape_entity/entity.rb
     - 'expose'
     - 'merge_options'
@@ -75,6 +75,9 @@ Naming:
 #  Style stuff
 #
 Style/Documentation:
+  Enabled: false
+
+Style/HashSyntax:
   Enabled: false
 
 Style/OptionalBooleanParameter:

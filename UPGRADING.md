@@ -1,6 +1,11 @@
 # Upgrading Grape Entity
 
 
+### Upgrading to >= 0.10.2
+Official support for `FetchableObject` was removed.
+
+See [#352](https://github.com/ruby-grape/grape-entity/pull/369) for more information.
+
 ### Upgrading to >= 0.8.2
 
 Official support for ruby < 2.5 removed, ruby 2.5 only in testing mode, but no support.

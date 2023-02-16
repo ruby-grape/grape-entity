@@ -30,7 +30,9 @@ describe Grape::Entity do
 
         it 'makes sure that :format_with as a proc cannot be used with a block' do
           # rubocop:disable Style/BlockDelimiters
+          # rubocop:disable Lint/Debugger
           expect { subject.expose :name, format_with: proc {} do p 'hi' end }.to raise_error ArgumentError
+          # rubocop:enable Lint/Debugger
           # rubocop:enable Style/BlockDelimiters
         end
 
@@ -245,9 +247,9 @@ describe Grape::Entity do
           context 'when default option is set' do
             it 'exposes default values for attributes' do
               subject.expose(:a, default: 'a')
-              subject.expose(:b, default: 'b')
+              subject.expose(:b, default: false)
               subject.expose(:c, default: 'c')
-              expect(subject.represent(model).serializable_hash).to eq(a: 'a', b: 'b', c: 'value')
+              expect(subject.represent(model).serializable_hash).to eq(a: 'a', b: false, c: 'value')
             end
           end
 
