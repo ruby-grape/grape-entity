@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'multi_json'
-require 'set'
 
 module Grape
   # An Entity is a lightweight structure that allows you to easily
