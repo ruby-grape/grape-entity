@@ -6,6 +6,7 @@
 
 #### Fixes
 
+* [#381](https://github.com/ruby-grape/grape-entity/pull/381): Fix `expose_nil: false` when using a block - [@magni-](https://github.com/magni-).
 * Your contribution here.
 
 

@@ -598,10 +598,10 @@ module Grape
           if existing_val.is_a?(Hash) && new_val.is_a?(Hash)
             existing_val.merge(new_val)
           elsif new_val.is_a?(Hash)
-            (opts["#{key}_extras".to_sym] ||= []) << existing_val
+            (opts[:"#{key}_extras"] ||= []) << existing_val
             new_val
           else
-            (opts["#{key}_extras".to_sym] ||= []) << new_val
+            (opts[:"#{key}_extras"] ||= []) << new_val
             existing_val
           end
         else

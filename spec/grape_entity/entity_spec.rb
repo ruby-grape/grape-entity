@@ -30,9 +30,11 @@ describe Grape::Entity do
 
         it 'makes sure that :format_with as a proc cannot be used with a block' do
           # rubocop:disable Style/BlockDelimiters
-          # rubocop:disable Lint/Debugger
-          expect { subject.expose :name, format_with: proc {} do p 'hi' end }.to raise_error ArgumentError
-          # rubocop:enable Lint/Debugger
+          expect {
+            subject.expose :name, format_with: proc {} do
+              p 'hi'
+            end
+          }.to raise_error ArgumentError
           # rubocop:enable Style/BlockDelimiters
         end
 
@@ -131,8 +133,8 @@ describe Grape::Entity do
 
           context 'when expose_nil option is false and block passed' do
             it 'does not expose if block returns nil' do
-              subject.expose(:a, expose_nil: false) do |_obj, _options|
-                nil
+              subject.expose(:a, expose_nil: false) do |_obj, options|
+                options[:option_a]
               end
               subject.expose(:b)
               subject.expose(:c)
@@ -140,12 +142,12 @@ describe Grape::Entity do
             end
 
             it 'exposes is block returns a value' do
-              subject.expose(:a, expose_nil: false) do |_obj, _options|
-                100
+              subject.expose(:a, expose_nil: false) do |_obj, options|
+                options[:option_a]
               end
               subject.expose(:b)
               subject.expose(:c)
-              expect(subject.represent(model).serializable_hash).to eq(a: 100, b: nil, c: 'value')
+              expect(subject.represent(model, option_a: 100).serializable_hash).to eq(a: 100, b: nil, c: 'value')
             end
           end
         end
