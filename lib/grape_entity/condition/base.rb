@@ -4,8 +4,8 @@ module Grape
   class Entity
     module Condition
       class Base
-        def self.new(inverse, *args, &block)
-          super(inverse).tap { |e| e.setup(*args, &block) }
+        def self.new(inverse, ...)
+          super(inverse).tap { |e| e.setup(...) }
         end
 
         def initialize(inverse = false)

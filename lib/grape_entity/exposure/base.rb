@@ -9,8 +9,8 @@ module Grape
       class Base
         attr_reader :attribute, :is_safe, :documentation, :override, :conditions, :for_merge
 
-        def self.new(attribute, options, conditions, *args, &block)
-          super(attribute, options, conditions).tap { |e| e.setup(*args, &block) }
+        def self.new(attribute, options, conditions, ...)
+          super(attribute, options, conditions).tap { |e| e.setup(...) }
         end
 
         def initialize(attribute, options, conditions)

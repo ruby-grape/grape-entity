@@ -5,7 +5,7 @@ AllCops:
     - vendor/**/*
     - example/**/*
   NewCops: enable
-  TargetRubyVersion: 3.2
+  TargetRubyVersion: 3.0
   SuggestExtensions: false
 
 #  Layout stuff
