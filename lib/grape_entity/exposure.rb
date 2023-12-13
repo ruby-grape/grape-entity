@@ -54,7 +54,7 @@ module Grape
 
         def expose_nil_condition(attribute, options)
           Condition.new_unless(
-            proc do |object, _options|
+            proc do |object, entity_options|
               if options[:proc].nil?
                 delegator = Delegator.new(object)
                 if is_a?(Grape::Entity) && delegator.accepts_options?
@@ -63,7 +63,7 @@ module Grape
                   delegator.delegate(attribute).nil?
                 end
               else
-                exec_with_object(options, &options[:proc]).nil?
+                exec_with_object(entity_options, &options[:proc]).nil?
               end
             end
           )
