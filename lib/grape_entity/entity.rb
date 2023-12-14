@@ -514,7 +514,7 @@ module Grape
     end
 
     def exec_with_object(options, &block)
-      if block.parameters.count == 1
+      if block.parameters.count == 1 || block.parameters == [[:req], [:rest]]
         instance_exec(object, &block)
       else
         instance_exec(object, options, &block)
@@ -523,6 +523,7 @@ module Grape
       # it handles: https://github.com/ruby/ruby/blob/v3_0_0_preview1/NEWS.md#language-changes point 3, Proc
       # accounting for expose :foo, &:bar
       if e.is_a?(ArgumentError) && block.parameters == [[:req], [:rest]]
+        Rails.logger.error("***** ERROR in exec_with_object: #{e.message}\n#{e.backtrace.join("\n")}")
         raise Grape::Entity::Deprecated.new e.message, 'in ruby 3.0'
       end
 
