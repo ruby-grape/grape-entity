@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
 require 'ostruct'
 
 describe Grape::Entity do
@@ -1752,6 +1751,16 @@ describe Grape::Entity do
           expect(presenter.serializable_hash(only: %i[a b])).to eq(a: 1, b: 2)
           expect(presenter.serializable_hash(only: %i[b c])).to eq(b: 2, c: 3)
         end
+      end
+    end
+
+    describe '#to_json' do
+      before do
+        fresh_class.expose :name
+      end
+
+      it 'returns a json' do
+        expect(fresh_class.new(model).to_json).to eq(JSON.generate(attributes.slice(:name)))
       end
     end
 
