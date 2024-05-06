@@ -7,7 +7,7 @@
 #### Fixes
 
 * Your contribution here.
-
+* [#384](https://github.com/ruby-grape/grape-entity/pull/384): Fixed the `inspect` method to correctly handle nil values. - [@fcce](https://github.com/fcce).
 
 ### ### 1.0.1 (2024-04-10)
 
