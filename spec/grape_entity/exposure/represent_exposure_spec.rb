@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-
 describe Grape::Entity::Exposure::RepresentExposure do
   subject(:exposure) { described_class.new(:foo, {}, {}, double, double) }
 

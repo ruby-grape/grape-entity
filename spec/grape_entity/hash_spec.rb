@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-
 describe Grape::Entity do
   it 'except option for nested entity', :aggregate_failures do
     module EntitySpec
