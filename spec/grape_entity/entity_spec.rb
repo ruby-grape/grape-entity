@@ -1774,7 +1774,6 @@ describe Grape::Entity do
         data = subject.class.new(nil).inspect
         expect(data).to include 'nil'
       end
-
     end
 
     describe '#value_for' do

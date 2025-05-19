@@ -35,7 +35,7 @@ module Models
     attr_accessor :tenure
 
     def initialize(opts = {})
-      super(opts)
+      super
       @tenure = opts[:tenure]
     end
   end
@@ -44,7 +44,7 @@ module Models
     attr_reader :grade
 
     def initialize(opts = {})
-      super(opts)
+      super
       @grade = opts[:grade]
     end
   end
