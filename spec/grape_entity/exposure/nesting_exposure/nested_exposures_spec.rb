@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-
 describe Grape::Entity::Exposure::NestingExposure::NestedExposures do
   subject(:nested_exposures) { described_class.new([]) }
 

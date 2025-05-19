@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-
 describe Grape::Entity::Exposure do
   let(:fresh_class) { Class.new(Grape::Entity) }
   let(:model) { double(attributes) }
