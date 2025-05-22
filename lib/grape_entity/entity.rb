@@ -474,7 +474,7 @@ module Grape
     def inspect
       object = serializable_hash
       if object.nil?
-        "#<#{self.class.name}:#{object_id}> nil"
+        "#<#{self.class.name}:#{object_id} nil>"
       else
         fields = object.map { |k, v| "#{k}=#{v}" }
         "#<#{self.class.name}:#{object_id} #{fields.join(' ')}>"
