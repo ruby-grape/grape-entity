@@ -6,8 +6,9 @@
 
 #### Fixes
 
+* [#388](https://github.com/ruby-grape/grape-entity/pull/388): Drop ruby-head from test matrix - [@numbata](https://github.com/numbata).
+* [#384](https://github.com/ruby-grape/grape-entity/pull/384): Fix `inspect` to correctly handle `nil` values - [@fcce](https://github.com/fcce).
 * Your contribution here.
-* [#388](https://github.com/ruby-grape/grape-entity/pull/388): Drop ruby-head from test matrix to keep builds stable - [@numbata](https://github.com/numbata).
 
 ### ### 1.0.1 (2024-04-10)
 

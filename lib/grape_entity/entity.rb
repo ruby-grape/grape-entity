@@ -472,8 +472,13 @@ module Grape
 
     # Prevent default serialization of :options or :delegator.
     def inspect
-      fields = serializable_hash.map { |k, v| "#{k}=#{v}" }
-      "#<#{self.class.name}:#{object_id} #{fields.join(' ')}>"
+      object = serializable_hash
+      if object.nil?
+        "#<#{self.class.name}:#{object_id} nil>"
+      else
+        fields = object.map { |k, v| "#{k}=#{v}" }
+        "#<#{self.class.name}:#{object_id} #{fields.join(' ')}>"
+      end
     end
 
     def initialize(object, options = {})

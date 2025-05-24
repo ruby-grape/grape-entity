@@ -1778,6 +1778,11 @@ describe Grape::Entity do
         expect(data).to_not include '@options'
         expect(data).to_not include '@delegator'
       end
+
+      it 'returns a nil string when subject is nil' do
+        data = subject.class.new(nil).inspect
+        expect(data).to include 'nil'
+      end
     end
 
     describe '#value_for' do
