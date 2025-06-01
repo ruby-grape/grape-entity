@@ -519,19 +519,11 @@ module Grape
     end
 
     def exec_with_object(options, &block)
-      if symbol_to_proc_wrapper?(block)
-        arity = determine_block_arity(block)
-
-        if arity.positive?
-          raise ArgumentError, <<~MSG
-            Symbol to proc wrapper blocks must have zero arguments, but got #{arity}.
-            Use a regular block with parameters or access presented instance (`object`)
-            and the top-level entity options (`options`) directly.
-          MSG
-        end
-      else
-        arity = block.arity
-      end
+      arity = if symbol_to_proc_wrapper?(block)
+                ensure_block_arity!(block)
+              else
+                block.arity
+              end
 
       if arity.zero?
         instance_exec(object, &block)
@@ -540,20 +532,34 @@ module Grape
       end
     end
 
-    def determine_block_arity(block)
+    def ensure_block_arity!(block)
+      # MRI currently always includes "( &:foo )" for symbol-to-proc wrappers.
+      # If this format changes in a new Ruby version, this logic must be updated.
       origin_method_name = block.to_s.scan(/(?<=\(&:)[^)]+(?=\))/).first&.to_sym
-      block_arity = block.arity
+      return 0 unless origin_method_name
 
-      return block_arity unless origin_method_name
-      return block_arity unless object.respond_to?(origin_method_name, true)
+      unless object.respond_to?(origin_method_name, true)
+        raise ArgumentError, <<~MSG
+          Cannot use `&:#{origin_method_name}` because that method is not defined in the object.
+        MSG
+      end
 
-      object.method(origin_method_name).arity
+      arity = object.method(origin_method_name).arity
+      return 0 if arity.zero?
+
+      raise ArgumentError, <<~MSG
+        Cannot use `&:#{origin_method_name}` because that method expects #{arity} argument#{'s' if arity != 1}.
+        Symbol‐to‐proc shorthand only works for zero‐argument methods.
+      MSG
     end
 
     def symbol_to_proc_wrapper?(block)
-      block.lambda? &&
-        block.source_location.nil? &&
-        block.parameters == [[:req], [:rest]]
+      params = block.parameters
+
+      return false unless block.lambda? && block.source_location.nil?
+      return false unless params.size >= 2
+
+      params[0].first == :req && params[1].first == :rest
     end
 
     def exec_with_attribute(attribute, &block)

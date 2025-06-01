@@ -436,8 +436,13 @@ describe Grape::Entity do
               subject.expose :method_without_args, as: :that_method_without_args_again
 
               object = SomeObject.new
+
+              value = subject.represent(object).value_for(:method_without_args)
+              expect(value).to be_nil
+
               value = subject.represent(object).value_for(:that_method_without_args)
               expect(value).to eq('result')
+
               value = subject.represent(object).value_for(:that_method_without_args_again)
               expect(value).to eq('result')
             end
@@ -452,10 +457,23 @@ describe Grape::Entity do
 
               expect do
                 subject.represent(object).value_for(:that_method_with_one_arg)
-              end.to raise_error ArgumentError, match(/blocks must have zero arguments/)
+              end.to raise_error ArgumentError, match(/method expects 1 argument/)
+
               expect do
                 subject.represent(object).value_for(:that_method_with_multple_args)
-              end.to raise_error ArgumentError, match(/blocks must have zero arguments/)
+              end.to raise_error ArgumentError, match(/method expects 2 arguments/)
+            end
+          end
+
+          context 'with symbol-to-proc passed in via &' do
+            specify do
+              subject.expose :that_undefined_method, &:unknown_method
+
+              object = SomeObject.new
+
+              expect do
+                subject.represent(object).value_for(:that_undefined_method)
+              end.to raise_error ArgumentError, match(/method is not defined in the object/)
             end
           end
         end
