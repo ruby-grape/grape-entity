@@ -525,7 +525,8 @@ module Grape
         if arity.positive?
           raise ArgumentError, <<~MSG
             Symbol to proc wrapper blocks must have zero arguments, but got #{arity}.
-            Expose methods with as: or use a block with no parameters.
+            Use a regular block with parameters or access presented instance (`object`)
+            and the top-level entity options (`options`) directly.
           MSG
         end
       else
