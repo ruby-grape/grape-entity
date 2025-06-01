@@ -393,6 +393,14 @@ describe Grape::Entity do
               'result'
             end
 
+            def method_with_one_arg(_object)
+              'result'
+            end
+
+            def method_with_multiple_args(_object, _options)
+              'result'
+            end
+
             def raises_argument_error
               raise ArgumentError, 'something different'
             end
@@ -428,11 +436,26 @@ describe Grape::Entity do
               subject.expose :method_without_args, as: :that_method_without_args_again
 
               object = SomeObject.new
-              value1 = subject.represent(object).value_for(:that_method_without_args)
-              expect(value1).to eq('result')
+              value = subject.represent(object).value_for(:that_method_without_args)
+              expect(value).to eq('result')
+              value = subject.represent(object).value_for(:that_method_without_args_again)
+              expect(value).to eq('result')
+            end
+          end
 
-              value2 = subject.represent(object).value_for(:that_method_without_args_again)
-              expect(value2).to eq('result')
+          context 'with block passed in via &' do
+            specify do
+              subject.expose :that_method_with_one_arg, &:method_with_one_arg
+              subject.expose :that_method_with_multple_args, &:method_with_multiple_args
+
+              object = SomeObject.new
+
+              expect do
+                subject.represent(object).value_for(:that_method_with_one_arg)
+              end.to raise_error ArgumentError, match(/blocks must have zero arguments/)
+              expect do
+                subject.represent(object).value_for(:that_method_with_multple_args)
+              end.to raise_error ArgumentError, match(/blocks must have zero arguments/)
             end
           end
         end

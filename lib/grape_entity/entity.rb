@@ -518,26 +518,41 @@ module Grape
       root_exposure.serializable_value(self, opts)
     end
 
-    def determine_block_arity(block)
-      # As from Ruby 3.0, the block parameters are always equal to `[[:req], [:rest]]`
-      # In that case the method name could be extracted from the block to find the original method arity.
-      origin_method_name = block.to_s.scan(/(?<=\(&:)[^)]+(?=\))/).first&.to_sym
-
-      if origin_method_name && object.respond_to?(origin_method_name, true)
-        object.method(origin_method_name).parameters.size
-      else
-        block.parameters.size
-      end
-    end
-
     def exec_with_object(options, &block)
-      block_arity = determine_block_arity(block)
+      if symbol_to_proc_wrapper?(block)
+        arity = determine_block_arity(block)
 
-      if block_arity.zero?
+        if arity.positive?
+          raise ArgumentError, <<~MSG
+            Symbol to proc wrapper blocks must have zero arguments, but got #{arity}.
+            Expose methods with as: or use a block with no parameters.
+          MSG
+        end
+      else
+        arity = block.arity
+      end
+
+      if arity.zero?
         instance_exec(object, &block)
       else
         instance_exec(object, options, &block)
       end
+    end
+
+    def determine_block_arity(block)
+      origin_method_name = block.to_s.scan(/(?<=\(&:)[^)]+(?=\))/).first&.to_sym
+      block_arity = block.arity
+
+      return block_arity unless origin_method_name
+      return block_arity unless object.respond_to?(origin_method_name, true)
+
+      object.method(origin_method_name).arity
+    end
+
+    def symbol_to_proc_wrapper?(block)
+      block.lambda? &&
+        block.source_location.nil? &&
+        block.parameters == [[:req], [:rest]]
     end
 
     def exec_with_attribute(attribute, &block)
