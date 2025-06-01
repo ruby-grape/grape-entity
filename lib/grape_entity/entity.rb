@@ -533,7 +533,7 @@ module Grape
     def exec_with_object(options, &block)
       block_arity = determine_block_arity(block)
 
-      if block_arity == 0
+      if block_arity.zero?
         instance_exec(object, &block)
       else
         instance_exec(object, options, &block)
