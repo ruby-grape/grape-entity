@@ -393,6 +393,14 @@ describe Grape::Entity do
               'result'
             end
 
+            def method_with_one_arg(_object)
+              'result'
+            end
+
+            def method_with_multiple_args(_object, _options)
+              'result'
+            end
+
             def raises_argument_error
               raise ArgumentError, 'something different'
             end
@@ -423,28 +431,49 @@ describe Grape::Entity do
           end
 
           context 'with block passed in via &' do
-            if RUBY_VERSION.start_with?('3')
-              specify do
-                subject.expose :that_method_without_args, &:method_without_args
-                subject.expose :method_without_args, as: :that_method_without_args_again
+            specify do
+              subject.expose :that_method_without_args, &:method_without_args
+              subject.expose :method_without_args, as: :that_method_without_args_again
 
-                object = SomeObject.new
-                expect do
-                  subject.represent(object).value_for(:that_method_without_args)
-                end.to raise_error Grape::Entity::Deprecated
+              object = SomeObject.new
 
-                value2 = subject.represent(object).value_for(:that_method_without_args_again)
-                expect(value2).to eq('result')
-              end
-            else
-              specify do
-                subject.expose :that_method_without_args_again, &:method_without_args
+              value = subject.represent(object).value_for(:method_without_args)
+              expect(value).to be_nil
 
-                object = SomeObject.new
+              value = subject.represent(object).value_for(:that_method_without_args)
+              expect(value).to eq('result')
 
-                value2 = subject.represent(object).value_for(:that_method_without_args_again)
-                expect(value2).to eq('result')
-              end
+              value = subject.represent(object).value_for(:that_method_without_args_again)
+              expect(value).to eq('result')
+            end
+          end
+
+          context 'with block passed in via &' do
+            specify do
+              subject.expose :that_method_with_one_arg, &:method_with_one_arg
+              subject.expose :that_method_with_multple_args, &:method_with_multiple_args
+
+              object = SomeObject.new
+
+              expect do
+                subject.represent(object).value_for(:that_method_with_one_arg)
+              end.to raise_error ArgumentError, match(/method expects 1 argument/)
+
+              expect do
+                subject.represent(object).value_for(:that_method_with_multple_args)
+              end.to raise_error ArgumentError, match(/method expects 2 arguments/)
+            end
+          end
+
+          context 'with symbol-to-proc passed in via &' do
+            specify do
+              subject.expose :that_undefined_method, &:unknown_method
+
+              object = SomeObject.new
+
+              expect do
+                subject.represent(object).value_for(:that_undefined_method)
+              end.to raise_error ArgumentError, match(/method is not defined in the object/)
             end
           end
         end

@@ -519,19 +519,47 @@ module Grape
     end
 
     def exec_with_object(options, &block)
-      if block.parameters.count == 1
+      arity = if symbol_to_proc_wrapper?(block)
+                ensure_block_arity!(block)
+              else
+                block.arity
+              end
+
+      if arity.zero?
         instance_exec(object, &block)
       else
         instance_exec(object, options, &block)
       end
-    rescue StandardError => e
-      # it handles: https://github.com/ruby/ruby/blob/v3_0_0_preview1/NEWS.md#language-changes point 3, Proc
-      # accounting for expose :foo, &:bar
-      if e.is_a?(ArgumentError) && block.parameters == [[:req], [:rest]]
-        raise Grape::Entity::Deprecated.new e.message, 'in ruby 3.0'
+    end
+
+    def ensure_block_arity!(block)
+      # MRI currently always includes "( &:foo )" for symbol-to-proc wrappers.
+      # If this format changes in a new Ruby version, this logic must be updated.
+      origin_method_name = block.to_s.scan(/(?<=\(&:)[^)]+(?=\))/).first&.to_sym
+      return 0 unless origin_method_name
+
+      unless object.respond_to?(origin_method_name, true)
+        raise ArgumentError, <<~MSG
+          Cannot use `&:#{origin_method_name}` because that method is not defined in the object.
+        MSG
       end
 
-      raise e
+      arity = object.method(origin_method_name).arity
+      return 0 if arity.zero?
+
+      raise ArgumentError, <<~MSG
+        Cannot use `&:#{origin_method_name}` because that method expects #{arity} argument#{'s' if arity != 1}.
+        Symbol‐to‐proc shorthand only works for zero‐argument methods.
+      MSG
+    end
+
+    def symbol_to_proc_wrapper?(block)
+      params = block.parameters
+
+      return false unless block.lambda? && block.source_location.nil?
+      return false unless params.size >= 2
+
+      params[0].first == :req && params[1].first == :rest
     end
 
     def exec_with_attribute(attribute, &block)
