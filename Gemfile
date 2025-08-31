@@ -17,6 +17,7 @@ group :development, :test do
 end
 
 group :test do
+  gem 'activerecord'
   gem 'coveralls_reborn', require: false
   gem 'growl'
   gem 'guard'
@@ -25,4 +26,5 @@ group :test do
   gem 'rb-fsevent'
   gem 'ruby-grape-danger', '~> 0.2', require: false
   gem 'simplecov', require: false
+  gem 'sqlite3'
 end

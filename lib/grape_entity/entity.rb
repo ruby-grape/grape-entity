@@ -187,11 +187,12 @@ module Grape
     # @option options :merge This option allows you to merge an exposed field to the root
     #
     # rubocop:disable Layout/LineLength
-    def self.expose(*args, &block)
+    def self.expose(*args, &block) # rubocop:disable Metrics/AbcSize
       options = merge_options(args.last.is_a?(Hash) ? args.pop : {})
 
-      if args.size > 1
+      raise ArgumentError, 'The :preload option must be a Symbol.' if options.key?(:preload) && !options[:preload].is_a?(Symbol)
 
+      if args.size > 1
         raise ArgumentError, 'You may not use the :as option on multi-attribute exposures.' if options[:as]
         raise ArgumentError, 'You may not use the :expose_nil on multi-attribute exposures.' if options.key?(:expose_nil)
         raise ArgumentError, 'You may not use block-setting on multi-attribute exposures.' if block_given?
@@ -451,6 +452,14 @@ module Grape
       root_element ? { root_element => inner } : inner
     end
 
+    # Same as the represent method, but the activerecord associations declared by the preload option will be preloaded,
+    # Therefore, it can avoid n+1 queries.
+    def self.preload_and_represent(objects, options = {})
+      options = Options.new(options) unless options.is_a?(Options)
+      Preloader.new(self, objects, options).call
+      represent(objects, options)
+    end
+
     # This method returns the entity's root or collection root node, or its parent's
     # @param root_type: either :collection_root or just :root
     def self.root_element(root_type)
@@ -618,6 +627,7 @@ module Grape
       expose_nil
       override
       default
+      preload
     ].to_set.freeze
 
     # Merges the given options with current block options.

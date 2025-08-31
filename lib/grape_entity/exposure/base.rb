@@ -7,7 +7,7 @@ module Grape
   class Entity
     module Exposure
       class Base
-        attr_reader :attribute, :is_safe, :documentation, :override, :conditions, :for_merge
+        attr_reader :attribute, :is_safe, :documentation, :override, :conditions, :for_merge, :preload
 
         def self.new(attribute, options, conditions, ...)
           super(attribute, options, conditions).tap { |e| e.setup(...) }
@@ -24,7 +24,12 @@ module Grape
           @attr_path_proc = options[:attr_path]
           @documentation = options[:documentation]
           @override = options[:override]
+          @preload = options[:preload]
           @conditions = conditions
+        end
+
+        def preload?
+          !preload.nil?
         end
 
         def dup(&block)
@@ -116,8 +121,12 @@ module Grape
           end
         end
 
+        def proc_key?
+          @key.respond_to?(:call)
+        end
+
         def key(entity = nil)
-          @key.respond_to?(:call) ? entity.exec_with_object(@options, &@key) : @key
+          proc_key? ? entity.exec_with_object(@options, &@key) : @key
         end
 
         def with_attr_path(entity, options, &block)

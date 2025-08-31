@@ -2,6 +2,7 @@
 
 #### Features
 
+* Add activerecord associations preloader to avoid N+1 queries for : new `:preload` exposure option and `Grape::Entity.preload_and_represent` helper. Requires ActiveRecord >= 7.0; otherwise a warning is emitted and no preload is performed.
 * Your contribution here.
 
 #### Fixes

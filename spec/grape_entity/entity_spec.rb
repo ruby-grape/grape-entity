@@ -40,6 +40,11 @@ describe Grape::Entity do
         it 'makes sure unknown options are not silently ignored' do
           expect { subject.expose :name, unknown: nil }.to raise_error ArgumentError
         end
+
+        it 'ensures :preload option must be a Symbol' do
+          expect { subject.expose :name, preload: 'author' }.to raise_error ArgumentError
+          expect { subject.expose :name, preload: :author }.not_to raise_error
+        end
       end
 
       context 'with a :merge option' do

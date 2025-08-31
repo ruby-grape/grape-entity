@@ -9,6 +9,10 @@ require 'active_support/core_ext/hash' if ActiveSupport::VERSION &&
                                           ActiveSupport::VERSION::MAJOR &&
                                           ActiveSupport::VERSION::MAJOR < 4
 
+require 'active_record'
+require 'sqlite3'
+ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
+
 # Skip code covarge on Ruby >= 3.1
 # See https://github.com/simplecov-ruby/simplecov/issues/1003
 unless RUBY_VERSION >= '3.1'

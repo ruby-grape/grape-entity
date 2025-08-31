@@ -25,6 +25,7 @@
       - [Format Before Exposing](#format-before-exposing)
       - [Expose Nil](#expose-nil)
       - [Default Value](#default-value)
+      - [ActiveRecord Associations Preloader](#activerecord-associations-preloader)
       - [Documentation](#documentation)
     - [Options Hash](#options-hash)
       - [Passing Additional Option To Nested Exposure](#passing-additional-option-to-nested-exposure)
@@ -508,6 +509,77 @@ module  Entities
     expose :age, default: 60
   end
 end
+```
+
+#### ActiveRecord Associations Preloader
+
+Avoid N+1 queries by preload ActiveRecord associations. You can declare which association to preload per exposure via the `:preload` option, and perform representation with `preload_and_represent`.
+
+- Requirements: ActiveRecord >= 7.0. On lower versions, a warning is emitted and no preload is performed.
+- The `:preload` option value must be a Symbol.
+- Respects `only`/`except` options when deciding which associations to preload.
+
+Example entity definitions with `:preload`:
+
+```ruby
+class Tag < ApplicationRecord
+  include Grape::Entity::DSL
+
+  belongs_to :target, polymorphic: true
+
+  entity do
+    # ...
+  end
+end
+
+class Book < ApplicationRecord
+  include Grape::Entity::DSL
+
+  belongs_to :author, foreign_key: :author_id, class_name: 'User'
+  has_many :tags, as: :target
+
+  entity do
+    # ...
+    expose :tags, using: Tag::Entity, preload: :tags
+  end
+end
+
+class User < ApplicationRecord
+  include Grape::Entity::DSL
+
+  has_many :books, foreign_key: :author_id
+  has_many :tags, as: :target
+
+  entity do
+    # ...
+    expose :books, using: Book::Entity, preload: :books
+    expose :tags, using: Tag::Entity, preload: :tags
+  end
+end
+```
+
+Preload and represent in one call:
+
+```ruby
+# Preload all declared associations that will be exposed
+User::Entity.preload_and_represent(users)
+
+# Only preload what will be exposed (respects :only / :except)
+User::Entity.preload_and_represent(users, only: [:tags])
+User::Entity.preload_and_represent(users, except: [:tags])
+```
+
+Nested exposure preloading also works, for example:
+
+```ruby
+class UserWithNest < User::Entity
+  unexpose :books
+  expose :nesting do
+    expose :books, using: Book::Entity, preload: :books
+  end
+end
+
+UserWithNest.preload_and_represent(users)
 ```
 
 #### Documentation
