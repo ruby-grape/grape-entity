@@ -33,6 +33,7 @@
     - [Using Entities](#using-entities)
     - [Entity Organization](#entity-organization)
     - [Caveats](#caveats)
+    - [Preloading Associations](#preloading-associations)
   - [Installation](#installation)
   - [Testing with Entities](#testing-with-entities)
   - [Project Resources](#project-resources)
@@ -673,6 +674,10 @@ end
 ```
 
 Also note that an `ArgumentError` is raised when unknown options are passed to either `expose` or `with_options`.
+
+### Preloading Associations
+
+Use [Grape::Entity::Preloader](https://github.com/OuYangJinTing/grape-entity-preloader) to preload associations and callbacks and avoid N+1 operations.
 
 ## Installation
 
