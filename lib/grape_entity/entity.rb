@@ -129,6 +129,12 @@ module Grape
       def delegation_opts
         @delegation_opts ||= { hash_access: hash_access }
       end
+
+      # Satisfies the respond_to?(:[]) check in Grape::DryTypes (>= 3.2)
+      # so Entity subclasses can be used as param types.
+      def [](val)
+        val
+      end
     end
 
     @formatters = {}

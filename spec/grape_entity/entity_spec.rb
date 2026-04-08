@@ -1010,6 +1010,22 @@ describe Grape::Entity do
       end
     end
 
+    describe '.[]' do
+      it 'returns the input unchanged' do
+        hash = { name: 'Test' }
+        expect(subject[hash]).to eq(hash)
+      end
+
+      it 'returns nil unchanged' do
+        expect(subject[nil]).to be_nil
+      end
+
+      it 'is inherited by subclasses' do
+        subclass = Class.new(subject)
+        expect(subclass[{ id: 1 }]).to eq(id: 1)
+      end
+    end
+
     describe '.represent' do
       it 'returns a single entity if called with one object' do
         expect(subject.represent(Object.new)).to be_kind_of(subject)
