@@ -6,6 +6,7 @@
 
 #### Fixes
 
+* [#394](https://github.com/ruby-grape/grape-entity/pull/394): Add `Entity.[]` for Grape >= 3.2 param type compatibility - [@numbata](https://github.com/numbata).
 * [#388](https://github.com/ruby-grape/grape-entity/pull/388): Drop ruby-head from test matrix - [@numbata](https://github.com/numbata).
 * [#384](https://github.com/ruby-grape/grape-entity/pull/384): Fix `inspect` to correctly handle `nil` values - [@fcce](https://github.com/fcce).
 * Your contribution here.
