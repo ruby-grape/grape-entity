@@ -1010,6 +1010,22 @@ describe Grape::Entity do
       end
     end
 
+    describe '.[]' do
+      it 'returns the input unchanged' do
+        hash = { name: 'Test' }
+        expect(subject[hash]).to eq(hash)
+      end
+
+      it 'returns nil unchanged' do
+        expect(subject[nil]).to be_nil
+      end
+
+      it 'is inherited by subclasses' do
+        subclass = Class.new(subject)
+        expect(subclass[{ id: 1 }]).to eq(id: 1)
+      end
+    end
+
     describe '.represent' do
       it 'returns a single entity if called with one object' do
         expect(subject.represent(Object.new)).to be_kind_of(subject)
@@ -1023,7 +1039,7 @@ describe Grape::Entity do
         representation = subject.represent(Array.new(4) { Object.new })
         expect(representation).to be_kind_of Array
         expect(representation.size).to eq(4)
-        expect(representation.reject { |r| r.is_a?(subject) }).to be_empty
+        expect(representation.grep_v(subject)).to be_empty
       end
 
       it 'adds the collection: true option if called with a collection' do
@@ -1369,7 +1385,7 @@ describe Grape::Entity do
             expect(representation).to have_key 'things'
             expect(representation['things']).to be_kind_of Array
             expect(representation['things'].size).to eq 4
-            expect(representation['things'].reject { |r| r.is_a?(subject) }).to be_empty
+            expect(representation['things'].grep_v(subject)).to be_empty
           end
         end
 
@@ -1378,7 +1394,7 @@ describe Grape::Entity do
             representation = subject.represent(Array.new(4) { Object.new }, root: false)
             expect(representation).to be_kind_of Array
             expect(representation.size).to eq 4
-            expect(representation.reject { |r| r.is_a?(subject) }).to be_empty
+            expect(representation.grep_v(subject)).to be_empty
           end
           it 'can use a different name' do
             representation = subject.represent(Array.new(4) { Object.new }, root: 'others')
@@ -1386,7 +1402,7 @@ describe Grape::Entity do
             expect(representation).to have_key 'others'
             expect(representation['others']).to be_kind_of Array
             expect(representation['others'].size).to eq 4
-            expect(representation['others'].reject { |r| r.is_a?(subject) }).to be_empty
+            expect(representation['others'].grep_v(subject)).to be_empty
           end
         end
       end
@@ -1410,7 +1426,7 @@ describe Grape::Entity do
             representation = subject.represent(Array.new(4) { Object.new })
             expect(representation).to be_kind_of Array
             expect(representation.size).to eq 4
-            expect(representation.reject { |r| r.is_a?(subject) }).to be_empty
+            expect(representation.grep_v(subject)).to be_empty
           end
         end
       end
@@ -1433,7 +1449,7 @@ describe Grape::Entity do
             expect(representation).to have_key('things')
             expect(representation['things']).to be_kind_of Array
             expect(representation['things'].size).to eq 4
-            expect(representation['things'].reject { |r| r.is_a?(subject) }).to be_empty
+            expect(representation['things'].grep_v(subject)).to be_empty
           end
         end
       end
@@ -1458,7 +1474,7 @@ describe Grape::Entity do
           expect(representation).to have_key('things')
           expect(representation['things']).to be_kind_of Array
           expect(representation['things'].size).to eq 4
-          expect(representation['things'].reject { |r| r.is_a?(child_class) }).to be_empty
+          expect(representation['things'].grep_v(child_class)).to be_empty
         end
       end
     end
@@ -1839,7 +1855,7 @@ describe Grape::Entity do
 
       it 'instantiates a representation if that is called for' do
         rep = subject.value_for(:friends)
-        expect(rep.reject { |r| r.is_a?(fresh_class) }).to be_empty
+        expect(rep.grep_v(fresh_class)).to be_empty
         expect(rep.first.serializable_hash[:name]).to eq 'Friend 1'
         expect(rep.last.serializable_hash[:name]).to eq 'Friend 2'
       end
@@ -1861,7 +1877,7 @@ describe Grape::Entity do
 
           rep = subject.value_for(:friends)
           expect(rep).to be_kind_of Array
-          expect(rep.reject { |r| r.is_a?(EntitySpec::FriendEntity) }).to be_empty
+          expect(rep.grep_v(EntitySpec::FriendEntity)).to be_empty
           expect(rep.first.serializable_hash[:name]).to eq 'Friend 1'
           expect(rep.last.serializable_hash[:name]).to eq 'Friend 2'
         end
@@ -1882,7 +1898,7 @@ describe Grape::Entity do
 
           rep = subject.value_for(:custom_friends)
           expect(rep).to be_kind_of Array
-          expect(rep.reject { |r| r.is_a?(EntitySpec::FriendEntity) }).to be_empty
+          expect(rep.grep_v(EntitySpec::FriendEntity)).to be_empty
           expect(rep.first.serializable_hash).to eq(name: 'Friend 1', email: 'friend1@example.com')
           expect(rep.last.serializable_hash).to eq(name: 'Friend 2', email: 'friend2@example.com')
         end
@@ -1940,7 +1956,7 @@ describe Grape::Entity do
 
           rep = subject.value_for(:characteristics)
           expect(rep).to be_kind_of Array
-          expect(rep.reject { |r| r.is_a?(EntitySpec::CharacteristicsEntity) }).to be_empty
+          expect(rep.grep_v(EntitySpec::CharacteristicsEntity)).to be_empty
           expect(rep.first.serializable_hash[:key]).to eq 'hair_color'
           expect(rep.first.serializable_hash[:value]).to eq 'brown'
         end
@@ -1960,13 +1976,13 @@ describe Grape::Entity do
 
           rep = subject.value_for(:friends)
           expect(rep).to be_kind_of Array
-          expect(rep.reject { |r| r.is_a?(EntitySpec::FriendEntity) }).to be_empty
+          expect(rep.grep_v(EntitySpec::FriendEntity)).to be_empty
           expect(rep.first.serializable_hash[:email]).to be_nil
           expect(rep.last.serializable_hash[:email]).to be_nil
 
           rep = subject.value_for(:friends, Grape::Entity::Options.new(user_type: :admin))
           expect(rep).to be_kind_of Array
-          expect(rep.reject { |r| r.is_a?(EntitySpec::FriendEntity) }).to be_empty
+          expect(rep.grep_v(EntitySpec::FriendEntity)).to be_empty
           expect(rep.first.serializable_hash[:email]).to eq 'friend1@example.com'
           expect(rep.last.serializable_hash[:email]).to eq 'friend2@example.com'
         end
@@ -1986,7 +2002,7 @@ describe Grape::Entity do
 
           rep = subject.value_for(:friends, Grape::Entity::Options.new(collection: false))
           expect(rep).to be_kind_of Array
-          expect(rep.reject { |r| r.is_a?(EntitySpec::FriendEntity) }).to be_empty
+          expect(rep.grep_v(EntitySpec::FriendEntity)).to be_empty
           expect(rep.first.serializable_hash[:email]).to eq 'friend1@example.com'
           expect(rep.last.serializable_hash[:email]).to eq 'friend2@example.com'
         end
@@ -2065,7 +2081,7 @@ describe Grape::Entity do
           rep = subject.value_for(:friends)
           expect(rep).to be_kind_of Array
           expect(rep.size).to eq 2
-          expect(rep.all? { |r| r.is_a?(EntitySpec::UserEntity) }).to be true
+          expect(rep.all?(EntitySpec::UserEntity)).to be true
         end
 
         it 'class' do
@@ -2076,7 +2092,7 @@ describe Grape::Entity do
           rep = subject.value_for(:friends)
           expect(rep).to be_kind_of Array
           expect(rep.size).to eq 2
-          expect(rep.all? { |r| r.is_a?(EntitySpec::UserEntity) }).to be true
+          expect(rep.all?(EntitySpec::UserEntity)).to be true
         end
       end
     end

@@ -29,6 +29,11 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'grape-entity.gemspec'
 
+# Offense count: 1
+Style/OneClassPerFile:
+  Exclude:
+    - 'bench/serializing.rb'
+
 # Offense count: 6
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Lint/BooleanSymbol:
