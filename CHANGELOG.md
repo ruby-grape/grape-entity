@@ -1,5 +1,13 @@
 ### Next
 
+#### Features
+
+* Your contribution here.
+
+#### Fixes
+
+* Your contribution here.
+
 ### 1.0.2 (2026-04-13)
 
 #### Fixes
