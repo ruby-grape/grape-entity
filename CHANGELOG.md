@@ -29,8 +29,7 @@
 
 #### Fixes
 
-**Breaking change:**
-* [#352](https://github.com/ruby-grape/grape-entity/pull/369): Remove `FetchableObject` behavior. - [@danielvdao](https://github.com/danielvdao).
+* [#352](https://github.com/ruby-grape/grape-entity/pull/369): **Breaking change:** Remove `FetchableObject` behavior - [@danielvdao](https://github.com/danielvdao).
 * [#371](https://github.com/ruby-grape/grape-entity/pull/371): Allow default exposed value to be `false` or any empty data - [@norydev](https://github.com/norydev).
 
 
@@ -38,7 +37,7 @@
 
 #### Fixes
 
-* [#366](https://github.com/ruby-grape/grape-entity/pull/366): Don't suppress regular ArgumentError exceptions - [splattael](https://github.com/splattael).
+* [#366](https://github.com/ruby-grape/grape-entity/pull/366): Don't suppress regular ArgumentError exceptions - [@splattael](https://github.com/splattael).
 * [#363](https://github.com/ruby-grape/grape-entity/pull/338): Fix typo - [@OuYangJinTing](https://github.com/OuYangJinTing).
 * [#361](https://github.com/ruby-grape/grape-entity/pull/361): Require 'active_support/core_ext' - [@pravi](https://github.com/pravi).
 
