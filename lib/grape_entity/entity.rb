@@ -528,7 +528,7 @@ module Grape
       if symbol_to_proc_wrapper?(block)
         ensure_block_arity!(block)
         instance_exec(object, &block)
-      elsif block.parameters.one?
+      elsif block.arity == 1
         instance_exec(object, &block)
       else
         instance_exec(object, options, &block)
@@ -539,7 +539,7 @@ module Grape
       # MRI currently always includes "( &:foo )" for symbol-to-proc wrappers.
       # If this format changes in a new Ruby version, this logic must be updated.
       origin_method_name = block.to_s.scan(/(?<=\(&:)[^)]+(?=\))/).first&.to_sym
-      return 0 unless origin_method_name
+      return unless origin_method_name
 
       unless object.respond_to?(origin_method_name, true)
         raise ArgumentError, <<~MSG
@@ -548,7 +548,7 @@ module Grape
       end
 
       arity = object.method(origin_method_name).arity
-      return 0 if arity.zero?
+      return if arity.zero?
 
       raise ArgumentError, <<~MSG
         Cannot use `&:#{origin_method_name}` because that method expects #{arity} argument#{'s' if arity != 1}.

@@ -500,6 +500,18 @@ describe Grape::Entity do
               expect(value).to eq('result')
             end
           end
+
+          context 'with splat-argument lambda' do
+            it 'passes the object and options' do
+              subject.expose :args_count do |*args|
+                args.size
+              end
+
+              object = SomeObject.new
+              value = subject.represent(object).value_for(:args_count)
+              expect(value).to eq(2)
+            end
+          end
         end
 
         context 'with no parameters passed to the block' do
