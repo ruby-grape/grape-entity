@@ -1,6 +1,17 @@
-### Next
+### Next Release
+
+#### Features
+
+* Your contribution here.
+
+#### Fixes
+
+* Your contribution here.
+
 
 ### 1.0.3 (2026-04-15)
+
+#### Features
 
 * [#400](https://github.com/ruby-grape/grape-entity/pull/400): Switch to danger-pr-comment for PR checks - [@numbata](https://github.com/numbata).
 * [#397](https://github.com/ruby-grape/grape-entity/pull/397): Reduce gem size by excluding test files - [@yuri-zubov](https://github.com/yuri-zubov).
@@ -9,6 +20,7 @@
 #### Fixes
 
 * [#399](https://github.com/ruby-grape/grape-entity/pull/399): Fix `ArgumentError` for single-argument lambdas in `expose` blocks and `if:` conditions - [@numbata](https://github.com/numbata).
+
 
 ### 1.0.2 (2026-04-13)
 
@@ -19,6 +31,7 @@
 * [#389](https://github.com/ruby-grape/grape-entity/pull/389): Block arity detection (breaking change) - [@numbata](https://github.com/numbata).
 * [#385](https://github.com/ruby-grape/grape-entity/pull/385): Drop multijson dependency - [@ericproulx](https://github.com/ericproulx).
 * [#384](https://github.com/ruby-grape/grape-entity/pull/384): Fix `inspect` to correctly handle `nil` values - [@fcce](https://github.com/fcce).
+
 
 ### 1.0.1 (2024-04-10)
 
