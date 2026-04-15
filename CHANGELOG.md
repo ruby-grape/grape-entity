@@ -2,6 +2,7 @@
 
 #### Features
 
+* [#400](https://github.com/ruby-grape/grape-entity/pull/400): Switch to danger-pr-comment for PR checks - [@numbata](https://github.com/numbata).
 * Your contribution here.
 
 #### Fixes
