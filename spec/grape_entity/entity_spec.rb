@@ -27,6 +27,11 @@ describe Grape::Entity do
           expect { subject.expose :name, as: :foo }.not_to raise_error
         end
 
+        it 'supports callable :as with single-argument lambda' do
+          subject.expose :name, as: ->(obj) { obj[:name].upcase }
+          expect(subject.represent({ name: 'test' }).serializable_hash).to eq('TEST' => 'test')
+        end
+
         it 'makes sure that :format_with as a proc cannot be used with a block' do
           # rubocop:disable Style/BlockDelimiters
           expect {
@@ -147,6 +152,12 @@ describe Grape::Entity do
               subject.expose(:b)
               subject.expose(:c)
               expect(subject.represent(model, option_a: 100).serializable_hash).to eq(a: 100, b: nil, c: 'value')
+            end
+
+            it 'works with single-argument block' do
+              subject.expose(:a, expose_nil: false) { |obj| obj.c }
+              subject.expose(:b)
+              expect(subject.represent(model).serializable_hash).to eq(a: 'value', b: nil)
             end
           end
         end
@@ -476,6 +487,42 @@ describe Grape::Entity do
               end.to raise_error ArgumentError, match(/method is not defined in the object/)
             end
           end
+
+          context 'with single-argument block' do
+            it 'passes only the object without raising ArgumentError' do
+              subject.expose :that_method_without_args do |object|
+                object.method_without_args
+              end
+
+              object = SomeObject.new
+              value = subject.represent(object).value_for(:that_method_without_args)
+              expect(value).to eq('result')
+            end
+          end
+
+          context 'with two-argument block' do
+            it 'passes the object and options without raising ArgumentError' do
+              subject.expose :that_method_without_args do |object, _options|
+                object.method_without_args
+              end
+
+              object = SomeObject.new
+              value = subject.represent(object).value_for(:that_method_without_args)
+              expect(value).to eq('result')
+            end
+          end
+
+          context 'with splat-argument block' do
+            it 'passes the object and options' do
+              subject.expose :args_count do |*args|
+                args.size
+              end
+
+              object = SomeObject.new
+              value = subject.represent(object).value_for(:args_count)
+              expect(value).to eq(2)
+            end
+          end
         end
 
         context 'with no parameters passed to the block' do
@@ -519,6 +566,32 @@ describe Grape::Entity do
             end
 
             expect(subject.represent({}).value_for(:awesome)).to eq(condition_met: 'value')
+          end
+
+          it 'works with single-argument if condition lambdas' do
+            subject.expose :awesome do
+              subject.expose(:condition_met, if: ->(_) { true }) { |_| 'value' }
+              subject.expose(:condition_not_met, if: ->(_) { false }) { |_| 'value' }
+            end
+
+            expect(subject.represent({}).value_for(:awesome)).to eq(condition_met: 'value')
+          end
+
+          it 'works with two-argument if condition lambdas' do
+            subject.expose :awesome do
+              subject.expose(:condition_met, if: ->(_, _) { true }) { |_| 'value' }
+              subject.expose(:condition_not_met, if: ->(_, _) { false }) { |_| 'value' }
+            end
+
+            expect(subject.represent({}).value_for(:awesome)).to eq(condition_met: 'value')
+          end
+
+          it 'works with single-argument block exposures' do
+            subject.expose :awesome do
+              subject.expose(:nested) { |obj| obj.class.name }
+            end
+
+            expect(subject.represent({}).value_for(:awesome)).to eq(nested: 'Hash')
           end
 
           it 'does not represent attributes, declared inside nested exposure, outside of it' do

@@ -6,6 +6,7 @@
 
 #### Fixes
 
+* [#399](https://github.com/ruby-grape/grape-entity/pull/399): Fix `ArgumentError` for single-argument lambdas in `expose` blocks and `if:` conditions - [@numbata](https://github.com/numbata).
 * Your contribution here.
 
 ### 1.0.2 (2026-04-13)
