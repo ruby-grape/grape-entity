@@ -27,6 +27,11 @@ describe Grape::Entity do
           expect { subject.expose :name, as: :foo }.not_to raise_error
         end
 
+        it 'supports callable :as with single-argument lambda' do
+          subject.expose :name, as: ->(obj) { obj[:name].upcase }
+          expect(subject.represent({ name: 'test' }).serializable_hash).to eq('TEST' => 'test')
+        end
+
         it 'makes sure that :format_with as a proc cannot be used with a block' do
           # rubocop:disable Style/BlockDelimiters
           expect {
@@ -147,6 +152,12 @@ describe Grape::Entity do
               subject.expose(:b)
               subject.expose(:c)
               expect(subject.represent(model, option_a: 100).serializable_hash).to eq(a: 100, b: nil, c: 'value')
+            end
+
+            it 'works with single-argument block' do
+              subject.expose(:a, expose_nil: false) { |obj| obj.c }
+              subject.expose(:b)
+              expect(subject.represent(model).serializable_hash).to eq(a: 'value', b: nil)
             end
           end
         end
@@ -477,7 +488,7 @@ describe Grape::Entity do
             end
           end
 
-          context 'with single-argument lambda' do
+          context 'with single-argument block' do
             it 'passes only the object without raising ArgumentError' do
               subject.expose :that_method_without_args do |object|
                 object.method_without_args
@@ -489,7 +500,7 @@ describe Grape::Entity do
             end
           end
 
-          context 'with two-argument lambda' do
+          context 'with two-argument block' do
             it 'passes the object and options without raising ArgumentError' do
               subject.expose :that_method_without_args do |object, _options|
                 object.method_without_args
@@ -501,7 +512,7 @@ describe Grape::Entity do
             end
           end
 
-          context 'with splat-argument lambda' do
+          context 'with splat-argument block' do
             it 'passes the object and options' do
               subject.expose :args_count do |*args|
                 args.size
