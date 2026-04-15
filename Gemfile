@@ -23,6 +23,8 @@ group :test do
   gem 'guard-bundler'
   gem 'guard-rspec'
   gem 'rb-fsevent'
-  gem 'ruby-grape-danger', '~> 0.2', require: false
+  gem 'danger', require: false
+  gem 'danger-changelog', require: false
+  gem 'danger-pr-comment', require: false
   gem 'simplecov', require: false
 end
