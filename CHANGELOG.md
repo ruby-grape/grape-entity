@@ -2,6 +2,7 @@
 
 #### Features
 
+* [#400](https://github.com/ruby-grape/grape-entity/pull/400): Switch to danger-pr-comment for PR checks - [@numbata](https://github.com/numbata).
 * Your contribution here.
 
 #### Fixes
@@ -15,6 +16,8 @@
 
 * [#394](https://github.com/ruby-grape/grape-entity/pull/394): Add `Entity.[]` for Grape >= 3.2 param type compatibility - [@numbata](https://github.com/numbata).
 * [#388](https://github.com/ruby-grape/grape-entity/pull/388): Drop ruby-head from test matrix - [@numbata](https://github.com/numbata).
+* [#389](https://github.com/ruby-grape/grape-entity/pull/389): Block arity detection (breaking change) - [@numbata](https://github.com/numbata).
+* [#385](https://github.com/ruby-grape/grape-entity/pull/385): Drop multijson dependency - [@ericproulx](https://github.com/ericproulx).
 * [#384](https://github.com/ruby-grape/grape-entity/pull/384): Fix `inspect` to correctly handle `nil` values - [@fcce](https://github.com/fcce).
 
 ### 1.0.1 (2024-04-10)
@@ -28,8 +31,7 @@
 
 #### Fixes
 
-**Breaking change:**
-* [#352](https://github.com/ruby-grape/grape-entity/pull/369): Remove `FetchableObject` behavior. - [@danielvdao](https://github.com/danielvdao).
+* [#369](https://github.com/ruby-grape/grape-entity/pull/369): Remove `FetchableObject` behavior (breaking change) - [@danielvdao](https://github.com/danielvdao).
 * [#371](https://github.com/ruby-grape/grape-entity/pull/371): Allow default exposed value to be `false` or any empty data - [@norydev](https://github.com/norydev).
 
 
@@ -37,8 +39,8 @@
 
 #### Fixes
 
-* [#366](https://github.com/ruby-grape/grape-entity/pull/366): Don't suppress regular ArgumentError exceptions - [splattael](https://github.com/splattael).
-* [#363](https://github.com/ruby-grape/grape-entity/pull/338): Fix typo - [@OuYangJinTing](https://github.com/OuYangJinTing).
+* [#366](https://github.com/ruby-grape/grape-entity/pull/366): Don't suppress regular ArgumentError exceptions - [@splattael](https://github.com/splattael).
+* [#363](https://github.com/ruby-grape/grape-entity/pull/363): Fix typo - [@OuYangJinTing](https://github.com/OuYangJinTing).
 * [#361](https://github.com/ruby-grape/grape-entity/pull/361): Require 'active_support/core_ext' - [@pravi](https://github.com/pravi).
 
 
