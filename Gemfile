@@ -18,13 +18,13 @@ end
 
 group :test do
   gem 'coveralls_reborn', require: false
+  gem 'danger', require: false
+  gem 'danger-changelog', require: false
+  gem 'danger-pr-comment', require: false
   gem 'growl'
   gem 'guard'
   gem 'guard-bundler'
   gem 'guard-rspec'
   gem 'rb-fsevent'
-  gem 'danger', require: false
-  gem 'danger-changelog', require: false
-  gem 'danger-pr-comment', require: false
   gem 'simplecov', require: false
 end
