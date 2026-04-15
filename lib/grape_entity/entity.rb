@@ -525,13 +525,10 @@ module Grape
     end
 
     def exec_with_object(options, &block)
-      arity = if symbol_to_proc_wrapper?(block)
-                ensure_block_arity!(block)
-              else
-                block.arity
-              end
-
-      if arity.zero?
+      if symbol_to_proc_wrapper?(block)
+        ensure_block_arity!(block)
+        instance_exec(object, &block)
+      elsif block.parameters.one?
         instance_exec(object, &block)
       else
         instance_exec(object, options, &block)
