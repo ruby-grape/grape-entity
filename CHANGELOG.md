@@ -16,6 +16,8 @@
 
 * [#394](https://github.com/ruby-grape/grape-entity/pull/394): Add `Entity.[]` for Grape >= 3.2 param type compatibility - [@numbata](https://github.com/numbata).
 * [#388](https://github.com/ruby-grape/grape-entity/pull/388): Drop ruby-head from test matrix - [@numbata](https://github.com/numbata).
+* [#389](https://github.com/ruby-grape/grape-entity/pull/389): **Breaking change:** Block arity detection - [@numbata](https://github.com/numbata).
+* [#385](https://github.com/ruby-grape/grape-entity/pull/385): Drop multijson dependency - [@ericproulx](https://github.com/ericproulx).
 * [#384](https://github.com/ruby-grape/grape-entity/pull/384): Fix `inspect` to correctly handle `nil` values - [@fcce](https://github.com/fcce).
 
 ### 1.0.1 (2024-04-10)
