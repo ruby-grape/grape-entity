@@ -1,16 +1,14 @@
 ### Next
 
-#### Features
+### 1.0.3 (2026-04-15)
 
 * [#400](https://github.com/ruby-grape/grape-entity/pull/400): Switch to danger-pr-comment for PR checks - [@numbata](https://github.com/numbata).
 * [#397](https://github.com/ruby-grape/grape-entity/pull/397): Reduce gem size by excluding test files - [@yuri-zubov](https://github.com/yuri-zubov).
 * [#401](https://github.com/ruby-grape/grape-entity/pull/401): Modernize gemspec: add metadata, use Dir glob, require MFA - [@numbata](https://github.com/numbata).
-* Your contribution here.
 
 #### Fixes
 
 * [#399](https://github.com/ruby-grape/grape-entity/pull/399): Fix `ArgumentError` for single-argument lambdas in `expose` blocks and `if:` conditions - [@numbata](https://github.com/numbata).
-* Your contribution here.
 
 ### 1.0.2 (2026-04-13)
 
