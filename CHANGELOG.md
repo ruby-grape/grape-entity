@@ -3,6 +3,7 @@
 #### Features
 
 * [#400](https://github.com/ruby-grape/grape-entity/pull/400): Switch to danger-pr-comment for PR checks - [@numbata](https://github.com/numbata).
+* [#397](https://github.com/ruby-grape/grape-entity/pull/397): Reduce gem size by excluding test files - [@yuri-zubov](https://github.com/yuri-zubov).
 * Your contribution here.
 
 #### Fixes
