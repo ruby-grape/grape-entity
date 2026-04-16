@@ -2,11 +2,6 @@
 
 module Grape
   class Entity
-    if defined?(::MultiJson)
-      Json = ::MultiJson
-    else
-      Json = ::JSON
-      Json::ParseError = Json::ParserError
-    end
+    Json = defined?(::MultiJson) ? ::MultiJson : ::JSON
   end
 end

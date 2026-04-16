@@ -7,7 +7,7 @@
 #### Fixes
 
 * Your contribution here.
-
+* [#402](https://github.com/ruby-grape/grape-entity/pull/402): Remove `Json::ParseError` assignment - [@olivier-thatch](https://github.com/olivier-thatch).
 
 ### 1.0.3 (2026-04-15)
 
