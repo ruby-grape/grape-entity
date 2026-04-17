@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'multi_json'
-
 module Grape
   # An Entity is a lightweight structure that allows you to easily
   # represent data from your application in a consistent and abstracted
@@ -594,7 +592,7 @@ module Grape
 
     def to_json(options = {})
       options = options.to_h if options&.respond_to?(:to_h)
-      MultiJson.dump(serializable_hash(options))
+      serializable_hash(options).to_json
     end
 
     def to_xml(options = {})

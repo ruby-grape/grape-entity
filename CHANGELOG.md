@@ -7,6 +7,7 @@
 #### Fixes
 
 * Your contribution here.
+* [#404](https://github.com/ruby-grape/grape-entity/pull/404): Drop `MultiJson` dependency, use `Hash#to_json` for ActiveSupport-aware serialization - [@numbata](https://github.com/numbata).
 
 ### 1.0.4 (2026-04-17)
 
