@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
   s.required_ruby_version = '>= 3.0'
 
   s.add_dependency 'activesupport', '>= 3.0.0'
+  s.add_dependency 'multi_json', '>= 1.0'
 
   s.files         = Dir['lib/**/*.rb', 'CHANGELOG.md', 'LICENSE', 'README.md']
   s.require_paths = ['lib']

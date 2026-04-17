@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'grape_entity/json'
+require 'multi_json'
 
 module Grape
   # An Entity is a lightweight structure that allows you to easily
@@ -594,7 +594,7 @@ module Grape
 
     def to_json(options = {})
       options = options.to_h if options&.respond_to?(:to_h)
-      Grape::Entity::Json.dump(serializable_hash(options))
+      MultiJson.dump(serializable_hash(options))
     end
 
     def to_xml(options = {})

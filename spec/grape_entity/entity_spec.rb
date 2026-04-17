@@ -1880,6 +1880,23 @@ describe Grape::Entity do
       it 'returns a json' do
         expect(fresh_class.new(model).to_json).to eq(JSON.generate(attributes.slice(:name)))
       end
+
+      it 'serializes Time values via as_json' do
+        fresh_class.expose :birthday
+        entity = fresh_class.new(model)
+        json = entity.to_json
+        parsed = JSON.parse(json)
+        expect(parsed['birthday']).to eq(attributes[:birthday].as_json)
+      end
+
+      it 'serializes Time values in nested exposures via as_json' do
+        fresh_class.expose :details do
+          fresh_class.expose :birthday
+        end
+        entity = fresh_class.new(model)
+        parsed = JSON.parse(entity.to_json)
+        expect(parsed['details']['birthday']).to eq(attributes[:birthday].as_json)
+      end
     end
 
     describe '#inspect' do
