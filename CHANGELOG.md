@@ -1,3 +1,13 @@
+### Next Release
+
+#### Features
+
+* Your contribution here.
+
+#### Fixes
+
+* Your contribution here.
+
 ### 1.0.4 (2026-04-17)
 
 #### Fixes
