@@ -7,6 +7,7 @@
 #### Fixes
 
 * Your contribution here.
+* [#405](https://github.com/ruby-grape/grape-entity/pull/405): Fix `Time` serialization regression by reverting #385 and restoring `MultiJson.dump` - [@numbata](https://github.com/numbata).
 * [#402](https://github.com/ruby-grape/grape-entity/pull/402): Remove `Json::ParseError` assignment - [@olivier-thatch](https://github.com/olivier-thatch).
 
 ### 1.0.3 (2026-04-15)
