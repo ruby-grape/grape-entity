@@ -592,13 +592,7 @@ module Grape
 
     def to_json(options = {})
       options = options.to_h if options&.respond_to?(:to_h)
-<<<<<<< HEAD
-      MultiJson.dump(serializable_hash(options))
-||||||| parent of 374a021 (Fix Time serialization regression introduced by dropping MultiJson)
-      Grape::Entity::Json.dump(serializable_hash(options))
-=======
       serializable_hash(options).to_json
->>>>>>> 374a021 (Fix Time serialization regression introduced by dropping MultiJson)
     end
 
     def to_xml(options = {})
