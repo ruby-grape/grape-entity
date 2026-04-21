@@ -56,7 +56,7 @@ module Grape
             if for_merge.respond_to? :call
               for_merge
             else
-              -> {}
+              ->(k, v1, v2){ v2 }
             end
           end
         end
