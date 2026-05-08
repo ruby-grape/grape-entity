@@ -548,7 +548,8 @@ module Grape
       end
 
       arity = object.method(origin_method_name).arity
-      return if arity.zero?
+      # functions defined using `delegate` or `method_missing` have an arity of -1
+      return if arity <= 0
 
       raise ArgumentError, <<~MSG
         Cannot use `&:#{origin_method_name}` because that method expects #{arity} argument#{'s' if arity != 1}.
