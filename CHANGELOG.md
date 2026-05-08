@@ -1,5 +1,7 @@
 ### Next Release
 
+* [#406](https://github.com/ruby-grape/grape-entity/pull/406): Handle symbol-to-proc wrappers (`&:method_name`) where the method uses `delegate` or `method_missing`
+
 #### Features
 
 * Your contribution here.

@@ -400,6 +400,14 @@ describe Grape::Entity do
 
         describe 'blocks' do
           class SomeObject
+            class SomeObjectDelegate
+              def method_using_delegation
+                'delegated-result'
+              end
+            end
+
+            delegate :method_using_delegation, to: :delegate_object
+
             def method_without_args
               'result'
             end
@@ -414,6 +422,23 @@ describe Grape::Entity do
 
             def raises_argument_error
               raise ArgumentError, 'something different'
+            end
+
+            def method_missing(method, ...)
+              return 'missing-result' if method.to_sym == :method_using_missing
+
+              super
+            end
+
+            def delegate_object
+              @delegate_object ||= SomeObjectDelegate.new
+            end
+
+            private
+
+            def respond_to_missing?(method, include_private = false)
+              method.to_sym == :method_using_missing ||
+                super
             end
           end
 
@@ -456,6 +481,28 @@ describe Grape::Entity do
 
               value = subject.represent(object).value_for(:that_method_without_args_again)
               expect(value).to eq('result')
+            end
+          end
+
+          context 'with block passed in via & that uses `missing_method`' do
+            specify do
+              subject.expose :using_missing, &:method_using_missing
+
+              object = SomeObject.new
+              expect(object.method(:method_using_missing).arity).to eq(-1)
+              value = subject.represent(object).value_for(:using_missing)
+              expect(value).to eq('missing-result')
+            end
+          end
+
+          context 'with block passed in via & that uses `delegate`' do
+            specify do
+              subject.expose :using_delegation, &:method_using_delegation
+
+              object = SomeObject.new
+              expect(object.method(:method_using_delegation).arity).to eq(-1)
+              value = subject.represent(object).value_for(:using_delegation)
+              expect(value).to eq('delegated-result')
             end
           end
 
