@@ -436,7 +436,7 @@ describe Grape::Entity do
 
             private
 
-            def respond_to_missing?(method, include_private = false)
+            def respond_to_missing?(method, include_private = false) # rubocop:disable Style/OptionalBooleanParameter
               method.to_sym == :method_using_missing ||
                 super
             end
