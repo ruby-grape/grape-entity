@@ -291,7 +291,7 @@ module Grape
     end
 
     # This allows you to declare a Proc in which exposures can be formatted with.
-    # It take a block with an arity of 1 which is passed as the value of the exposed attribute.
+    # It takes a block with a single argument which is passed as the value of the exposed attribute.
     #
     # @param name [Symbol] the name of the formatter
     # @param block [Proc] the block that will interpret the exposed attribute
@@ -545,12 +545,14 @@ module Grape
         MSG
       end
 
+      # Ensure that the function does not require any positional args
+      # (functions defined using `delegate` or `method_missing` take an arg of `*rest`
       arity = object.method(origin_method_name).arity
-      # functions defined using `delegate` or `method_missing` have an arity of -1
-      return if arity <= 0
+      required_positional_arg_count = arity >= 0 ? arity : -arity - 1
+      return if required_positional_arg_count.zero?
 
       raise ArgumentError, <<~MSG
-        Cannot use `&:#{origin_method_name}` because that method expects #{arity} argument#{'s' if arity != 1}.
+        Cannot use `&:#{origin_method_name}` because that method expects #{required_positional_arg_count} #{'argument'.pluralize(required_positional_arg_count)}.
         Symbol‐to‐proc shorthand only works for zero‐argument methods.
       MSG
     end
