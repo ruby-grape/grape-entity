@@ -554,7 +554,7 @@ module Grape
       return if required_positional_arg_count.zero?
 
       raise ArgumentError, <<~MSG
-        Cannot use `&:#{origin_method_name}` because that method expects #{required_positional_arg_count} #{'argument'.pluralize(required_positional_arg_count)}.
+        Cannot use `&:#{origin_method_name}` because that method expects #{required_positional_arg_count} argument#{'s' if required_positional_arg_count != 1}.
         Symbol‐to‐proc shorthand only works for zero‐argument methods.
       MSG
     end

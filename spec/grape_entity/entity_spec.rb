@@ -420,7 +420,7 @@ describe Grape::Entity do
               'result'
             end
 
-            def method_with_required_args_and_an_optional_splat(_required_arg, *_optional_argds)
+            def method_with_required_args_and_an_optional_splat(_required_arg, *_optional_args)
               'result'
             end
 
