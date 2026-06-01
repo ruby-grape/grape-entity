@@ -1886,7 +1886,7 @@ describe Grape::Entity do
         entity = fresh_class.new(model)
         json = entity.to_json
         parsed = JSON.parse(json)
-        expect(parsed['birthday']).to eq(attributes[:birthday].as_json)
+        expect(parsed['birthday']).to eq('2012-02-27T00:00:00.000Z')
       end
 
       it 'serializes Time values in nested exposures via as_json' do
@@ -1895,7 +1895,7 @@ describe Grape::Entity do
         end
         entity = fresh_class.new(model)
         parsed = JSON.parse(entity.to_json)
-        expect(parsed['details']['birthday']).to eq(attributes[:birthday].as_json)
+        expect(parsed['details']['birthday']).to eq('2012-02-27T00:00:00.000Z')
       end
     end
 
