@@ -539,30 +539,46 @@ module Grape
       return unless match # Unrecognized format -> bail safe rather than misidentify
 
       origin_method_name = match[:name].to_sym
-      required_positional_arg_count, variadic = positional_arity_for(origin_method_name)
+      required_positional_arg_count, required_keyword_arg_count, variadic_positional =
+        arity_requirement_for(origin_method_name)
       return unless required_positional_arg_count
 
-      expected_suffix = required_positional_arg_count == 1 ? 'argument' : 'arguments'
-      expected_suffix += ' or more' if variadic
+      required_arguments =
+        required_arguments_summary(required_positional_arg_count, required_keyword_arg_count, variadic_positional)
 
       raise ArgumentError, <<~MSG
-        Cannot use `&:#{origin_method_name}` because that method expects #{required_positional_arg_count} #{expected_suffix}.
+        Cannot use `&:#{origin_method_name}` because that method expects #{required_arguments}.
         Symbol-to-proc shorthand only works for methods that can be called with no arguments.
       MSG
     end
 
-    def positional_arity_for(method_name)
+    def arity_requirement_for(method_name)
       origin_method = object.method(method_name)
-      return nil if origin_method.parameters.any? { |type, _| type == :keyreq }
+      parameters = origin_method.parameters
 
-      arity = origin_method.arity
-      required_positional_arg_count = arity >= 0 ? arity : -arity - 1
-      return nil if required_positional_arg_count.zero?
+      required_positional_arg_count = parameters.count { |type, _| type == :req }
+      required_keyword_arg_count = parameters.count { |type, _| type == :keyreq }
+      return nil if required_positional_arg_count.zero? && required_keyword_arg_count.zero?
 
-      [required_positional_arg_count, arity.negative?]
+      [required_positional_arg_count, required_keyword_arg_count, parameters.any? { |type, _| type == :rest }]
     rescue NameError
       # Delegation wrappers and method_missing proxies may not expose a Method; let Ruby raise natively at call time.
       nil
+    end
+
+    def required_arguments_summary(required_positional_arg_count, required_keyword_arg_count, variadic_positional)
+      parts = []
+      unless required_positional_arg_count.zero?
+        suffix = required_positional_arg_count == 1 ? 'argument' : 'arguments'
+        suffix += ' or more' if variadic_positional
+        parts << "#{required_positional_arg_count} #{suffix}"
+      end
+      unless required_keyword_arg_count.zero?
+        suffix = required_keyword_arg_count == 1 ? 'keyword argument' : 'keyword arguments'
+        parts << "#{required_keyword_arg_count} #{suffix}"
+      end
+
+      parts.join(' and ')
     end
 
     def symbol_to_proc_wrapper?(block)

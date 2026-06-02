@@ -424,6 +424,10 @@ describe Grape::Entity do
               'result'
             end
 
+            def method_with_required_kwargs(_required:)
+              'result'
+            end
+
             def method_with_optional_args_and_kwargs_as_a_splat(*_args, **_kwargs)
               'result'
             end
@@ -570,7 +574,7 @@ describe Grape::Entity do
           end
 
           context 'with block passed in via & that references a method with optional args' do
-            it 'succeeds if there no required arguments' do
+            it 'succeeds if there are no required arguments' do
               subject.expose :that_method_with_only_optional_args, &:method_with_only_optional_args
               subject.expose :method_with_only_optional_args, as: :that_method_with_only_optional_args_again
 
@@ -590,7 +594,7 @@ describe Grape::Entity do
 
               expect do
                 subject.represent(object).value_for(:that_method_with_required_and_optional_args)
-              end.to raise_error ArgumentError, include('method expects 1 argument or more.')
+              end.to raise_error ArgumentError, include('method expects 1 argument.')
 
               expect do
                 subject.represent(object).value_for(:that_method_with_required_and_optional_args_again)
@@ -641,6 +645,18 @@ describe Grape::Entity do
             end
           end
 
+          context 'with block passed in via & that references a method with required kwargs' do
+            it 'raises an `ArgumentError` if there are required keyword arguments' do
+              subject.expose :that_method_with_required_kwargs, &:method_with_required_kwargs
+
+              object = SomeObject.new
+
+              expect do
+                subject.represent(object).value_for(:that_method_with_required_kwargs)
+              end.to raise_error ArgumentError, include('method expects 1 keyword argument.')
+            end
+          end
+
           context 'with block passed in via & that references a method with optional args and kwargs as a splat' do
             specify do
               subject.expose :that_method_with_optional_args_and_kwargs_as_a_splat, &:method_with_optional_args_and_kwargs_as_a_splat
@@ -674,8 +690,8 @@ describe Grape::Entity do
 
               object = SomeObjectWithMethodMissing.new
 
-              # NOTE: ensure_block_arity! cannot pierce delegation wrappers (arity -1);
-              # Ruby raises a native error at call time instead of the curated grape-entity message.
+              # NOTE: object.method(:method_with_args) is not available for this method_missing proxy,
+              # so Ruby raises a native error at call time instead of the curated grape-entity message.
               expect do
                 subject.represent(object).value_for(:that_method_with_args)
               end.to raise_error ArgumentError, /given 0, expected 1/
@@ -705,8 +721,8 @@ describe Grape::Entity do
 
               object = SomeObjectWithDelegation.new
 
-              # NOTE: ensure_block_arity! cannot pierce delegation wrappers (arity -1);
-              # Ruby raises a native error at call time instead of the curated grape-entity message.
+              # NOTE: delegation wrappers expose variable arity, so Ruby raises a native error
+              # at call time instead of the curated grape-entity message.
               expect do
                 subject.represent(object).value_for(:that_method_with_args)
               end.to raise_error ArgumentError, /given 0, expected 1/
