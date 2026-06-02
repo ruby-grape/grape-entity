@@ -291,7 +291,7 @@ module Grape
     end
 
     # This allows you to declare a Proc in which exposures can be formatted with.
-    # It take a block with an arity of 1 which is passed as the value of the exposed attribute.
+    # It takes a block with a single argument which is passed as the value of the exposed attribute.
     #
     # @param name [Symbol] the name of the formatter
     # @param block [Proc] the block that will interpret the exposed attribute
@@ -534,24 +534,51 @@ module Grape
     end
 
     def ensure_block_arity!(block)
-      # MRI currently always includes "( &:foo )" for symbol-to-proc wrappers.
-      # If this format changes in a new Ruby version, this logic must be updated.
-      origin_method_name = block.to_s.scan(/(?<=\(&:)[^)]+(?=\))/).first&.to_sym
-      return unless origin_method_name
+      # Strict anchor to match MRI Proc#to_s format for symbol-to-proc: #<Proc:0x0...(&:method_name) (lambda)>
+      match = block.to_s.match(/\A#<Proc:(?:0x)?\h+\(&:(?<name>.+)\) \(lambda\)>\z/)
+      return unless match # Unrecognized format -> bail safe rather than misidentify
 
-      unless object.respond_to?(origin_method_name, true)
-        raise ArgumentError, <<~MSG
-          Cannot use `&:#{origin_method_name}` because that method is not defined in the object.
-        MSG
-      end
+      origin_method_name = match[:name].to_sym
+      required_positional_arg_count, required_keyword_arg_count, variadic_positional =
+        arity_requirement_for(origin_method_name)
+      return unless required_positional_arg_count
 
-      arity = object.method(origin_method_name).arity
-      return if arity.zero?
+      required_arguments =
+        required_arguments_summary(required_positional_arg_count, required_keyword_arg_count, variadic_positional)
 
       raise ArgumentError, <<~MSG
-        Cannot use `&:#{origin_method_name}` because that method expects #{arity} argument#{'s' if arity != 1}.
-        Symbol‐to‐proc shorthand only works for zero‐argument methods.
+        Cannot use `&:#{origin_method_name}` because that method expects #{required_arguments}.
+        Symbol-to-proc shorthand only works for methods that can be called with no arguments.
       MSG
+    end
+
+    def arity_requirement_for(method_name)
+      origin_method = object.method(method_name)
+      parameters = origin_method.parameters
+
+      required_positional_arg_count = parameters.count { |type, _| type == :req }
+      required_keyword_arg_count = parameters.count { |type, _| type == :keyreq }
+      return nil if required_positional_arg_count.zero? && required_keyword_arg_count.zero?
+
+      [required_positional_arg_count, required_keyword_arg_count, parameters.any? { |type, _| type == :rest }]
+    rescue NameError
+      # Delegation wrappers and method_missing proxies may not expose a Method; let Ruby raise natively at call time.
+      nil
+    end
+
+    def required_arguments_summary(required_positional_arg_count, required_keyword_arg_count, variadic_positional)
+      parts = []
+      unless required_positional_arg_count.zero?
+        suffix = required_positional_arg_count == 1 ? 'argument' : 'arguments'
+        suffix += ' or more' if variadic_positional
+        parts << "#{required_positional_arg_count} #{suffix}"
+      end
+      unless required_keyword_arg_count.zero?
+        suffix = required_keyword_arg_count == 1 ? 'keyword argument' : 'keyword arguments'
+        parts << "#{required_keyword_arg_count} #{suffix}"
+      end
+
+      parts.join(' and ')
     end
 
     def symbol_to_proc_wrapper?(block)

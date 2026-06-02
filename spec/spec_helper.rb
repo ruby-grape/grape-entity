@@ -5,6 +5,7 @@ require 'coveralls'
 
 # This works around the hash extensions not being automatically included in ActiveSupport < 4
 require 'active_support/version'
+require 'active_support/core_ext/module/delegation'
 require 'active_support/core_ext/hash' if ActiveSupport::VERSION &&
                                           ActiveSupport::VERSION::MAJOR &&
                                           ActiveSupport::VERSION::MAJOR < 4

@@ -408,12 +408,94 @@ describe Grape::Entity do
               'result'
             end
 
+            def method_with_only_optional_args(_optional1 = 1, _optional2 = 2)
+              'result'
+            end
+
+            def method_with_required_and_optional_args(_required_arg, _optional1 = 1, _optional2 = 2)
+              'result'
+            end
+
+            def method_with_optional_args_as_a_splat(*_optional_args)
+              'result'
+            end
+
+            def method_with_optional_kwargs_as_a_splat(**_kwargs)
+              'result'
+            end
+
+            def method_with_required_kwargs(_required:)
+              'result'
+            end
+
+            def method_with_optional_args_and_kwargs_as_a_splat(*_args, **_kwargs)
+              'result'
+            end
+
+            def method_with_required_args_and_an_optional_splat(_required_arg, *_optional_args)
+              'result'
+            end
+
             def method_with_multiple_args(_object, _options)
               'result'
             end
 
             def raises_argument_error
               raise ArgumentError, 'something different'
+            end
+
+            private
+
+            def private_method_with_required_arg(_required_arg)
+              'result'
+            end
+          end
+
+          class SomeObjectWithMethodMissing
+            def method_missing(method, ...)
+              if method.to_sym == :method_without_args
+                method_without_args_impl(...)
+              elsif method.to_sym == :method_with_args
+                method_with_args_impl(...)
+              else
+                super
+              end
+            end
+
+            def method_without_args_impl
+              'result'
+            end
+
+            def method_with_args_impl(_required_arg)
+              'result'
+            end
+
+            private
+
+            def respond_to_missing?(method, include_private = false) # rubocop:disable Style/OptionalBooleanParameter
+              method.to_sym == :method_without_args ||
+                method.to_sym == :method_with_args ||
+                super
+            end
+          end
+
+          class SomeObjectWithDelegation
+            class InnerDelegate
+              def method_without_args
+                'result'
+              end
+
+              def method_with_args(_required_arg)
+                'result'
+              end
+            end
+
+            delegate :method_without_args,
+                     :method_with_args,
+                     to: :delegate_object
+
+            def delegate_object
+              @delegate_object ||= InnerDelegate.new
             end
           end
 
@@ -457,6 +539,198 @@ describe Grape::Entity do
               value = subject.represent(object).value_for(:that_method_without_args_again)
               expect(value).to eq('result')
             end
+
+            it 'raises a curated `ArgumentError` for private methods with required arguments' do
+              subject.expose :that_private_method_with_required_arg, &:private_method_with_required_arg
+
+              object = SomeObject.new
+
+              expect do
+                subject.represent(object).value_for(:that_private_method_with_required_arg)
+              end.to raise_error ArgumentError, include('method expects 1 argument.')
+            end
+
+            it 'treats a source-less lambda shaped like symbol-to-proc as a one-argument exposure block' do
+              block = lambda do |object, *args|
+                raise ArgumentError, "expected no trailing args, got #{args.inspect}" unless args.empty?
+
+                object.method_without_args
+              end
+
+              def block.source_location
+                nil
+              end
+
+              def block.to_s
+                '#<Proc:0x123456 (lambda)>'
+              end
+
+              subject.expose :that_method_without_args, &block
+
+              object = SomeObject.new
+
+              expect(subject.represent(object).value_for(:that_method_without_args)).to eq('result')
+            end
+          end
+
+          context 'with block passed in via & that references a method with optional args' do
+            it 'succeeds if there are no required arguments' do
+              subject.expose :that_method_with_only_optional_args, &:method_with_only_optional_args
+              subject.expose :method_with_only_optional_args, as: :that_method_with_only_optional_args_again
+
+              object = SomeObject.new
+
+              expect(subject.represent(object).serializable_hash).to eq(
+                that_method_with_only_optional_args: 'result',
+                that_method_with_only_optional_args_again: 'result'
+              )
+            end
+
+            it 'raises an `ArgumentError` if there are required arguments' do
+              subject.expose :that_method_with_required_and_optional_args, &:method_with_required_and_optional_args
+              subject.expose :method_with_required_and_optional_args, as: :that_method_with_required_and_optional_args_again
+
+              object = SomeObject.new
+
+              expect do
+                subject.represent(object).value_for(:that_method_with_required_and_optional_args)
+              end.to raise_error ArgumentError, include('method expects 1 argument.')
+
+              expect do
+                subject.represent(object).value_for(:that_method_with_required_and_optional_args_again)
+              end.to raise_error ArgumentError, /given 0, expected 1/
+            end
+          end
+
+          context 'with block passed in via & that references a method with optional args as a splat' do
+            specify do
+              subject.expose :that_method_with_optional_args_as_a_splat, &:method_with_optional_args_as_a_splat
+              subject.expose :method_with_optional_args_as_a_splat, as: :that_method_with_optional_args_as_a_splat_again
+
+              object = SomeObject.new
+
+              expect(subject.represent(object).serializable_hash).to eq(
+                that_method_with_optional_args_as_a_splat: 'result',
+                that_method_with_optional_args_as_a_splat_again: 'result'
+              )
+            end
+
+            it 'raises an `ArgumentError` if there are required arguments' do
+              subject.expose :that_method_with_required_args_and_an_optional_splat, &:method_with_required_args_and_an_optional_splat
+              subject.expose :method_with_required_args_and_an_optional_splat, as: :that_method_with_required_args_and_an_optional_splat_again
+
+              object = SomeObject.new
+
+              expect do
+                subject.represent(object).value_for(:that_method_with_required_args_and_an_optional_splat)
+              end.to raise_error ArgumentError, include('method expects 1 argument or more.')
+
+              expect do
+                subject.represent(object).value_for(:that_method_with_required_args_and_an_optional_splat_again)
+              end.to raise_error ArgumentError, /given 0, expected 1/
+            end
+          end
+
+          context 'with block passed in via & that references a method with optional kwargs as a splat' do
+            specify do
+              subject.expose :that_method_with_optional_kwargs_as_a_splat, &:method_with_optional_kwargs_as_a_splat
+              subject.expose :method_with_optional_kwargs_as_a_splat, as: :that_method_with_optional_kwargs_as_a_splat_again
+
+              object = SomeObject.new
+
+              expect(subject.represent(object).serializable_hash).to eq(
+                that_method_with_optional_kwargs_as_a_splat: 'result',
+                that_method_with_optional_kwargs_as_a_splat_again: 'result'
+              )
+            end
+          end
+
+          context 'with block passed in via & that references a method with required kwargs' do
+            it 'raises an `ArgumentError` if there are required keyword arguments' do
+              subject.expose :that_method_with_required_kwargs, &:method_with_required_kwargs
+
+              object = SomeObject.new
+
+              expect do
+                subject.represent(object).value_for(:that_method_with_required_kwargs)
+              end.to raise_error ArgumentError, include('method expects 1 keyword argument.')
+            end
+          end
+
+          context 'with block passed in via & that references a method with optional args and kwargs as a splat' do
+            specify do
+              subject.expose :that_method_with_optional_args_and_kwargs_as_a_splat, &:method_with_optional_args_and_kwargs_as_a_splat
+              subject.expose :method_with_optional_args_and_kwargs_as_a_splat, as: :that_method_with_optional_args_and_kwargs_as_a_splat_again
+
+              object = SomeObject.new
+
+              expect(subject.represent(object).serializable_hash).to eq(
+                that_method_with_optional_args_and_kwargs_as_a_splat: 'result',
+                that_method_with_optional_args_and_kwargs_as_a_splat_again: 'result'
+              )
+            end
+          end
+
+          context 'with block passed in via & that references a method implemented using `method_missing`' do
+            specify 'succeeds for a zero-required-arg method_missing-backed method' do
+              subject.expose :that_method_without_args, &:method_without_args
+              subject.expose :method_without_args, as: :that_method_without_args_again
+
+              object = SomeObjectWithMethodMissing.new
+
+              expect(subject.represent(object).serializable_hash).to eq(
+                that_method_without_args: 'result',
+                that_method_without_args_again: 'result'
+              )
+            end
+
+            it 'raises an `ArgumentError` if there are required arguments' do
+              subject.expose :that_method_with_args, &:method_with_args
+              subject.expose :method_with_args, as: :that_method_with_args_again
+
+              object = SomeObjectWithMethodMissing.new
+
+              # NOTE: object.method(:method_with_args) is not available for this method_missing proxy,
+              # so Ruby raises a native error at call time instead of the curated grape-entity message.
+              expect do
+                subject.represent(object).value_for(:that_method_with_args)
+              end.to raise_error ArgumentError, /given 0, expected 1/
+
+              expect do
+                subject.represent(object).value_for(:that_method_with_args_again)
+              end.to raise_error ArgumentError, /given 0, expected 1/
+            end
+          end
+
+          context 'with block passed in via & that references a method implemented using `delegate`' do
+            specify 'succeeds for a zero-required-arg delegate-backed method' do
+              subject.expose :that_method_without_args, &:method_without_args
+              subject.expose :method_without_args, as: :that_method_without_args_again
+
+              object = SomeObjectWithDelegation.new
+
+              expect(subject.represent(object).serializable_hash).to eq(
+                that_method_without_args: 'result',
+                that_method_without_args_again: 'result'
+              )
+            end
+
+            it 'raises an `ArgumentError` if there are required arguments' do
+              subject.expose :that_method_with_args, &:method_with_args
+              subject.expose :method_with_args, as: :that_method_with_args_again
+
+              object = SomeObjectWithDelegation.new
+
+              # NOTE: delegation wrappers expose variable arity, so Ruby raises a native error
+              # at call time instead of the curated grape-entity message.
+              expect do
+                subject.represent(object).value_for(:that_method_with_args)
+              end.to raise_error ArgumentError, /given 0, expected 1/
+
+              expect do
+                subject.represent(object).value_for(:that_method_with_args_again)
+              end.to raise_error ArgumentError, /given 0, expected 1/
+            end
           end
 
           context 'with block passed in via &' do
@@ -468,11 +742,11 @@ describe Grape::Entity do
 
               expect do
                 subject.represent(object).value_for(:that_method_with_one_arg)
-              end.to raise_error ArgumentError, match(/method expects 1 argument/)
+              end.to raise_error ArgumentError, include('method expects 1 argument.')
 
               expect do
                 subject.represent(object).value_for(:that_method_with_multple_args)
-              end.to raise_error ArgumentError, match(/method expects 2 arguments/)
+              end.to raise_error ArgumentError, include('method expects 2 arguments.')
             end
           end
 
@@ -484,7 +758,7 @@ describe Grape::Entity do
 
               expect do
                 subject.represent(object).value_for(:that_undefined_method)
-              end.to raise_error ArgumentError, match(/method is not defined in the object/)
+              end.to raise_error NoMethodError
             end
           end
 
