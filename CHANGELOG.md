@@ -2,13 +2,13 @@
 
 #### Features
 
-* [#406](https://github.com/ruby-grape/grape-entity/pull/406): Handle symbol-to-proc wrappers (`&:method_name`) where the method uses `delegate` or `method_missing` - [@marcrohloff](https://github.com/marcrohloff).
 * Your contribution here.
 
 #### Fixes
 
 * Your contribution here.
 * [#404](https://github.com/ruby-grape/grape-entity/pull/404): Drop `MultiJson` dependency, use `Hash#to_json` for ActiveSupport-aware serialization - [@numbata](https://github.com/numbata).
+* [#406](https://github.com/ruby-grape/grape-entity/pull/406): Handle symbol-to-proc wrappers (`&:method_name`) where the method uses `delegate` or `method_missing` - [@marcrohloff](https://github.com/marcrohloff).
 
 ### 1.0.4 (2026-04-17)
 

@@ -534,27 +534,35 @@ module Grape
     end
 
     def ensure_block_arity!(block)
-      # MRI currently always includes "( &:foo )" for symbol-to-proc wrappers.
-      # If this format changes in a new Ruby version, this logic must be updated.
-      origin_method_name = block.to_s.scan(/(?<=\(&:)[^)]+(?=\))/).first&.to_sym
-      return unless origin_method_name
+      # Strict anchor to match MRI Proc#to_s format for symbol-to-proc: #<Proc:0x0...(&:method_name) (lambda)>
+      match = block.to_s.match(/\A#<Proc:(?:0x)?\h+\(&:(?<name>.+)\) \(lambda\)>\z/)
+      return unless match # Unrecognized format -> bail safe rather than misidentify
 
-      unless object.respond_to?(origin_method_name, true)
-        raise ArgumentError, <<~MSG
-          Cannot use `&:#{origin_method_name}` because that method is not defined in the object.
-        MSG
-      end
+      origin_method_name = match[:name].to_sym
+      required_positional_arg_count, variadic = positional_arity_for(origin_method_name)
+      return unless required_positional_arg_count
 
-      # Ensure that the function does not require any positional args
-      # (functions defined using `delegate` or `method_missing` take an arg of `*rest`
-      arity = object.method(origin_method_name).arity
-      required_positional_arg_count = arity >= 0 ? arity : -arity - 1
-      return if required_positional_arg_count.zero?
+      expected_suffix = required_positional_arg_count == 1 ? 'argument' : 'arguments'
+      expected_suffix += ' or more' if variadic
 
       raise ArgumentError, <<~MSG
-        Cannot use `&:#{origin_method_name}` because that method expects #{required_positional_arg_count} argument#{'s' if required_positional_arg_count != 1}.
-        Symbol‐to‐proc shorthand only works for zero‐argument methods.
+        Cannot use `&:#{origin_method_name}` because that method expects #{required_positional_arg_count} #{expected_suffix}.
+        Symbol-to-proc shorthand only works for methods that can be called with no arguments.
       MSG
+    end
+
+    def positional_arity_for(method_name)
+      origin_method = object.method(method_name)
+      return nil if origin_method.parameters.any? { |type, _| type == :keyreq }
+
+      arity = origin_method.arity
+      required_positional_arg_count = arity >= 0 ? arity : -arity - 1
+      return nil if required_positional_arg_count.zero?
+
+      [required_positional_arg_count, arity.negative?]
+    rescue NameError
+      # Delegation wrappers and method_missing proxies may not expose a Method; let Ruby raise natively at call time.
+      nil
     end
 
     def symbol_to_proc_wrapper?(block)
