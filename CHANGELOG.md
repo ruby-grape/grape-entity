@@ -1,3 +1,14 @@
+### Next release
+
+#### Fixes
+
+* Your contribution here.
+
+#### Features
+
+* Your contribution here.
+
+
 ### 1.1.0 (2026-06-05)
 
 #### Features
