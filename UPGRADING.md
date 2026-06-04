@@ -1,7 +1,14 @@
 # Upgrading Grape Entity
 
+### Upgrading to >= 1.1.0
+
+`multi_json` gem is no longer a runtime dependency. Applications that relied on a configured `MultiJson` adapter should add it to their own `Gemfile`.
+
+`expose :x, &:missing_method` no longer raises `ArgumentError` at definition time. Unknown methods now raise a native `NoMethodError` at call time.
+If you rescue `ArgumentError` around entity rendering to catch typos in method names, update those rescue clauses to `NoMethodError`.
 
 ### Upgrading to >= 0.10.2
+
 Official support for `FetchableObject` was removed.
 
 See [#352](https://github.com/ruby-grape/grape-entity/pull/369) for more information.

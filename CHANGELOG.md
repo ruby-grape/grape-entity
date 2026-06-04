@@ -1,14 +1,13 @@
-### Next Release
+### 1.1.0 (2026-06-05)
 
 #### Features
 
-* Your contribution here.
+* [#404](https://github.com/ruby-grape/grape-entity/pull/404): Drop `MultiJson` dependency, use `Hash#to_json` for ActiveSupport-aware serialization - [@numbata](https://github.com/numbata).
 
 #### Fixes
 
-* Your contribution here.
-* [#404](https://github.com/ruby-grape/grape-entity/pull/404): Drop `MultiJson` dependency, use `Hash#to_json` for ActiveSupport-aware serialization - [@numbata](https://github.com/numbata).
 * [#406](https://github.com/ruby-grape/grape-entity/pull/406): Handle symbol-to-proc wrappers (`&:method_name`) where the method uses `delegate` or `method_missing`, and let unknown methods raise a native `NoMethodError` - [@marcrohloff](https://github.com/marcrohloff).
+
 
 ### 1.0.4 (2026-04-17)
 
@@ -16,6 +15,7 @@
 
 * [#405](https://github.com/ruby-grape/grape-entity/pull/405): Fix `Time` serialization regression by reverting #385 and restoring `MultiJson.dump` - [@numbata](https://github.com/numbata).
 * [#402](https://github.com/ruby-grape/grape-entity/pull/402): Remove `Json::ParseError` assignment - [@olivier-thatch](https://github.com/olivier-thatch).
+
 
 ### 1.0.3 (2026-04-15)
 
