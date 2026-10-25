@@ -122,7 +122,7 @@ module Grape
               result = yield(exposure, new_options)
               out.add(exposure, result)
             end
-          end
+          end.output
         end
       end
     end

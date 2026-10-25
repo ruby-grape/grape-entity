@@ -1008,6 +1008,16 @@ describe Grape::Entity do
               awesome: { just_a_key: 'value', just_another_key: 'value' }
             )
           end
+
+          it 'returns the same result when serializable_hash is called repeatedly' do
+            subject.expose(:tags, merge: true) { |_| %w[a b] }
+            subject.expose(:name)
+
+            entity = subject.represent(name: 'John')
+            expected = ['a', 'b', { name: 'John' }]
+
+            2.times { expect(entity.serializable_hash).to eq(expected) }
+          end
         end
       end
 
@@ -1702,7 +1712,6 @@ describe Grape::Entity do
         subject.expose :my_items
 
         representation = subject.represent(Array.new(4) { Object.new }, serializable: true)
-        expect(representation).to be_kind_of(Grape::Entity::Exposure::NestingExposure::OutputBuilder)
         expect(representation).to be_kind_of(Hash)
         expect(representation).to have_key :my_items
         expect(representation[:my_items]).to be_kind_of Array
