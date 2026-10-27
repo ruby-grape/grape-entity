@@ -33,13 +33,12 @@ describe Grape::Entity do
         end
 
         it 'makes sure that :format_with as a proc cannot be used with a block' do
-          # rubocop:disable Style/BlockDelimiters
+          # rubocop:disable-next Style/BlockDelimiters
           expect {
             subject.expose :name, format_with: proc {} do
               p 'hi'
             end
           }.to raise_error ArgumentError
-          # rubocop:enable Style/BlockDelimiters
         end
 
         it 'makes sure unknown options are not silently ignored' do
@@ -2303,12 +2302,11 @@ describe Grape::Entity do
             end
           end
 
-          # rubocop:disable Lint/EmptyBlock
+          # rubocop:disable-next Lint/EmptyBlock
           fresh_class.class_eval do
             expose :first_friend, using: EntitySpec::FriendEntity do |_user, _opts|
             end
           end
-          # rubocop:enable Lint/EmptyBlock
 
           rep = subject.value_for(:first_friend)
           expect(rep).to be_kind_of EntitySpec::FriendEntity
