@@ -24,7 +24,8 @@ group :test do
   gem 'danger', require: false
   gem 'danger-changelog', require: false
   gem 'danger-pr-comment', require: false
-  gem 'git', '< 6' # danger 9.6 references Git::Base, which git 6 no longer loads eagerly; drop once danger supports git 6
+  # danger 9.6 references Git::Base, which git 6 no longer loads eagerly; drop once danger supports git 6
+  gem 'git', '< 6'
   gem 'growl'
   gem 'guard'
   gem 'guard-bundler'
