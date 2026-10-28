@@ -2,10 +2,12 @@
 
 #### Fixes
 
+* [#411](https://github.com/ruby-grape/grape-entity/pull/411): Pin `json` below 3.1 on Ruby 3.0 in the test bundle to avoid the `quirks_mode` incompatibility with activesupport 7.1 - [@numbata](https://github.com/numbata).
 * Your contribution here.
 
 #### Features
 
+* [#411](https://github.com/ruby-grape/grape-entity/pull/411): Add Ruby 4.0 to the CI matrix - [@numbata](https://github.com/numbata).
 * Your contribution here.
 
 
