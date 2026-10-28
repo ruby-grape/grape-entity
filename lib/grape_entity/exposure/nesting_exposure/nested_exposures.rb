@@ -36,7 +36,7 @@ module Grape
             @exposures.clear
           end
 
-          # rubocop:disable Style/DocumentDynamicEvalDefinition
+          # rubocop:disable-next Style/DocumentDynamicEvalDefinition
           %i[
             each
             to_ary to_a
@@ -56,7 +56,6 @@ module Grape
               end
             RUBY
           end
-          # rubocop:enable Style/DocumentDynamicEvalDefinition
 
           # Determine if we have any nesting exposures with the same name.
           def deep_complex_nesting?(entity)

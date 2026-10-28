@@ -190,7 +190,7 @@ module Grape
     #   field, typically the value is a hash with two fields, type and desc.
     # @option options :merge This option allows you to merge an exposed field to the root
     #
-    # rubocop:disable Layout/LineLength
+    # rubocop:disable-next Layout/LineLength
     def self.expose(*args, &block)
       options = merge_options(args.last.is_a?(Hash) ? args.pop : {})
 
@@ -217,7 +217,6 @@ module Grape
       @nesting_stack ||= []
       args.each { |attribute| build_exposure_for_attribute(attribute, @nesting_stack, options, block) }
     end
-    # rubocop:enable Layout/LineLength
 
     def self.build_exposure_for_attribute(attribute, nesting_stack, options, block)
       exposure_list = nesting_stack.empty? ? root_exposures : nesting_stack.last.nested_exposures
