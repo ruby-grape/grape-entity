@@ -6,8 +6,8 @@ gemspec
 
 group :development, :test do
   gem 'bundler'
-  # activesupport 7.1 (the newest on Ruby 3.0) passes `quirks_mode:` to JSON.generate, which json 3.1 removed
-  gem 'json', '< 3.1' if RUBY_VERSION < '3.1'
+  # activesupport 7.1 (the newest on Ruby 3.0) passes `quirks_mode:` to JSON.generate, which json 3.0 removed
+  gem 'json', '< 3.0' if RUBY_VERSION < '3.1'
   gem 'maruku'
   gem 'ostruct' # no longer a default gem in Ruby 4.0
   gem 'pry' unless RUBY_PLATFORM.eql?('java') || RUBY_ENGINE.eql?('rbx')
