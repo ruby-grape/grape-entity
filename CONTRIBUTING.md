@@ -52,7 +52,7 @@ Document any external behavior in the [README](README.md).
 
 #### Update Changelog
 
-Add a line to [CHANGELOG](CHANGELOG.md) under *Next Release*. Make it look like every other line, including your name and link to your Github account.
+Add a line to [CHANGELOG](CHANGELOG.md) under the unreleased `(Next)` section. Make it look like every other line, including your name and link to your Github account.
 
 #### Commit Changes
 
