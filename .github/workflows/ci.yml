@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   rubocop:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # no ubuntu-26.04 builds of Ruby 3.0/3.1 yet; revisit when ubuntu-latest moves
     steps:
       - uses: actions/checkout@v7
       - uses: ruby/setup-ruby@v1
@@ -24,7 +24,7 @@ jobs:
         run: bundle exec rubocop --parallel --format progress
 
   rspec:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # no ubuntu-26.04 builds of Ruby 3.0/3.1 yet; revisit when ubuntu-latest moves
     needs: ['rubocop']
     strategy:
       matrix:
