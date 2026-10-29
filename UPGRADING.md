@@ -1,5 +1,13 @@
 # Upgrading Grape Entity
 
+
+### Upgrading to >= 1.2.0
+
+`serializable_hash` and `represent(..., serializable: true)` now return a plain `Hash` or `Array` instead of `Grape::Entity::Exposure::NestingExposure::OutputBuilder`.
+Checks such as `result.is_a?(Grape::Entity::Exposure::NestingExposure::OutputBuilder)` no longer match, and `result.__getobj__` raises `NoMethodError`. Use the result directly as a `Hash` or `Array` instead.
+
+See [#408](https://github.com/ruby-grape/grape-entity/pull/408) for more information.
+
 ### Upgrading to >= 1.1.0
 
 `multi_json` gem is no longer a runtime dependency. Applications that relied on a configured `MultiJson` adapter should add it to their own `Gemfile`.

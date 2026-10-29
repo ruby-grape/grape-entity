@@ -6,6 +6,7 @@
 
 #### Features
 
+* [#408](https://github.com/ruby-grape/grape-entity/pull/408): Return a plain `Hash`/`Array` from `serializable_hash` and `represent(..., serializable: true)` instead of an `OutputBuilder` for faster serialization. `Hash === result`, `Array === result` and `case`/`when` against the result now match - [@a5-stable](https://github.com/a5-stable).
 * Your contribution here.
 
 

@@ -33,13 +33,12 @@ describe Grape::Entity do
         end
 
         it 'makes sure that :format_with as a proc cannot be used with a block' do
-          # rubocop:disable Style/BlockDelimiters
+          # rubocop:disable-next Style/BlockDelimiters
           expect {
             subject.expose :name, format_with: proc {} do
               p 'hi'
             end
           }.to raise_error ArgumentError
-          # rubocop:enable Style/BlockDelimiters
         end
 
         it 'makes sure unknown options are not silently ignored' do
@@ -1008,6 +1007,16 @@ describe Grape::Entity do
               awesome: { just_a_key: 'value', just_another_key: 'value' }
             )
           end
+
+          it 'returns the same result when serializable_hash is called repeatedly' do
+            subject.expose(:tags, merge: true) { |_| %w[a b] }
+            subject.expose(:name)
+
+            entity = subject.represent(name: 'John')
+            expected = ['a', 'b', { name: 'John' }]
+
+            2.times { expect(entity.serializable_hash).to eq(expected) }
+          end
         end
       end
 
@@ -1702,7 +1711,6 @@ describe Grape::Entity do
         subject.expose :my_items
 
         representation = subject.represent(Array.new(4) { Object.new }, serializable: true)
-        expect(representation).to be_kind_of(Grape::Entity::Exposure::NestingExposure::OutputBuilder)
         expect(representation).to be_kind_of(Hash)
         expect(representation).to have_key :my_items
         expect(representation[:my_items]).to be_kind_of Array
@@ -2294,12 +2302,11 @@ describe Grape::Entity do
             end
           end
 
-          # rubocop:disable Lint/EmptyBlock
+          # rubocop:disable-next Lint/EmptyBlock
           fresh_class.class_eval do
             expose :first_friend, using: EntitySpec::FriendEntity do |_user, _opts|
             end
           end
-          # rubocop:enable Lint/EmptyBlock
 
           rep = subject.value_for(:first_friend)
           expect(rep).to be_kind_of EntitySpec::FriendEntity
