@@ -4,13 +4,11 @@ module Grape
   class Entity
     module Exposure
       class NestingExposure
-        class OutputBuilder < SimpleDelegator
+        class OutputBuilder
           def initialize(entity)
             @entity = entity
             @output_hash = {}
             @output_collection = []
-
-            super
           end
 
           def add(exposure, result)
@@ -28,28 +26,16 @@ module Grape
             end
           end
 
-          def kind_of?(klass)
-            klass == output.class || super
-          end
-          alias is_a? kind_of?
+          # If output_collection contains at least one element we have to represent the output as a collection
+          def output
+            return @output_hash if @output_collection.empty?
 
-          def __getobj__
-            output
+            result = @output_collection.dup
+            result << @output_hash unless @output_hash.empty?
+            result.flatten
           end
 
           private
-
-          # If output_collection contains at least one element we have to represent the output as a collection
-          def output
-            if @output_collection.empty?
-              output = @output_hash
-            else
-              output = @output_collection
-              output << @output_hash unless @output_hash.empty?
-              output.flatten!
-            end
-            output
-          end
 
           # In case if we want to solve collisions providing lambda to :merge option
           def merge_strategy(for_merge)
